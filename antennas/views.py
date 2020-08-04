@@ -121,7 +121,7 @@ class Chronograf(ExternalChildTab):
 
     tab_label = "Chronograf"
     tab_id = "Chronograf"
-    url = "https://enterprise.sese.asu.edu:8484"
+    url = "https://galileo.sese.asu.edu:8888/"
 
 
 class Grafana(ExternalChildTab):
@@ -129,7 +129,7 @@ class Grafana(ExternalChildTab):
 
     tab_label = "Grafana"
     tab_id = "Grafana"
-    url = "https://galileo.sese.asu.edu:8888/"
+    url = "https://enterprise.sese.asu.edu:8484"
 
 
 class TimeDomain(BaseTab):
