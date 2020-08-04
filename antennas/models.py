@@ -8,14 +8,19 @@ from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
+
 class Antenna(models.Model):
     ant_number = models.IntegerField()
     polarization = models.CharField(max_length=1)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["ant_number", "polarization"], name="unique antpol"),
-            models.CheckConstraint(check=models.Q(ant_number__lte=350), name="ant_num_lte_350"),
+            models.UniqueConstraint(
+                fields=["ant_number", "polarization"], name="unique antpol"
+            ),
+            models.CheckConstraint(
+                check=models.Q(ant_number__lte=350), name="ant_num_lte_350"
+            ),
         ]
 
     def __str__(self):
@@ -71,9 +76,9 @@ class AntennaStatus(models.Model):
         now = timezone.now()
         return now - datetime.TimeDelta(days=1) <= self.time <= now
 
-    status_is_recent.admin_order_field = 'time'
+    status_is_recent.admin_order_field = "time"
     status_is_recent.boolean = True
-    status_is_recent.short_description = 'Recent Status?'
+    status_is_recent.short_description = "Recent Status?"
 
     def clean(self):
         if len(self.frequencies) != len(self.spectra):
@@ -81,10 +86,8 @@ class AntennaStatus(models.Model):
                 "Input frequencies and spectra must be the same length."
             )
         if len(self.frequencies) != len(self.eq_coeffs):
-             raise ValidationError(
-                 "Input frequencies and eq_coeffs must be the same length."
-             )
-        if not 0 <= self.snap_channel_number <= 7:
             raise ValidationError(
-                "snap_channel_number must be in the range [0,7]."
+                "Input frequencies and eq_coeffs must be the same length."
             )
+        if not 0 <= self.snap_channel_number <= 7:
+            raise ValidationError("snap_channel_number must be in the range [0,7].")

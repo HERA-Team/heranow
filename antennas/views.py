@@ -1,12 +1,8 @@
-import datetime
-
 import logging
 
 
 from tabination.views import TabView
-from django.shortcuts import render, redirect
-
-from .models import AntennaStatus
+from django.shortcuts import redirect
 
 
 logger = logging.getLogger(__name__)
@@ -63,7 +59,6 @@ class AutoSpectra(ChildTab):
     template_name = "refresh_with_table.html"
 
 
-
 class ADCHistograms(ChildTab):
     """Link to ADC histograms."""
 
@@ -106,7 +101,6 @@ class SNAPSpectra(ChildTab):
     tab_id = "snapspectra"
 
 
-
 class DetailedPages(BaseTab):
     """A detailed list of pages in heranow."""
 
@@ -118,7 +112,7 @@ class DetailedPages(BaseTab):
         "adchists",
         "compute",
         "qm",
-        "snapspectra"
+        "snapspectra",
     ]
 
 
@@ -158,9 +152,10 @@ class DailyLog(ExternalChildTab):
 
     tab_label = "New Daily Log"
     tab_id = "DailyLog"
-    url = ("https://github.com/HERA-Team/HERA_Commissioning/issues/"
-           "new?assignees=&labels=Daily&template=daily-log.md&"
-           "title=Observing+report+2458XXX"
+    url = (
+        "https://github.com/HERA-Team/HERA_Commissioning/issues/"
+        "new?assignees=&labels=Daily&template=daily-log.md&"
+        "title=Observing+report+2458XXX"
     )
 
 

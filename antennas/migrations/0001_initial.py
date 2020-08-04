@@ -9,45 +9,124 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Antenna',
+            name="Antenna",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ant_number', models.IntegerField()),
-                ('polarization', models.CharField(max_length=1)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("ant_number", models.IntegerField()),
+                ("polarization", models.CharField(max_length=1)),
             ],
         ),
         migrations.CreateModel(
-            name='AntennaStatus',
+            name="AntennaStatus",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('spectra', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
-                ('frequencies', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
-                ('time', models.DateTimeField(verbose_name='Status Time')),
-                ('snap_hostname', models.CharField(max_length=200)),
-                ('snap_channel_number', models.PositiveSmallIntegerField()),
-                ('fem_id', models.CharField(max_length=200)),
-                ('fem_lna_power', models.BooleanField()),
-                ('fem_imu', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=2)),
-                ('fem_temp', models.FloatField()),
-                ('fft_overflow', models.BooleanField()),
-                ('eq_coeffs', django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None)),
-                ('adc_hist', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(), size=None), size=None)),
-                ('fem_switch', models.CharField(choices=[('ANT', 'Antenna'), ('LOAD', 'Load'), ('NOISE', 'Noise')], max_length=5)),
-                ('apriori_status', models.CharField(choices=[('DhM', 'Dist Maintenance'), ('DhO', 'Dist OK'), ('RFM', 'RF Maintenance'), ('RFO', 'RF OK'), ('DiM', 'Digital Maintenance'), ('DiO', 'Digital OK'), ('CaM', 'Calibration Maintenance'), ('CaO', 'Calibration OK'), ('CaT', 'Calibration Triage')], max_length=3)),
-                ('antenna', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='antennas.Antenna')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "spectra",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.FloatField(), size=None
+                    ),
+                ),
+                (
+                    "frequencies",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.FloatField(), size=None
+                    ),
+                ),
+                ("time", models.DateTimeField(verbose_name="Status Time")),
+                ("snap_hostname", models.CharField(max_length=200)),
+                ("snap_channel_number", models.PositiveSmallIntegerField()),
+                ("fem_id", models.CharField(max_length=200)),
+                ("fem_lna_power", models.BooleanField()),
+                (
+                    "fem_imu",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.FloatField(), size=2
+                    ),
+                ),
+                ("fem_temp", models.FloatField()),
+                ("fft_overflow", models.BooleanField()),
+                (
+                    "eq_coeffs",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.FloatField(), size=None
+                    ),
+                ),
+                (
+                    "adc_hist",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=django.contrib.postgres.fields.ArrayField(
+                            base_field=models.FloatField(), size=None
+                        ),
+                        size=None,
+                    ),
+                ),
+                (
+                    "fem_switch",
+                    models.CharField(
+                        choices=[
+                            ("ANT", "Antenna"),
+                            ("LOAD", "Load"),
+                            ("NOISE", "Noise"),
+                        ],
+                        max_length=5,
+                    ),
+                ),
+                (
+                    "apriori_status",
+                    models.CharField(
+                        choices=[
+                            ("DhM", "Dist Maintenance"),
+                            ("DhO", "Dist OK"),
+                            ("RFM", "RF Maintenance"),
+                            ("RFO", "RF OK"),
+                            ("DiM", "Digital Maintenance"),
+                            ("DiO", "Digital OK"),
+                            ("CaM", "Calibration Maintenance"),
+                            ("CaO", "Calibration OK"),
+                            ("CaT", "Calibration Triage"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
+                (
+                    "antenna",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="antennas.Antenna",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='antenna',
-            constraint=models.UniqueConstraint(fields=('ant_number', 'polarization'), name='unique antpol'),
+            model_name="antenna",
+            constraint=models.UniqueConstraint(
+                fields=("ant_number", "polarization"), name="unique antpol"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='antenna',
-            constraint=models.CheckConstraint(check=models.Q(ant_number__lte=350), name='ant_num_lte_350'),
+            model_name="antenna",
+            constraint=models.CheckConstraint(
+                check=models.Q(ant_number__lte=350), name="ant_num_lte_350"
+            ),
         ),
     ]

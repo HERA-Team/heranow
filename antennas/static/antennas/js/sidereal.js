@@ -13,14 +13,14 @@ longitude = 0 = Greenwich Mean Sidereal Time (GMST)
 longitude negative = West longitude offset
 longitude positive = East longitude offset
 EXAMPLE: West Longitude 117° 31' 51.71988" = -117.5310333°
-*/ 
+*/
 
 // execute this when the form loads
 
 function loadUserSetting()
 {	DefaultLongitude = -74.0060;	// Put YOUR default local longitude here...
 
-clock.longitude.value = DefaultLongitude;	
+clock.longitude.value = DefaultLongitude;
 
 document.getElementById( "longitude" ).readOnly = true;	// no typing in displays allowed
 document.getElementById( "degrees" ).readOnly = true;
@@ -29,7 +29,7 @@ document.getElementById( "seconds" ).readOnly = true;
 document.getElementById( "meridian" ).readOnly = true;
 document.getElementById( "degrees2" ).readOnly = true;
 document.getElementById( "meridian2" ).readOnly = true;
-document.getElementById( "date" ).readOnly = true;	
+document.getElementById( "date" ).readOnly = true;
 document.getElementById( "utc" ).readOnly = true;
 document.getElementById( "gmst" ).readOnly = true;
 document.getElementById( "day" ).readOnly = true;
@@ -42,7 +42,7 @@ UpdateLongitude( InputValue );	// update all longitude displays
 
 }
 
-function UpdateClock()	//loop to keep time displays current 
+function UpdateClock()	//loop to keep time displays current
 {
 var long = parseFloat (clock.longitude.value);	// get longitude variable from current form INPUT text value
 // and convert to floating point number
@@ -53,9 +53,9 @@ var date = now.toLocaleString();	// format date as local full date and 12 hour c
 var utc = now.toUTCString();	// format utc as UTC date & time
 
 var beg = new Date( now.getUTCFullYear() - 1, 11, 31 );	// get last day of previous year in milliseconds
-var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day) 
+var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day)
 
-var mst = getGMST( now );	// get adjusted GMST in degrees for current system time 
+var mst = getGMST( now );	// get adjusted GMST in degrees for current system time
 var mstAngle = mst;	// save for GMST Angle display
 
 // compute integer GMST hour angle deg min sec
@@ -107,7 +107,7 @@ minute = Math.floor( lst );
 
 lst = lst - minute;	//get integer LST second
 lst = lst * 60;
-second = Math.floor( lst ); 
+second = Math.floor( lst );
 // compute GMST time hours minutes seconds
 hours = Math.floor( mst );	// get integer MST hours
 
@@ -117,7 +117,7 @@ minutes = Math.floor( mst );
 
 mst = mst - minutes;	//get integer MST seconds
 mst = mst * 60;
-seconds = Math.floor( mst ); 
+seconds = Math.floor( mst );
 
 document.clock.date.value = " " + date;	// update "clock" form displays
 document.clock.utc.value = " " + utc;
@@ -131,7 +131,7 @@ newtime = window.setTimeout("UpdateClock();", 1000);	// update all clock display
 }
 
 
-function addZero( n )	// adds leading zero if 1 digit number 
+function addZero( n )	// adds leading zero if 1 digit number
 {
 if( n < 10 )
 {
@@ -147,7 +147,7 @@ return n;
 
 function getGMST( now )
 {
-var year = now.getUTCFullYear();	// get UTC from computer clock date & time (var now) 
+var year = now.getUTCFullYear();	// get UTC from computer clock date & time (var now)
 var month = now.getUTCMonth() + 1;
 var day = now.getUTCDate();
 var hour = now.getUTCHours();
@@ -165,14 +165,14 @@ var ly = 2 - lc + Math.floor( lc/4 );	//integer # days / leap year
 var y = Math.floor(365.25 * year);	//integer # days / year
 var m = Math.floor(30.6001 * (month + 1));	//integer # days / month
 
-// now get julian days since J2000.0 
+// now get julian days since J2000.0
 var jd = ly + y + m - 730550.5 + day + (hour + minute/60.0 + second/3600.0)/24.0;
 
 // julian centuries since J2000.0
-var jc = jd/36525.0; 
+var jc = jd/36525.0;
 
 // Greenwich Mean Sidereal Time (GMST) in degrees
-var GMST = 280.46061837 + 360.98564736629*jd + 0.000387933*jc*jc - jc*jc*jc/38710000; 
+var GMST = 280.46061837 + 360.98564736629*jd + 0.000387933*jc*jc - jc*jc*jc/38710000;
 
 if( GMST > 0.0 )	// circle goes round and round, adjust if < 0 or > 360 degrees
 {
@@ -230,12 +230,12 @@ return false;	// prompt entry was a number but out of range so alert user and ig
 else if ( Decimals == 0 )
 {
 InputValue = Math.floor(InputValue);	// no decimals returned
-return InputValue;	// return it!	
+return InputValue;	// return it!
 }
 else
 var InRange = new Number( InputValue );	// prompt entry number within range so create number object
 InputValue = InRange.toFixed( Decimals );	// use number object to round to requested number of decimals
-return InputValue;	// return it!	
+return InputValue;	// return it!
 }
 
 function UpdateLongitude(InputValue)
@@ -278,13 +278,13 @@ var seconds = setDecimal.toFixed(5);	// use number object to round seconds to 5 
 
 document.clock.longitude.value = InputValue + "°";	// update all longitude displays
 
-document.clock.degrees.value = degrees + "°";	
+document.clock.degrees.value = degrees + "°";
 document.clock.minutes.value = addZero( minutes ) + "\'";
 document.clock.seconds.value = addZero( seconds ) + "\"";
 
 document.clock.degrees2.value = document.clock.degrees.value
 document.clock.dminutes.value = addZero( DecMinutes ) + "m";
-document.clock.meridian2.value = document.clock.meridian.value 
+document.clock.meridian2.value = document.clock.meridian.value
 
 }
 
@@ -331,7 +331,7 @@ alert(" SIDEREAL CLOCK Javascript\nYEAR DAY is just the current day of the year 
 function getLST(location)
 {
 	DefaultLongitude = location;	// Put YOUR default local longitude here... AGAIN
-	
+
 	var long = parseFloat (DefaultLongitude);	// get longitude variable from current form INPUT text value
 	// and convert to floating point number
 
@@ -341,9 +341,9 @@ function getLST(location)
 	var utc = now.toUTCString();	// format utc as UTC date & time
 
 	var beg = new Date( now.getUTCFullYear() - 1, 11, 31 );	// get last day of previous year in milliseconds
-	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day) 
+	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day)
 
-	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time 
+	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time
 	var mstAngle = mst;	// save for GMST Angle display
 
 	// compute integer GMST hour angle deg min sec
@@ -395,7 +395,7 @@ function getLST(location)
 
 	lst = lst - minute;	//get integer LST second
 	lst = lst * 60;
-	second = Math.floor( lst ); 
+	second = Math.floor( lst );
 	// compute GMST time hours minutes seconds
 	hours = Math.floor( mst );	// get integer MST hours
 
@@ -405,16 +405,16 @@ function getLST(location)
 
 	mst = mst - minutes;	//get integer MST seconds
 	mst = mst * 60;
-	seconds = Math.floor( mst ); 
-	
-	
+	seconds = Math.floor( mst );
+
+
 	return " " + addZero( hour ) + ":" + addZero( minute ) + ":" + addZero( second );
 }
 
 function getLST1()
 {
 	DefaultLongitude = -74.0060;	// Put YOUR default local longitude here... AGAIN
-	
+
 	var long = parseFloat (DefaultLongitude);	// get longitude variable from current form INPUT text value
 	// and convert to floating point number
 
@@ -424,9 +424,9 @@ function getLST1()
 	var utc = now.toUTCString();	// format utc as UTC date & time
 
 	var beg = new Date( now.getUTCFullYear() - 1, 11, 31 );	// get last day of previous year in milliseconds
-	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day) 
+	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day)
 
-	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time 
+	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time
 	var mstAngle = mst;	// save for GMST Angle display
 
 	// compute integer GMST hour angle deg min sec
@@ -478,7 +478,7 @@ function getLST1()
 
 	lst = lst - minute;	//get integer LST second
 	lst = lst * 60;
-	second = Math.floor( lst ); 
+	second = Math.floor( lst );
 	// compute GMST time hours minutes seconds
 	hours = Math.floor( mst );	// get integer MST hours
 
@@ -488,16 +488,16 @@ function getLST1()
 
 	mst = mst - minutes;	//get integer MST seconds
 	mst = mst * 60;
-	seconds = Math.floor( mst ); 
-	
-	
+	seconds = Math.floor( mst );
+
+
 	return " " + addZero( hour ) + " : " + addZero( minute ) + " : " + addZero( second );
 }
 
 function getLST2()
 {
 	DefaultLongitude = 28.0473;	// Put YOUR default local longitude here... AGAIN
-	
+
 	var long = parseFloat (DefaultLongitude);	// get longitude variable from current form INPUT text value
 	// and convert to floating point number
 
@@ -507,9 +507,9 @@ function getLST2()
 	var utc = now.toUTCString();	// format utc as UTC date & time
 
 	var beg = new Date( now.getUTCFullYear() - 1, 11, 31 );	// get last day of previous year in milliseconds
-	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day) 
+	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day)
 
-	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time 
+	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time
 	var mstAngle = mst;	// save for GMST Angle display
 
 	// compute integer GMST hour angle deg min sec
@@ -561,7 +561,7 @@ function getLST2()
 
 	lst = lst - minute;	//get integer LST second
 	lst = lst * 60;
-	second = Math.floor( lst ); 
+	second = Math.floor( lst );
 	// compute GMST time hours minutes seconds
 	hours = Math.floor( mst );	// get integer MST hours
 
@@ -571,16 +571,16 @@ function getLST2()
 
 	mst = mst - minutes;	//get integer MST seconds
 	mst = mst * 60;
-	seconds = Math.floor( mst ); 
-	
-	
+	seconds = Math.floor( mst );
+
+
 	return " " + addZero( hour ) + " : " + addZero( minute ) + " : " + addZero( second );
 }
 
 function getLST3()
 {
 	DefaultLongitude = 115.8605;	// Put YOUR default local longitude here... AGAIN
-	
+
 	var long = parseFloat (DefaultLongitude);	// get longitude variable from current form INPUT text value
 	// and convert to floating point number
 
@@ -590,9 +590,9 @@ function getLST3()
 	var utc = now.toUTCString();	// format utc as UTC date & time
 
 	var beg = new Date( now.getUTCFullYear() - 1, 11, 31 );	// get last day of previous year in milliseconds
-	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day) 
+	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day)
 
-	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time 
+	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time
 	var mstAngle = mst;	// save for GMST Angle display
 
 	// compute integer GMST hour angle deg min sec
@@ -644,7 +644,7 @@ function getLST3()
 
 	lst = lst - minute;	//get integer LST second
 	lst = lst * 60;
-	second = Math.floor( lst ); 
+	second = Math.floor( lst );
 	// compute GMST time hours minutes seconds
 	hours = Math.floor( mst );	// get integer MST hours
 
@@ -654,16 +654,16 @@ function getLST3()
 
 	mst = mst - minutes;	//get integer MST seconds
 	mst = mst * 60;
-	seconds = Math.floor( mst ); 
-	
-	
+	seconds = Math.floor( mst );
+
+
 	return " " + addZero( hour ) + " : " + addZero( minute ) + " : " + addZero( second );
 }
 
 function getLST4()
 {
 	DefaultLongitude = 151.2093;	// Put YOUR default local longitude here... AGAIN
-	
+
 	var long = parseFloat (DefaultLongitude);	// get longitude variable from current form INPUT text value
 	// and convert to floating point number
 
@@ -673,9 +673,9 @@ function getLST4()
 	var utc = now.toUTCString();	// format utc as UTC date & time
 
 	var beg = new Date( now.getUTCFullYear() - 1, 11, 31 );	// get last day of previous year in milliseconds
-	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day) 
+	var day = Math.floor( ( now - beg ) / 86400000 );	// compute integer day of year (86400000 ms/day)
 
-	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time 
+	var mst = getGMST( now );	// get adjusted GMST in degrees for current system time
 	var mstAngle = mst;	// save for GMST Angle display
 
 	// compute integer GMST hour angle deg min sec
@@ -727,7 +727,7 @@ function getLST4()
 
 	lst = lst - minute;	//get integer LST second
 	lst = lst * 60;
-	second = Math.floor( lst ); 
+	second = Math.floor( lst );
 	// compute GMST time hours minutes seconds
 	hours = Math.floor( mst );	// get integer MST hours
 
@@ -737,9 +737,9 @@ function getLST4()
 
 	mst = mst - minutes;	//get integer MST seconds
 	mst = mst * 60;
-	seconds = Math.floor( mst ); 
-	
-	
+	seconds = Math.floor( mst );
+
+
 	return " " + addZero( hour ) + " : " + addZero( minute ) + " : " + addZero( second );
 }
 
