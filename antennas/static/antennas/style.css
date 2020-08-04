@@ -1,0 +1,47 @@
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+}
+header {
+  margin: 1em;
+}
+.navbar {
+  margin-bottom: 0;
+}
+
+.footer { margin-top: 20px; }
+.librarian-time-bar {
+  padding-right: 15px;
+  font-size: 0.7em;
+  text-align: right;
+  span: right;
+}
+.cropsky {
+  position: absolute;
+  clip: rect(100px,0,100px,0);
+}
+.dashboard-inset-titlebar {
+  text-align: center;
+  margin: 0 auto;
+  background-color: rgb(27, 68, 104);
+  color: white;
+  border-left: 5px solid white;
+  border-right: 5px solid white;
+  height: 1.5em;
+  width: 100%;
+}
+table
+{
+  table-layout:fixed;
+  width:100%;
+}
+tr.noBorder td {
+  border: 0;
+  position: relative;
+  padding: 0;
+}
+iframe {
+ overflow: hidden;
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% extends "home_base.html" %}
+
+{% block content %}
+  <table border=0 style="width: 100%; height: 100%;">
+    <tr class="noBorder" style="height: 30%;">
+        <td style="width: 30%;"><div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="http://heranow.reionization.org/spectra.html">(open in new tab)</a></div>
+          <iframe scrolling="no" src="http://heranow.reionization.org/spectra.html" width=100% height=100% frameborder="0"></iframe></td>
+        <td style="width: 30%;"><div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="http://heranow.reionization.org/hex_amp.html">(open in new tab)</a></div>
+          <iframe scrolling="no" src="http://heranow.reionization.org/hex_amp.html" width=100% height=100% frameborder="0"></iframe></td>
+        <td  rowspan=3 style=" width: 40%; height: 100%;"><div class="dashboard-inset-titlebar">
+            Commissioning Daily Logs -- <a target="_blank" href="http://heranow.reionization.org/issue_log.html">(open in new tab)</a>
+          </div>
+          <iframe scrolling="no" height=100% width=100% src=http://heranow.reionization.org/issue_log.html frameborder="0">
+          </iframe>
+        </td>
+    </tr>
+    <tr class="noBorder"  style="height: 30%;">
+        <td><div class="dashboard-inset-titlebar">Power by Node -- <a target="_blank" href="http://heranow.reionization.org/node_amp.html">(open in new tab)</a></div>
+          <iframe scrolling="no" src="http://heranow.reionization.org/node_amp.html" width=100% height=100% frameborder="0"></iframe></td>
+        <td><div class="dashboard-inset-titlebar">System Summary</div>
+          <iframe scrolling="no" src="http://heranow.reionization.org/mc_html_summary.html" width=100% height=100% frameborder="0"></iframe></td>
+   </tr>
+
+    <tr class="noBorder"  style="height: 20%;">
+      <td>
+        <div style="text-align: center; height: 100%;">
+          <img align="middle" id="radiosky" src="http://heranow.reionization.org/radiosky.png">
+          </img>
+        </div>
+      </td>
+      <td>
+        <iframe width=100% height="100%" src="https://embed.windy.com/embed2.html?lat=-30.411&lon=21&zoom=5&level=surface&overlay=wind&menu=&message=&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=-31.421&detailLon=21&metricWind=default&metricTemp=%C2%B0C&radarRange=-1" frameborder="0">
+        </iframe>
+      </td>
+    </tr>
+
+  </table>
+{% endblock %}

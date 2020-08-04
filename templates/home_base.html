@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block allcontent %}
+    <div class="container-fluid" style="vertical-align: midde;">
+        <div class="row" style="width: 100%; height: 100%;">
+            <div class="col-sm" style="height: 100%; height: 100em; position: relative;">
+                {% block subheading %}{% endblock %}
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
