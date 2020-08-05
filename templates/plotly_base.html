@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block headcontent%}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+{% block allcontent %}
+<div class="container-fluid" style="vertical-align: midde;">
+  {% autoescape off %}
+  {% if plotly_div %}
+    {% for div in plotly_div|listify %}
+     {% if div|islist %}
+        <div class="row-sm-12" style="vertical-align: midde;">
+        {% for sub_div in div %}
+            {{ sub_div|safe }}
+        {% endfor %}
+        </div>
+     {% else %}
+     <div class="row-sm-12" style="vertical-align: midde;">
+       <div class="col-sm-12" style="vertical-align: midde;">
+         {{ div|safe }}
+       </div>
+     </div>
+     {% endif %}
+    {% endfor %}
+  {% else %}
+  <div class="row-sm-12" style="vertical-align: midde;">
+    <div class="col-sm-12" style="vertical-align: midde;">
+      <p style="text-align:center">No data provided.</p>
+    </div>
+  </div>
+
+  {% endif %}
+  {% endautoescape %}
+</div>
+{% endblock %}
+
+{% block footer %}
+      <p class="text-muted text-center"><small><small>
+        {% if data_type is not defined %}
+        Panel last update: <span id="age">???</span> ago at {{ gen_date }}<br>
+        {% endif %}
+        Script name: {{ scriptname }}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Executing host: {{ hostname }}
+        </small></small>
+      </p>
+{% endblock %}

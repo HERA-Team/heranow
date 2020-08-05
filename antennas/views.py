@@ -1,9 +1,12 @@
+import socket
 import logging
 
 
 from tabination.views import TabView
 from django.shortcuts import redirect
 
+from .models import AntennaStatus
+from .plotting_scripts import autospectra
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -16,11 +19,18 @@ class BaseTab(TabView):
     tab_group = "main"
     top = True
 
+    def get_context_data(self, **kwargs):
+        """Add executing hostname to context."""
+        context = super().get_context_data(**kwargs)
+        context["hostname"] = socket.gethostname()
+        return context
 
-class ChildTab(TabView):
+
+class ChildTab(BaseTab):
     """Base class for children tabs in dropdowns."""
 
     _is_tab = False
+    top = False
     tab_group = "main"
 
 
@@ -56,7 +66,19 @@ class AutoSpectra(ChildTab):
 
     tab_label = "Autospectra"
     tab_id = "spectra"
-    template_name = "refresh_with_table.html"
+    template_name = "plotly_base.html"
+
+    def get_context_data(self, **kwargs):
+        """Add auto spectra from the Antenna Status table to context."""
+        context = super().get_context_data(**kwargs)
+        last_status = AntennaStatus.objects.last()
+        if last_status is not None:
+            all_stats = AntennaStatus.objects.filter(time=last_status.time).all()
+            div = autospectra.make_plot(all_stats)
+
+            context["plotly_div"] = div
+
+        return context
 
 
 class ADCHistograms(ChildTab):
