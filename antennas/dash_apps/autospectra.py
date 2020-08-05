@@ -12,7 +12,7 @@ import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
 
-from ..models import AntennaStatus
+from ..models import AutoSpectra
 
 
 max_points = 1000
@@ -30,23 +30,55 @@ dash_app = DjangoDash(
 
 df_full = pd.DataFrame()
 df_down = pd.DataFrame()
-last_status = AntennaStatus.objects.last()
+
+freqs = np.linspace(50, 250, 8192) * 1e6
+spectra = np.cos((freqs - 150e6) / (1e7 * np.pi)) + np.random.normal(
+    0, 0.1, size=freqs.size
+)
+loc = np.random.choice(freqs.size, 10)
+spectra[loc] += 5
+
+loc = np.random.choice(freqs.size, 3)
+spectra[loc] -= 0.5
+last_status = AutoSpectra.objects.last()
 if last_status is not None:
-    all_stats = AntennaStatus.objects.filter(time=last_status.time).order_by("antenna")
-freqs = np.linspace(50, 250, 2048) * 1e6
-spectra = np.random.uniform(0.1, 1, 2048)
-for stat in all_stats:
-    # _freqs = np.asarray(stat.frequencies) / 1e6
-    # _spectra = 10 * np.log10(np.ma.masked_invalid(stat.spectra)).filled(None)
+    all_stats = AutoSpectra.objects.filter(time=last_status.time).order_by("antenna")
+
+    for stat in all_stats:
+        # _freqs = np.asarray(stat.frequencies) / 1e6
+        # _spectra = 10 * np.log10(np.ma.masked_invalid(stat.spectra)).filled(None)
+        _freqs = freqs / 1e6
+        _spectra = spectra
+        data = [
+            {
+                "freqs": f,
+                "spectra": d,
+                "antpol": f"{stat.antenna.ant_number}{stat.antenna.polarization}",
+            }
+            for f, d in zip(_freqs, _spectra)
+        ]
+        df1 = pd.DataFrame(data)
+
+        df_full = df_full.append(df1)
+        downsampled = lttb.downsample(
+            np.stack([_freqs, _spectra,], axis=1),
+            np.round(_freqs.size / 5.0).astype(int) if _freqs.size / 5 > 3 else 3,
+        )
+        data1 = [
+            {
+                "freqs": f,
+                "spectra": d,
+                "antpol": f"{stat.antenna.ant_number}{stat.antenna.polarization}",
+            }
+            for f, d in zip(downsampled[:, 0], downsampled[:, 1])
+        ]
+        df1 = pd.DataFrame(data1)
+        df_down = df_down.append(df1)
+else:
     _freqs = freqs / 1e6
     _spectra = spectra
     data = [
-        {
-            "freqs": f,
-            "spectra": d,
-            "antpol": f"{stat.antenna.ant_number}{stat.antenna.polarization}",
-        }
-        for f, d in zip(_freqs, _spectra)
+        {"freqs": f, "spectra": d, "antpol": "12e",} for f, d in zip(_freqs, _spectra)
     ]
     df1 = pd.DataFrame(data)
 
@@ -56,16 +88,11 @@ for stat in all_stats:
         np.round(_freqs.size / 5.0).astype(int) if _freqs.size / 5 > 3 else 3,
     )
     data1 = [
-        {
-            "freqs": f,
-            "spectra": d,
-            "antpol": f"{stat.antenna.ant_number}{stat.antenna.polarization}",
-        }
+        {"freqs": f, "spectra": d, "antpol": "12e",}
         for f, d in zip(downsampled[:, 0], downsampled[:, 1])
     ]
     df1 = pd.DataFrame(data1)
     df_down = df_down.append(df1)
-
 # Sort according to increasing frequencies and antpols
 df_full = df_full.sort_values(["freqs", "antpol"])
 df_down = df_down.sort_values(["freqs", "antpol"])
@@ -78,7 +105,8 @@ for antpol in df_full.antpol.unique():
         y=df1.spectra,
         name=antpol,
         mode="lines",
-        hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
+        meta=[7],
+        hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]<extra>%{fullData.name}<br>node %{meta[0]}</extra>",
     )
     fig.add_trace(trace)
 
@@ -135,25 +163,27 @@ def draw_undecimated_data(selection):
         new_fig = copy.deepcopy(fig)
         high_res = go.Figure()
         high_res["layout"] = new_fig["layout"]
+        df1 = df_full[(df_full.freqs >= x0) & (df_full.freqs <= x1)]
+
+        df1_down = df_down[(df_down.freqs >= x0) & (df_down.freqs <= x1)]
+
         for antpol in df_full.antpol.unique():
-            df1 = df_full[df_full.antpol == antpol]
-            df1 = df1[(df1.freqs >= x0) & (df1.freqs <= x1)]
+            df2 = df1[df1.antpol == antpol]
 
             trace = go.Scatter(
-                x=df1.freqs,
-                y=df1.spectra,
+                x=df2.freqs,
+                y=df2.spectra,
                 name=antpol,
                 mode="lines",
                 hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
             )
             high_res.add_trace(trace)
 
-            df1 = df_down[df_down.antpol == antpol]
-            df1 = df1[(df_down.freqs >= x0) & (df1.freqs <= x1)]
+            df2 = df1_down[df_down.antpol == antpol]
 
             trace = go.Scatter(
-                x=df1.freqs,
-                y=df1.spectra,
+                x=df2.freqs,
+                y=df2.spectra,
                 name=f"{antpol}-down",
                 mode="markers",
                 hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
@@ -178,13 +208,13 @@ def draw_undecimated_data(selection):
         new_fig = copy.deepcopy(fig)
         high_res = go.Figure()
         high_res["layout"] = new_fig["layout"]
+        df1 = df_down[(df_down.freqs >= x0) & (df_down.freqs <= x1)]
         for antpol in df_full.antpol.unique():
-            df1 = df_down[df_down.antpol == antpol]
-            df1 = df1[(df1.freqs >= x0) & (df1.freqs <= x1)]
+            df2 = df1[df1.antpol == antpol]
 
             trace = go.Scatter(
-                x=df1.freqs,
-                y=df1.spectra,
+                x=df2.freqs,
+                y=df2.spectra,
                 name=antpol,
                 mode="lines",
                 hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
