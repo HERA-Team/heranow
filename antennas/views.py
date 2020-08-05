@@ -5,7 +5,7 @@ import logging
 from tabination.views import TabView
 from django.shortcuts import redirect
 
-from .models import AntennaStatus
+from .models import AntennaStatus, AutoSpectra, AprioriStatus
 from .plotting_scripts import autospectra
 
 logger = logging.getLogger(__name__)
@@ -61,24 +61,12 @@ class home(BaseTab):
     template_name = "index.html"
 
 
-class AutoSpectra(ChildTab):
+class AutoSpectraPlot(ChildTab):
     """Link to autospectra."""
 
     tab_label = "Autospectra"
     tab_id = "spectra"
     template_name = "autospectra.html"
-
-    def get_context_data(self, **kwargs):
-        """Add auto spectra from the Antenna Status table to context."""
-        context = super().get_context_data(**kwargs)
-        last_status = AntennaStatus.objects.last()
-        if last_status is not None:
-            all_stats = AntennaStatus.objects.filter(time=last_status.time).all()
-            div = autospectra.make_plot(all_stats)
-
-            context["plotly_div"] = div
-
-        return context
 
 
 class ADCHistograms(ChildTab):

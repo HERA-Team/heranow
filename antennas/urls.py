@@ -7,7 +7,7 @@ app_name = "antennas"
 
 urlpatterns = [
     path("", views.home.as_view(), name="index"),
-    path("spectra", views.AutoSpectra.as_view(), name="spectra"),
+    path("spectra", views.AutoSpectraPlot.as_view(), name="spectra"),
     path("adchists", views.ADCHistograms.as_view(), name="adchists"),
     path("Chronograf", views.Chronograf.as_view(), name="chronograf"),
     path("Grafana", views.Grafana.as_view(), name="grafana"),
