@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 {% load analytical %}
 {% load static %}
+{% load plotly_dash %}
+
 
 <html lang="en" style="width: 99%;">
   <head>
@@ -19,6 +21,7 @@
 
     {% analytical_head_bottom %}
     {% block headcontent %}{% endblock %}
+    {% plotly_header %}
 </head>
 <body>
 {% analytical_body_top %}
@@ -149,4 +152,5 @@
 
 {% analytical_body_bottom %}
 </body>
+{% plotly_footer %}
 </html>

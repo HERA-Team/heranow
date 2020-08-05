@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load plotly_dash %}
+
+{% block headcontent%}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+{% block allcontent %}
+<div class="container-fluid">
+ <div class="row">
+<div class="col-sm-12" style="padding-left: 4em; padding-right: 2em">
+  {%plotly_direct name="dash_autospectra" %}
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block footer %}
+      <p class="text-muted text-center"><small><small>
+        {% if data_type is not defined %}
+        Panel last update: <span id="age">???</span> ago at {{ gen_date }}<br>
+        {% endif %}
+        Script name: {{ scriptname }}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Executing host: {{ hostname }}
+        </small></small>
+      </p>
+{% endblock %}

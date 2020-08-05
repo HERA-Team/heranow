@@ -66,7 +66,7 @@ class AutoSpectra(ChildTab):
 
     tab_label = "Autospectra"
     tab_id = "spectra"
-    template_name = "plotly_base.html"
+    template_name = "autospectra.html"
 
     def get_context_data(self, **kwargs):
         """Add auto spectra from the Antenna Status table to context."""
