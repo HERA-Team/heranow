@@ -52,8 +52,8 @@ class AntennaStatus(models.Model):
     fem_switch = models.CharField(max_length=5, choices=FemSwitchStates.choices)
 
     class AprioriStatus(models.TextChoices):
-        DISH_MAINTENANCE = "DhM", gettext_lazy("Dist Maintenance")
-        DISH_OK = "DhO", gettext_lazy("Dist OK")
+        DISH_MAINTENANCE = "DhM", gettext_lazy("Dish Maintenance")
+        DISH_OK = "DhO", gettext_lazy("Dish OK")
         RF_MAINTENANCE = "RFM", gettext_lazy("RF Maintenance")
         RF_OK = "RFO", gettext_lazy("RF OK")
         DIGITAL_MAINTENANCE = "DiM", gettext_lazy("Digital Maintenance")
