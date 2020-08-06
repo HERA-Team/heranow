@@ -1,8 +1,11 @@
 """A dash application to plot autospectra."""
-import lttb
+import re
+
 import copy
 import numpy as np
 import pandas as pd
+
+import lttb
 
 import dash
 from dash.dependencies import Input, Output
@@ -12,7 +15,7 @@ import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
 
-from ..models import AutoSpectra
+from ..models import AutoSpectra, AntennaStatus, AprioriStatus
 
 
 max_points = 1000
@@ -45,6 +48,22 @@ if last_specta is not None:
     all_spectra = AutoSpectra.objects.filter(time=last_specta.time).order_by("antenna")
 
     for stat in all_spectra:
+        ant_stat = (
+            AntennaStatus.objects.filter(antenna=stat.antenna).order_by("time").last()
+        )
+        node = "Unknown"
+        if ant_stat is not None:
+            match = re.search(r"heraNode(?P<node>\d+)Snap", ant_stat.snap_hostname)
+            if match is not None:
+                node = int(match.group("node"))
+
+        apriori = "Unknown"
+        apriori_stat = (
+            AprioriStatus.objects.filter(antenna=stat.antenna).order_by("time").last()
+        )
+        if apriori_stat is not None:
+            apriori = apriori_stat.apriori_status
+
         _freqs = np.asarray(stat.frequencies) / 1e6
         _spectra = (10 * np.log10(np.ma.masked_invalid(stat.spectra))).filled(-100)
         # _freqs = freqs / 1e6
@@ -55,23 +74,23 @@ if last_specta is not None:
                 "spectra": d,
                 "ant": stat.antenna.ant_number,
                 "pol": f"{stat.antenna.polarization}",
+                "node": node,
+                "apriori": apriori,
             }
             for f, d in zip(_freqs, _spectra)
         ]
         df1 = pd.DataFrame(data)
 
         df_full = df_full.append(df1)
-        downsampled = lttb.downsample(
-            np.stack([_freqs, _spectra,], axis=1),
-            # np.round(_freqs.size / 5.0).astype(int) if _freqs.size / 5 > 3 else 3,
-            350,
-        )
+        downsampled = lttb.downsample(np.stack([_freqs, _spectra,], axis=1), 350,)
         data1 = [
             {
                 "freqs": f,
                 "spectra": d,
                 "ant": stat.antenna.ant_number,
                 "pol": f"{stat.antenna.polarization}",
+                "node": node,
+                "apriori": apriori,
             }
             for f, d in zip(downsampled[:, 0], downsampled[:, 1])
         ]
@@ -81,7 +100,14 @@ else:
     _freqs = freqs / 1e6
     _spectra = spectra
     data = [
-        {"freqs": f, "spectra": d, "ant": 12, "pol": "e"}
+        {
+            "freqs": f,
+            "spectra": d,
+            "ant": 12,
+            "pol": "e",
+            "node": 13,
+            "apriori": "RF OK",
+        }
         for f, d in zip(_freqs, _spectra)
     ]
     df1 = pd.DataFrame(data)
@@ -92,7 +118,14 @@ else:
         np.round(_freqs.size / 5.0).astype(int) if _freqs.size / 5 > 3 else 3,
     )
     data1 = [
-        {"freqs": f, "spectra": d, "ant": 12, "pol": "e"}
+        {
+            "freqs": f,
+            "spectra": d,
+            "ant": 12,
+            "pol": "e",
+            "node": 13,
+            "apriori": "RF OK",
+        }
         for f, d in zip(downsampled[:, 0], downsampled[:, 1])
     ]
     df1 = pd.DataFrame(data1)
@@ -123,6 +156,10 @@ fig = go.Figure()
 fig["layout"] = layout
 fig2 = go.Figure()
 fig2["layout"] = layout
+hovertemplate = (
+    "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]"
+    "<extra>%{fullData.name}<br>Node: %{meta[0]}<br>Status: %{meta[1]}</extra>"
+)
 
 for ant in df_full.ant.unique():
     df1 = df_down[df_down.ant == ant]
@@ -136,7 +173,8 @@ for ant in df_full.ant.unique():
             y=_df1.spectra,
             name=antpol,
             mode="lines",
-            hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
+            meta=[_df1.node[0], _df1.apriori[0]],
+            hovertemplate=hovertemplate,
         )
         fig.add_trace(trace)
 
@@ -146,7 +184,8 @@ for ant in df_full.ant.unique():
             y=_df2.spectra,
             name=antpol,
             mode="lines",
-            hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
+            meta=[_df2.node[0], _df2.apriori[0]],
+            hovertemplate=hovertemplate,
         )
         fig2.add_trace(trace)
 
