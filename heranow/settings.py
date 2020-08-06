@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_plotly_dash.apps.DjangoPlotlyDashConfig",
     "dpd_static_support",
+    "bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -127,14 +128,17 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
     os.path.join(os.path.join(BASE_DIR, "antennas"), "static"),
+    # os.path.join(BASE_DIR, "static"),
 ]
 # List of finder classes that know how to find static files in
 # various locations.
-STATICFILES_FINDERS = (
+STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-)
-
+    "django_plotly_dash.finders.DashAssetFinder",
+    "django_plotly_dash.finders.DashComponentFinder",
+    "django_plotly_dash.finders.DashAppDirectoryFinder",
+]
 # django_plotly_dash options
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
@@ -142,10 +146,14 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 # be handled by the Django staticfiles infrastructure
 
 PLOTLY_COMPONENTS = [
+    # Common components
     "dash_core_components",
     "dash_html_components",
-    "dash_bootstrap_components",
     "dash_renderer",
+    # django-plotly-dash components
     "dpd_components",
+    # static support if serving local assets
     "dpd_static_support",
+    # Other components, as needed
+    "dash_bootstrap_components",
 ]

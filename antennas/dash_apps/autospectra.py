@@ -6,11 +6,14 @@ import numpy as np
 import pandas as pd
 from itertools import product
 
+from astropy.time import Time
+
 import lttb
 
 import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 import plotly.graph_objs as go
 
@@ -85,6 +88,8 @@ dash_app = DjangoDash(
     meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
     ],
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    add_bootstrap_links=True,
 )
 
 df_full = pd.DataFrame()
@@ -99,9 +104,10 @@ spectra[loc] += 5
 
 loc = np.random.choice(freqs.size, 3)
 spectra[loc] -= 0.5
-last_specta = AutoSpectra.objects.last()
-if last_specta is not None:
-    all_spectra = AutoSpectra.objects.filter(time=last_specta.time).order_by("antenna")
+last_spectra = AutoSpectra.objects.last()
+auto_time = Time(last_spectra.time, format="datetime")
+if last_spectra is not None:
+    all_spectra = AutoSpectra.objects.filter(time=last_spectra.time).order_by("antenna")
 
     for stat in all_spectra:
         ant_stat = (
@@ -190,8 +196,33 @@ else:
 df_full = df_full.sort_values(["freqs", "ant", "pol"])
 df_down = df_down.sort_values(["freqs", "ant", "pol"])
 
+
+time_ago = (Time.now() - auto_time).to("min")
 dash_app.layout = html.Div(
     [
+        dbc.Row(
+            [
+                html.Div(
+                    [
+                        "Autocorrelations from ",
+                        html.Span(
+                            f"{time_ago:.0f} ago ",
+                            style={
+                                "font-weight": "bold",
+                                "color": "red" if time_ago.value > 10 else "black",
+                            },
+                        ),
+                        html.Span(
+                            f"({auto_time.iso} JD:{auto_time.jd})",
+                            style={"font-weight": "bold"},
+                        ),
+                    ],
+                    style={"display": "inline-block", "width": "40%"},
+                ),
+            ],
+            justify="center",
+            align="center",
+        ),
         html.Div(
             [
                 html.Label([""], style={"width": "10%"}),
