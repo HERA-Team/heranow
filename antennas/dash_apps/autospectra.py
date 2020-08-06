@@ -4,6 +4,7 @@ import re
 import copy
 import numpy as np
 import pandas as pd
+from itertools import product
 
 import lttb
 
@@ -18,7 +19,62 @@ from django_plotly_dash import DjangoDash
 from ..models import AutoSpectra, AntennaStatus, AprioriStatus
 
 
-max_points = 1000
+def plot_df(df, nodes=None, apriori=None):
+
+    hovertemplate = (
+        "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]"
+        "<extra>%{fullData.name}<br>Node: %{meta[0]}<br>Status: %{meta[1]}</extra>"
+    )
+    if nodes is not None and isinstance(nodes, str):
+        nodes = [nodes]
+    elif nodes is None or len(nodes) == 0:
+        nodes = df.node.unique()
+
+    if apriori is not None and isinstance(apriori, str):
+        apriori = [apriori]
+    elif apriori is None or len(apriori) == 0:
+        apriori = df.apriori.unique()
+
+    layout = {
+        "xaxis": {"title": "Frequency [MHz]"},
+        "yaxis": {"title": "Power [dB]"},
+        "title": {
+            "text": "Autocorrelations",
+            "xref": "paper",
+            "x": 0.5,
+            "font": {"size": 24},
+        },
+        "autosize": True,
+        "showlegend": True,
+        "legend": {"x": 1, "y": 1},
+        "margin": {"l": 40, "b": 30, "r": 40, "t": 46},
+        "hovermode": "closest",
+    }
+
+    fig = go.Figure()
+    fig["layout"] = layout
+    fig["layout"]["uirevision"] = f"{nodes} {apriori}"
+    for ant in df.ant.unique():
+        _df_ant = df[df.ant == ant]
+
+        for pol in _df_ant.pol.unique():
+            antpol = f"{ant}{pol}"
+            _df1 = _df_ant[_df_ant.pol == pol]
+            if _df1.node[0] not in nodes or _df1.apriori[0] not in apriori:
+                continue
+            trace = go.Scatter(
+                x=_df1.freqs,
+                y=_df1.spectra,
+                name=antpol,
+                mode="lines",
+                meta=[_df1.node[0], _df1.apriori[0]],
+                hovertemplate=hovertemplate,
+            )
+            fig.add_trace(trace)
+    return fig
+
+
+max_points = 4000
 
 app_name = "dash_autospectra"
 
@@ -134,71 +190,66 @@ else:
 df_full = df_full.sort_values(["freqs", "ant", "pol"])
 df_down = df_down.sort_values(["freqs", "ant", "pol"])
 
-layout = {
-    "xaxis": {"title": "Frequency [MHz]"},
-    "yaxis": {"title": "Power [dB]"},
-    "title": {
-        "text": "Autocorrelations",
-        "xref": "paper",
-        "x": 0.5,
-        "font": {"size": 24},
-    },
-    "autosize": True,
-    "showlegend": True,
-    "legend": {"x": 1, "y": 1},
-    "margin": {"l": 40, "b": 30, "r": 40, "t": 46},
-    "hovermode": "closest",
-    "uirevision": True,
-}
-
-
-fig = go.Figure()
-fig["layout"] = layout
-fig2 = go.Figure()
-fig2["layout"] = layout
-hovertemplate = (
-    "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]"
-    "<extra>%{fullData.name}<br>Node: %{meta[0]}<br>Status: %{meta[1]}</extra>"
-)
-
-for ant in df_full.ant.unique():
-    df1 = df_down[df_down.ant == ant]
-    df2 = df_full[df_full.ant == ant]
-
-    for pol in df1.pol.unique():
-        antpol = f"{ant}{pol}"
-        _df1 = df1[df1.pol == pol]
-        trace = go.Scatter(
-            x=_df1.freqs,
-            y=_df1.spectra,
-            name=antpol,
-            mode="lines",
-            meta=[_df1.node[0], _df1.apriori[0]],
-            hovertemplate=hovertemplate,
-        )
-        fig.add_trace(trace)
-
-        _df2 = df2[df2.pol == pol]
-        trace = go.Scatter(
-            x=_df2.freqs,
-            y=_df2.spectra,
-            name=antpol,
-            mode="lines",
-            meta=[_df2.node[0], _df2.apriori[0]],
-            hovertemplate=hovertemplate,
-        )
-        fig2.add_trace(trace)
-
-
 dash_app.layout = html.Div(
-    [dcc.Graph(figure=fig, id="autospectra", config={"doubleClick": "reset"},),],
+    [
+        html.Div(
+            [
+                html.Label([""], style={"width": "10%"}),
+                html.Label(
+                    [
+                        "Node(s):",
+                        dcc.Dropdown(
+                            id="node-dropdown",
+                            options=[
+                                {"label": f"Node {node}", "value": node}
+                                for node in sorted(
+                                    [
+                                        node
+                                        for node in df_full.node.unique()
+                                        if node != "Unknown"
+                                    ]
+                                )
+                            ]
+                            + [{"label": "Unknown Node", "value": "Unknown"}],
+                            multi=True,
+                            style={"width": "100%"},
+                        ),
+                    ],
+                    style={"width": "40%"},
+                ),
+                html.Label(
+                    [
+                        "Apriori Status(es):",
+                        dcc.Dropdown(
+                            id="apriori-dropdown",
+                            options=[
+                                {"label": f"{apriori[1]}", "value": apriori[0]}
+                                for apriori in AprioriStatus.AprioriStatusList.choices
+                            ],
+                            multi=True,
+                            style={"width": "100%"},
+                        ),
+                    ],
+                    style={"width": "40%"},
+                ),
+            ],
+        ),
+        dcc.Graph(
+            figure=plot_df(df_down), id="autospectra", config={"doubleClick": "reset"},
+        ),
+    ],
 )
 
 
 @dash_app.callback(
-    Output("autospectra", "figure"), [Input("autospectra", "relayoutData")]
+    Output("autospectra", "figure"),
+    [
+        Input("autospectra", "relayoutData"),
+        Input("node-dropdown", "value"),
+        Input("apriori-dropdown", "value"),
+    ],
 )
-def draw_undecimated_data(selection):
+def draw_undecimated_data(selection, node_value, apriori_value):
     df_ant = df_full[df_full.ant == df_full.ant.unique()[0]]
     df_ant = df_ant[df_ant.pol == df_ant.pol.unique()[0]]
 
@@ -214,6 +265,6 @@ def draw_undecimated_data(selection):
         )
         < max_points
     ):
-        return fig2
+        return plot_df(df_full, node_value, apriori_value)
     else:
-        return fig
+        return plot_df(df_down, node_value, apriori_value)
