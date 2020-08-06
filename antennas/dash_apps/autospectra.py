@@ -198,26 +198,38 @@ df_down = df_down.sort_values(["freqs", "ant", "pol"])
 
 
 time_ago = (Time.now() - auto_time).to("min")
+if time_ago.value > 10:
+    time_color = "red"
+else:
+    time_color = "black"
+
+if time_ago.value >= 60:
+    time_ago = time_ago.to("hour")
+if time_ago.value >= 24:
+    time_ago = time_ago.to("day")
+
 dash_app.layout = html.Div(
     [
         dbc.Row(
             [
-                html.Div(
-                    [
-                        "Autocorrelations from ",
-                        html.Span(
-                            f"{time_ago:.0f} ago ",
-                            style={
-                                "font-weight": "bold",
-                                "color": "red" if time_ago.value > 10 else "black",
-                            },
-                        ),
-                        html.Span(
-                            f"({auto_time.iso} JD:{auto_time.jd})",
-                            style={"font-weight": "bold"},
-                        ),
-                    ],
-                    style={"display": "inline-block", "width": "40%"},
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.Span(
+                                "Autocorrelations from ", style={"font-weight": "bold"}
+                            ),
+                            html.Span(
+                                f"{time_ago.value:.0f} {time_ago.unit.long_names[0]}s ago ",
+                                style={"font-weight": "bold", "color": time_color,},
+                            ),
+                            html.Span(
+                                f"({auto_time.iso} JD:{auto_time.jd:.3f})",
+                                style={"font-weight": "bold"},
+                            ),
+                        ],
+                        style={"text-align": "center"},
+                    ),
+                    style={"width": 3},
                 ),
             ],
             justify="center",

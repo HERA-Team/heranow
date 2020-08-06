@@ -34,6 +34,19 @@ class ChildTab(BaseTab):
     tab_group = "main"
 
 
+class DashChildTab(ChildTab):
+
+    app_name = ""
+    template_name = "plotly_direct.html"
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context["app_name"] = self.app_name
+        return context
+
+
 class ExternalTab(BaseTab):
     """Base class for external redirect."""
 
@@ -61,37 +74,38 @@ class home(BaseTab):
     template_name = "index.html"
 
 
-class AutoSpectraPlot(ChildTab):
+class AutoSpectraPlot(DashChildTab):
     """Link to autospectra."""
 
     tab_label = "Autospectra"
     tab_id = "spectra"
-    template_name = "autospectra.html"
+    app_name = "dash_autospectra"
 
 
-class ADCHistograms(ChildTab):
+class ADCHistograms(DashChildTab):
     """Link to ADC histograms."""
 
     tab_label = "ADC Histograms"
     tab_id = "adchists"
+    template_name = "adc_hist"
 
 
 class LibrarianLogs(ChildTab):
-    """Link to ADC histograms."""
+    """Link to Librarian Logs."""
 
     tab_label = "Librarian Logs"
     tab_id = "librarian"
 
 
 class LibrarianTracker(ChildTab):
-    """Link to ADC histograms."""
+    """Link to Librarian File Tracker."""
 
     tab_label = "Librarian File Tracker"
     tab_id = "librariancheck"
 
 
 class CompterLoads(ChildTab):
-    """Link to ADC histograms."""
+    """Link to Computer Loads."""
 
     tab_label = "Compter Loads"
     tab_id = "compute"
@@ -105,7 +119,7 @@ class DailyQM(ChildTab):
 
 
 class SNAPSpectra(ChildTab):
-    """Link to ADC histograms."""
+    """Link to QM Metrics."""
 
     tab_label = "SNAP Spectra"
     tab_id = "snapspectra"
