@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% load plotly_dash %}
+{% load plotly_custom %}
 
-{% block headcontent%}
+{% block headcontent %}
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 {% block allcontent %}
 <div class="container-fluid">
  <div class="row">
 <div class="col-sm-12" style="padding-left: 4em; padding-right: 2em">
-  {%plotly_direct name="dash_autospectra" %}
+  {% plotly_direct_app_name %}
 </div>
 </div>
 </div>
