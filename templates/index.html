@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 {% extends "home_base.html" %}
+{% load static %}
+{% load plotly_dash %}
+
 
 {% block content %}
   <table border=0 style="width: 100%; height: 100%;">
     <tr class="noBorder" style="height: 30%;">
-        <td style="width: 30%;"><div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="http://heranow.reionization.org/spectra.html">(open in new tab)</a></div>
-          <iframe scrolling="no" src="http://heranow.reionization.org/spectra.html" width=100% height=100% frameborder="0"></iframe></td>
+        <td style="width: 30%"><div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new tab)</a></div>
+          <div class="col-sm-12" style="padding-left: 4em; padding-right: 2em; height: 100%;">
+            {%plotly_direct name="dash_autospectra" %}
+          </div>
+        </td>
         <td style="width: 30%;"><div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="http://heranow.reionization.org/hex_amp.html">(open in new tab)</a></div>
           <iframe scrolling="no" src="http://heranow.reionization.org/hex_amp.html" width=100% height=100% frameborder="0"></iframe></td>
         <td  rowspan=3 style=" width: 40%; height: 100%;"><div class="dashboard-inset-titlebar">
@@ -36,4 +42,8 @@
     </tr>
 
   </table>
+{% endblock %}
+
+{% block extra_scripts%}
+<script src="{% static "antennas/js/reload_radiosky.js" %}" type="text/javascript"></script>
 {% endblock %}
