@@ -105,21 +105,17 @@
    </div>
 </header>
 
-<main class="flex-shrink-0 mb-12" role="main">
-    <!-- Begin page content -->
-    <div class="row mt-12">
+<main class="flex-grow-1 mb-12" role="main" style="min-height: 70%;">
         {% block allcontent %} {% endblock %}
-    </div>
 </main>
 
-<footer class="footer navbar-default col-sm-12">
+<footer class="footer navbar-light bg-light navbar-fixed-bottom col-sm-12">
   {% block footer %}{% endblock %}
   <p class="text-muted text-center">
     <small><small>(c) HERA Collaboration 2020
       <a target="_blank" href="https://github.com/HERA-Team/heranow">Source code</a>
     </small></small>
   </p>
-
 </footer>
 
 <!-- JavaScript -->

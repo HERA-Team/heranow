@@ -5,13 +5,11 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 {% block allcontent %}
-<div class="container-fluid">
- <div class="row">
-<div class="col-sm-12" style="padding-left: 4em; padding-right: 2em">
-  {% plotly_direct_app_name %}
-</div>
-</div>
-</div>
+  <div class="row flex-grow-1" style="height: 100%;">
+    <div class="col-sm-12" style="display: flex-grow; height: 100%; padding-left: 4em; padding-right: 2em">
+      {% plotly_direct_app_name %}
+    </div>
+  </div>
 {% endblock %}
 
 {% block footer %}

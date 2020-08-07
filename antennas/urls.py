@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from . import views
-from .dash_apps import autospectra
+from .dash_apps import autospectra, adchists
 
 app_name = "antennas"
 

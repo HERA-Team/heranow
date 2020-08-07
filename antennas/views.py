@@ -87,7 +87,7 @@ class ADCHistograms(DashChildTab):
 
     tab_label = "ADC Histograms"
     tab_id = "adchists"
-    template_name = "adc_hist"
+    app_name = "dash_adchists"
 
 
 class LibrarianLogs(ChildTab):
