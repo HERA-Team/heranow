@@ -90,6 +90,14 @@ class ADCHistograms(DashChildTab):
     app_name = "dash_adchists"
 
 
+class HexPlot(DashChildTab):
+    """Link to Stats by Hex plot."""
+
+    tab_label = "Statistisc by Hex Position"
+    tab_id = "hex_amp"
+    app_name = "dash_hexplot"
+
+
 class LibrarianLogs(ChildTab):
     """Link to Librarian Logs."""
 
@@ -132,7 +140,7 @@ class DetailedPages(BaseTab):
     my_children = [
         "librarian",
         "librariancheck",
-        "spectra",
+        "hex_amp" "spectra",
         "adchists",
         "compute",
         "qm",
