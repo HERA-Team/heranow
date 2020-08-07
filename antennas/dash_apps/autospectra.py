@@ -82,7 +82,7 @@ max_points = 4000
 app_name = "dash_autospectra"
 
 dash_app = DjangoDash(
-    name="dash_autospectra",
+    name=app_name,
     serve_locally=False,
     app_name=app_name,
     meta_tags=[
@@ -235,7 +235,7 @@ dash_app.layout = html.Div(
             justify="center",
             align="center",
         ),
-        html.Div(
+        dbc.Row(
             [
                 html.Label([""], style={"width": "10%"}),
                 html.Label(
@@ -258,7 +258,7 @@ dash_app.layout = html.Div(
                             style={"width": "100%"},
                         ),
                     ],
-                    style={"width": "40%"},
+                    style={"width": "30%"},
                 ),
                 html.Label(
                     [
@@ -273,21 +273,27 @@ dash_app.layout = html.Div(
                             style={"width": "100%"},
                         ),
                     ],
-                    style={"width": "40%"},
+                    style={"width": "30%"},
                 ),
             ],
+            justify="center",
+            align="center",
         ),
         dcc.Graph(
-            figure=plot_df(df_down), id="autospectra", config={"doubleClick": "reset"},
+            figure=plot_df(df_down),
+            id="dash_app",
+            config={"doubleClick": "reset"},
+            style={"height": "90%"},
         ),
     ],
+    style={"height": "100%", "width": "100%"},
 )
 
 
 @dash_app.callback(
-    Output("autospectra", "figure"),
+    Output("dash_app", "figure"),
     [
-        Input("autospectra", "relayoutData"),
+        Input("dash_app", "relayoutData"),
         Input("node-dropdown", "value"),
         Input("apriori-dropdown", "value"),
     ],
