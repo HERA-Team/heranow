@@ -1,8 +1,8 @@
 html {
-  height: 100%;
+  height: 100% !important;
 }
 body {
-  height: 100%;
+  height: 100% !important;
 }
 header {
   margin: 1em;
@@ -11,7 +11,7 @@ header {
   margin-bottom: 0;
 }
 
-.footer { margin-top: 20px; }
+
 .librarian-time-bar {
   padding-right: 15px;
   font-size: 0.7em;
