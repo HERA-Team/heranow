@@ -47,6 +47,10 @@ def plot_df(df, nodes=None, apriori=None):
     }
 
     fig = go.Figure()
+
+    if "bins" not in df and "adchist" not in df:
+        return fig
+
     fig["layout"] = layout
     fig["layout"]["uirevision"] = f"{nodes} {apriori}"
     for ant in df.ant.unique():

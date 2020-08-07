@@ -55,6 +55,10 @@ def plot_df(df, nodes=None, apriori=None):
     }
 
     fig = go.Figure()
+
+    if "freqs" not in df and "spectra" not in df:
+        return fig
+
     fig["layout"] = layout
     fig["layout"]["uirevision"] = f"{nodes} {apriori}"
     for ant in df.ant.unique():
@@ -192,9 +196,11 @@ else:
     ]
     df1 = pd.DataFrame(data1)
     df_down = df_down.append(df1)
-# Sort according to increasing frequencies and antpols
-df_full = df_full.sort_values(["freqs", "ant", "pol"])
-df_down = df_down.sort_values(["freqs", "ant", "pol"])
+
+if not df_full.empty:
+    # Sort according to increasing frequencies and antpols
+    df_full = df_full.sort_values(["freqs", "ant", "pol"])
+    df_down = df_down.sort_values(["freqs", "ant", "pol"])
 
 
 time_ago = (Time.now() - auto_time).to("min")
