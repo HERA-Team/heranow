@@ -131,7 +131,7 @@ class AntennaStatus(models.Model):
     eq_coeffs : Array Column
         Digital EQ coefficients for this antenna,
     adc_hist : Array of Array Column
-        2D array of [[ADC histogram bin centers],[ADC histogram counts]],
+        2D array of [[ADC histogram bin centers],[ADC histogram counts]]
 
     """
 
@@ -186,3 +186,88 @@ class AntennaStatus(models.Model):
             and not 0 <= self.snap_channel_number <= 7
         ):
             raise ValidationError("snap_channel_number must be in the range [0,7].")
+
+
+class SnapStatus(models.Model):
+    """
+    Definition of SNAP status table.
+
+    Must match  SNAPStatus table from HERA MC.
+    Listed below are the columns in the table.
+
+
+    time : Datetime Column
+        Time of the snap status data, floored.
+    hostname : String Column
+        SNAP hostname.
+    node : Integer Column
+        Node number.
+    snap_loc_num : Integer Column
+        SNAP location number.
+    serial_number : String Column
+        Serial number of the SNAP board.
+    psu_alert : Boolean Column
+        True if SNAP PSU (aka PMB) controllers have issued an alert.
+        False otherwise.
+    pps_count : BigInteger Column
+        Number of PPS pulses received since last programming cycle.
+    fpga_temp : Float Column
+        Reported FPGA temperature in degrees Celsius.
+    uptime_cycles : BigInteger Column
+        Multiples of 500e6 ADC clocks since last programming cycle.
+    last_programmed_time :  BigInteger Column
+        Last time this FPGA was programmed in floored gps seconds.
+    """
+
+    time = models.DateTimeField("Status Time")
+    hostname = models.CharField(max_length=200)
+    node = models.IntegerField(blank=True, null=True)
+    snap_loc_num = models.IntegerField(blank=True, null=True)
+    serial_number = models.CharField(max_length=200, blank=True, null=True)
+    psu_alert = models.BooleanField(blank=True, null=True)
+    pps_count = models.BigIntegerField(blank=True, null=True)
+    fpga_temp = models.FloatField(null=True, blank=True)
+    uptime_cycles = models.BigIntegerField(null=True, blank=True)
+    last_programmed_time = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["hostname"], name="unique hostname"),
+        ]
+
+
+class SnapSpectra(models.Model):
+    """
+    Description of a SnapRF status table. Pulled from hera_corr_cm directly.
+
+    Below is a list of columns in the table
+
+    time : DateTime Field
+        The time of the status
+    hostname : String Column
+        The name of the host
+    input_number : Integer Column
+        The snap input number.
+    eq_coeffs : Array Column
+        The equalization coefficients for the snap spectrum
+    spectra : Array Column
+        The autocorrelation spectrum taken directly from the snap
+    adc_hist : Array of Array Column
+        2D array of [[ADC histogram bin centers],[ADC histogram counts]]
+
+    """
+
+    time = models.DateTimeField()
+    hostname = models.CharField(max_length=200)
+    input_number = models.IntegerField()
+    spectra = ArrayField(models.FloatField(), blank=True, null=True)
+    eq_coeffs = ArrayField(models.FloatField(), blank=True, null=True)
+    # adc histograms first row centers, second row values
+    adc_hist = ArrayField(ArrayField(models.FloatField()), blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["hostname", "input_number"], name="unique snap input"
+            ),
+        ]
