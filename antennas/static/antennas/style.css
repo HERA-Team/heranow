@@ -1,11 +1,11 @@
-html {
-  height: 100% !important;
-}
-body {
-  height: 100% !important;
+html, body {
+    /* margin: 0; */
+    /* padding: 0; */
+    height: 100%;
+    width:100%
 }
 header {
-  margin: 1em;
+  margin-bottom: 1em;
 }
 .navbar {
   margin-bottom: 0;

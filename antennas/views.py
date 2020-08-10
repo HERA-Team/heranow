@@ -148,7 +148,9 @@ class DetailedPages(BaseTab):
     my_children = [
         "librarian",
         "librariancheck",
-        "hex_amp" "spectra",
+        "hex_stats",
+        "node_stats",
+        "spectra",
         "adchists",
         "compute",
         "qm",
