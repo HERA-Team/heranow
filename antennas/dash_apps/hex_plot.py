@@ -72,19 +72,37 @@ def plot_df(
         vmax = 20 / 0.7
 
     trace = go.Scatter(
-        x=df.antpos_x,
-        y=df.antpos_y,
+        x=df[~df.constructed].antpos_x,
+        y=df[~df.constructed].antpos_y,
         mode="markers",
         marker={
-            "color": getattr(df, mode).fillna("black"),
+            "color": "black",
+            "size": 14,
+            "cmin": vmin,
+            "cmax": vmax,
+            "symbol": "hexagon",
+            "opacity": df[~df.constructed].opacity,
+        },
+        text=df.text,
+        hovertemplate=hovertemplate,
+    )
+    fig.add_trace(trace)
+
+    trace = go.Scatter(
+        x=df[df.constructed].antpos_x,
+        y=df[df.constructed].antpos_y,
+        mode="markers",
+        marker={
+            "color": getattr(df[df.constructed], mode).fillna("orange"),
             "size": 14,
             "cmin": vmin,
             "cmax": vmax,
             "colorscale": colorscale,
             "colorbar": {"thickness": 20, "title": cbar_titles[mode]},
             "symbol": "hexagon",
+            "opacity": df[df.constructed].opacity,
         },
-        text=df.text,
+        text=df[df.constructed].text,
         hovertemplate=hovertemplate,
     )
     fig.add_trace(trace)
@@ -123,6 +141,8 @@ for antenna in Antenna.objects.all():
         "ant": antenna.ant_number,
         "pol": f"{antenna.polarization}",
         "text": f"{antenna.ant_number}{antenna.polarization}<br>Not Constructed",
+        "opacity": 0.2,
+        "constructed": antenna.constructed,
     }
     stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
     if stat is not None:
@@ -149,18 +169,23 @@ for antenna in Antenna.objects.all():
         else:
             spectra = None
 
+        adc_power = (
+            10 * np.log10(stat.adc_power) if stat.adc_power is not None else None
+        )
         data.update(
             {
                 "spectra": spectra,
                 "node": node,
                 "apriori": apriori,
                 "pam_power": stat.pam_power,
+                "adc_power": 10 * np.log10(stat.adc_power),
                 "adc_rms": stat.adc_rms,
                 "fem_imu_theta": stat.fem_imu[0],
                 "fem_imu_phi": stat.fem_imu[1],
                 "eq_coeffs": np.median(stat.eq_coeffs)
                 if stat.eq_coeffs is not None
                 else None,
+                "opacity": 1,
             }
         )
 
@@ -173,7 +198,7 @@ for antenna in Antenna.objects.all():
                     f"Status: {apriori}<br>"
                     f"Auto  [dB]: {spectra or NA:{'.2f' if spectra else 's'}}<br>"
                     f"PAM [dB]: {stat.pam_power or NA:{'.2f' if stat.pam_power else 's'}}<br>"
-                    f"ADC [dB]: {stat.adc_power or NA:{'.2f' if stat.adc_power else 's'}}<br>"
+                    f"ADC [dB]: {adc_power or NA:{'.2f' if adc_power else 's'}}<br>"
                     f"ADC RMS: {stat.adc_rms or NA:{'.2f' if stat.adc_rms else 's'}}<br>"
                     f"FEM IMU THETA: {stat.fem_imu[0] or NA:{'.2f' if stat.fem_imu[0] else 's'}}<br>"
                     f"FEM IMU PHI: {stat.fem_imu[1] or NA:{'.2f' if stat.fem_imu[1] else 's'}}<br>"
