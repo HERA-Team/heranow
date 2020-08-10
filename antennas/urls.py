@@ -17,5 +17,4 @@ urlpatterns = [
     path("DailyLog", views.DailyLog.as_view(), name="dailylogs"),
     path("NewIssue", views.NewIssue.as_view(), name="newissues"),
     path("Help", views.Help.as_view(), name="help"),
-    path("django_plotly_dash/", include("django_plotly_dash.urls")),
 ]
