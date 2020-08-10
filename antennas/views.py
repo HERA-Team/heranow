@@ -94,8 +94,16 @@ class HexPlot(DashChildTab):
     """Link to Stats by Hex plot."""
 
     tab_label = "Statistisc by Hex Position"
-    tab_id = "hex_amp"
+    tab_id = "hex_stats"
     app_name = "dash_hexplot"
+
+
+class NodePlot(DashChildTab):
+    """Link to Stats by Hex plot."""
+
+    tab_label = "Statistisc by Hex Position"
+    tab_id = "node_stats"
+    app_name = "dash_nodeplot"
 
 
 class LibrarianLogs(ChildTab):
