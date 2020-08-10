@@ -45,3 +45,12 @@ tr.noBorder td {
 iframe {
  overflow: hidden;
 }
+
+
+div.django-plotly-dash.django-plotly-dash-direct {
+  height: 100%;
+}
+
+div#react-entry-point {
+  height: 100%;
+}
