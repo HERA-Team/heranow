@@ -25,8 +25,12 @@ def plot_df(
     hovertemplate = "%{text}<extra></extra>"
 
     layout = {
-        "xaxis": {"title": "East-West Position [m]"},
-        "yaxis": {"title": "North-South Position [m]", "scaleanchor": "x"},
+        "xaxis": {"title": "East-West Position [m]", "constrain": "domain",},
+        "yaxis": {
+            "title": "North-South Position [m]",
+            "scaleanchor": "x",
+            "scaleratio": 1,
+        },
         "title": {"text": "Per Antpol Stats vs Hex position", "font": {"size": 24},},
         "hoverlabel": {"align": "left"},
         "margin": {"t": 40},
@@ -47,7 +51,6 @@ def plot_df(
 
     fig = go.Figure()
 
-    fig["layout"] = layout
     # df1 = df.fillna(-1)
     # drop rows with None
     if vmin is None:
@@ -71,19 +74,32 @@ def plot_df(
         vmin = 0.8
         vmax = 20 / 0.7
 
+    layout.update(
+        {
+            "coloraxis": {
+                "cmin": vmin,
+                "cmax": vmax,
+                "colorscale": colorscale,
+                "colorbar": {"title": cbar_titles[mode], "thickness": 20,},
+            },
+            "coloraxis2": {"cmin": 0, "cmax": 1, "colorscale": colorscale,},
+        }
+    )
+
+    fig["layout"] = layout
+
     trace = go.Scatter(
         x=df[~df.constructed].antpos_x,
         y=df[~df.constructed].antpos_y,
         mode="markers",
         marker={
-            "color": "black",
+            "color": df[~df.constructed].color,
             "size": 14,
-            "cmin": vmin,
-            "cmax": vmax,
             "symbol": "hexagon",
+            "coloraxis": "coloraxis2",
             "opacity": df[~df.constructed].opacity,
         },
-        text=df.text,
+        text=df[~df.constructed].text,
         hovertemplate=hovertemplate,
     )
     fig.add_trace(trace)
@@ -95,10 +111,7 @@ def plot_df(
         marker={
             "color": getattr(df[df.constructed], mode).fillna("orange"),
             "size": 14,
-            "cmin": vmin,
-            "cmax": vmax,
-            "colorscale": colorscale,
-            "colorbar": {"thickness": 20, "title": cbar_titles[mode]},
+            "coloraxis": "coloraxis",
             "symbol": "hexagon",
             "opacity": df[df.constructed].opacity,
         },
@@ -132,7 +145,7 @@ if last_spectra is not None:
 else:
     all_spectra = None
 
-pol_list = list(Antenna.objects.order_by().values_list("polarization").distinct())
+pol_list = sorted(Antenna.objects.order_by().values_list("polarization").distinct())
 pol_y_val = {val[0]: cnt for cnt, val in enumerate(pol_list)}
 for antenna in Antenna.objects.all():
     data = {
@@ -143,9 +156,20 @@ for antenna in Antenna.objects.all():
         "text": f"{antenna.ant_number}{antenna.polarization}<br>Not Constructed",
         "opacity": 0.2,
         "constructed": antenna.constructed,
+        "color": "black",
     }
     stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
-    if stat is not None:
+    if stat is None:
+        if antenna.constructed:
+            # They are actually constructed but with no status they are OFFLINE
+            # a little hacky way to get it to display properly out of the DataFrame
+            data["constructed"] = False
+            data["color"] = "red"
+            data["text"] = (
+                f"{antenna.ant_number}{antenna.polarization}<br>Constructed but not online",
+            )
+
+    else:
         node = "Unknown"
         match = re.search(r"heraNode(?P<node>\d+)Snap", stat.snap_hostname)
         if match is not None:
@@ -178,7 +202,7 @@ for antenna in Antenna.objects.all():
                 "node": node,
                 "apriori": apriori,
                 "pam_power": stat.pam_power,
-                "adc_power": 10 * np.log10(stat.adc_power),
+                "adc_power": adc_power,
                 "adc_rms": stat.adc_rms,
                 "fem_imu_theta": stat.fem_imu[0],
                 "fem_imu_phi": stat.fem_imu[1],
@@ -217,8 +241,44 @@ for antenna in Antenna.objects.all():
 if not df.empty:
     df = df.sort_values(["ant", "pol"])
 
+time_ago = (Time.now() - auto_time).to("min")
+if time_ago.value > 10:
+    time_color = "red"
+else:
+    time_color = "black"
+
+if time_ago.value >= 60:
+    time_ago = time_ago.to("hour")
+if time_ago.value >= 24:
+    time_ago = time_ago.to("day")
+
 dash_app.layout = html.Div(
     [
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(
+                        [
+                            html.Span(
+                                "Autocorrelations from ", style={"font-weight": "bold"}
+                            ),
+                            html.Span(
+                                f"{time_ago.value:.0f} {time_ago.unit.long_names[0]}s ago ",
+                                style={"font-weight": "bold", "color": time_color,},
+                            ),
+                            html.Span(
+                                f"({auto_time.iso} JD:{auto_time.jd:.3f})",
+                                style={"font-weight": "bold"},
+                            ),
+                        ],
+                        style={"text-align": "center"},
+                    ),
+                    style={"width": 3},
+                ),
+            ],
+            justify="center",
+            align="center",
+        ),
         dbc.Row(
             [
                 html.Label(

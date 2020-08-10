@@ -52,8 +52,6 @@ def plot_df(
 
     fig = go.Figure()
 
-    fig["layout"] = layout
-    # df1 = df.fillna(-1)
     # drop rows with None
     if vmin is None:
         vmin = getattr(df, mode).min()
@@ -76,6 +74,19 @@ def plot_df(
         vmin = 0.8
         vmax = 20 / 0.7
 
+    layout.update(
+        {
+            "coloraxis": {
+                "cmin": vmin,
+                "cmax": vmax,
+                "colorscale": colorscale,
+                "colorbar": {"title": cbar_titles[mode], "thickness": 20,},
+            }
+        }
+    )
+
+    fig["layout"] = layout
+
     for node in df.node.unique():
         df1 = df[df.node == node]
         df1.reset_index(inplace=True)
@@ -87,11 +98,8 @@ def plot_df(
             marker={
                 "color": getattr(df, mode).fillna("orange"),
                 "size": 14,
-                "cmin": vmin,
-                "cmax": vmax,
-                "colorscale": colorscale,
-                "colorbar": {"thickness": 20, "title": cbar_titles[mode]},
                 "symbol": "hexagon",
+                "coloraxis": "coloraxis",
             },
             text=df1.text,
             hovertemplate=hovertemplate,
