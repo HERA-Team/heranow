@@ -13,6 +13,7 @@ class Antenna(models.Model):
     ant_number = models.IntegerField()
     polarization = models.CharField(max_length=1)
     antpos_enu = ArrayField(models.FloatField(), size=3, default=list)
+    constructed = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
@@ -81,56 +82,56 @@ class AprioriStatus(models.Model):
 
 class AntennaStatus(models.Model):
     """
-     Definition of antenna status table (based on SNAP info).
+    Definition of antenna status table (based on SNAP info).
 
-     Very Similar to the Atenna Status table from HERA MC
+    Very Similar to the Atenna Status table from HERA MC.
+    Listed below are the columns in the table.
 
-     Attributes
-     ----------
-     antenna_number : Antenna Instance
-        An instance of the Antenna Class. The antenna number and polarization.
-     time : Datetime Column
-         GPS time of the antenna status data, floored. Part of primary_key.
-     snap_hostname : String Column
-         SNAP hostname.
-     snap_channel_number : Integer Column
-         The SNAP ADC channel number (0-7) to which this antenna is connected.
-     adc_mean : Float Column
-         Mean ADC value, in ADC units.
-     adc_rms : Float Column
-         RMS ADC value, in ADC units.
-     adc_power : Float Column
-         Mean ADC power, in ADC units squared.
-     pam_atten : Integer Column
-         PAM attenuation setting for this antenna, in dB. (Integer)
-     pam_power : Float Column
-         PAM power sensor reading for this antenna, in dBm.
-     pam_voltage : Float Column
-         PAM voltage sensor reading for this antenna, in Volts.
-     pam_current : Float Column
-         PAM current sensor reading for this antenna, in Amps.
-     pam_id : String Column
-         Serial number of this PAM.
-     fem_voltage : Float Column
-         FEM voltage sensor reading for this antenna, in Volts.
-     fem_current : Float Column
-         FEM current sensor reading for this antenna, in Amps.
-     fem_id : String Column
-         Serial number of this FEM.
-     fem_switch : String Column
-         Switch state for this FEM. Options are: {'antenna', 'load', 'noise'}
-     fem_lna_power : Boolean Column
-         Power state of this FEM (True if powered).
-     fem_imu : Array Column
-         IMU-reported theta and phi, in degrees.
-     fem_temp : Float Column
-         EM temperature sensor reading for this antenna in degrees Celsius.
-     fft_overflow : Boolean Column
-         Indicator of an FFT overflow, True if there was an FFT overflow.
-     eq_coeffs : Array Column
-         Digital EQ coefficients for this antenna,
-     adc_hist : Array of Array Column
-         2D array of [[ADC histogram bin centers],[ADC histogram counts]],
+
+    antenna : Antenna Instance
+       An instance of the Antenna Class. The antenna number and polarization.
+    time : Datetime Column
+        GPS time of the antenna status data, floored. Part of primary_key.
+    snap_hostname : String Column
+        SNAP hostname.
+    snap_channel_number : Integer Column
+        The SNAP ADC channel number (0-7) to which this antenna is connected.
+    adc_mean : Float Column
+        Mean ADC value, in ADC units.
+    adc_rms : Float Column
+        RMS ADC value, in ADC units.
+    adc_power : Float Column
+        Mean ADC power, in ADC units squared.
+    pam_atten : Integer Column
+        PAM attenuation setting for this antenna, in dB. (Integer)
+    pam_power : Float Column
+        PAM power sensor reading for this antenna, in dBm.
+    pam_voltage : Float Column
+        PAM voltage sensor reading for this antenna, in Volts.
+    pam_current : Float Column
+        PAM current sensor reading for this antenna, in Amps.
+    pam_id : String Column
+        Serial number of this PAM.
+    fem_voltage : Float Column
+        FEM voltage sensor reading for this antenna, in Volts.
+    fem_current : Float Column
+        FEM current sensor reading for this antenna, in Amps.
+    fem_id : String Column
+        Serial number of this FEM.
+    fem_switch : String Column
+        Switch state for this FEM. Options are: {'antenna', 'load', 'noise'}
+    fem_lna_power : Boolean Column
+        Power state of this FEM (True if powered).
+    fem_imu : Array Column
+        IMU-reported theta and phi, in degrees.
+    fem_temp : Float Column
+        EM temperature sensor reading for this antenna in degrees Celsius.
+    fft_overflow : Boolean Column
+        Indicator of an FFT overflow, True if there was an FFT overflow.
+    eq_coeffs : Array Column
+        Digital EQ coefficients for this antenna,
+    adc_hist : Array of Array Column
+        2D array of [[ADC histogram bin centers],[ADC histogram counts]],
 
     """
 
