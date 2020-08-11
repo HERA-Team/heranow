@@ -235,6 +235,9 @@ class SnapStatus(models.Model):
             models.UniqueConstraint(fields=["hostname"], name="unique hostname"),
         ]
 
+    def __str__(self):
+        return f"SnapStatus {self.hostname} {self.time}"
+
 
 class SnapSpectra(models.Model):
     """
@@ -271,3 +274,6 @@ class SnapSpectra(models.Model):
                 fields=["hostname", "input_number"], name="unique snap input"
             ),
         ]
+
+    def __str__(self):
+        return f"SnapSpectra {self.hostname} #{self.input_number}"

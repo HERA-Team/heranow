@@ -1,7 +1,7 @@
 from django.urls import path, include
 
 from . import views
-from .dash_apps import autospectra, adchists, hex_plot, node_plot
+from .dash_apps import autospectra, adchists, hex_plot, node_plot, snapspectra
 
 app_name = "antennas"
 
@@ -11,6 +11,7 @@ urlpatterns = [
     path("adchists", views.ADCHistograms.as_view(), name="adchists"),
     path("hex_stats", views.HexPlot.as_view(), name="hexplot"),
     path("node_stats", views.NodePlot.as_view(), name="nodeplot"),
+    path("snapspectra", views.SnapSpectra.as_view(), name="snapspectra"),
     path("Chronograf", views.Chronograf.as_view(), name="chronograf"),
     path("Grafana", views.Grafana.as_view(), name="grafana"),
     path("Notebooks", views.Notebooks.as_view(), name="notebooks"),

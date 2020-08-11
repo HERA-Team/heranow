@@ -134,11 +134,12 @@ class DailyQM(ChildTab):
     tab_id = "qm"
 
 
-class SNAPSpectra(ChildTab):
+class SnapSpectra(DashChildTab):
     """Link to QM Metrics."""
 
     tab_label = "SNAP Spectra"
     tab_id = "snapspectra"
+    app_name = "dash_snapsepctra"
 
 
 class DetailedPages(BaseTab):
