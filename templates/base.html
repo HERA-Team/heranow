@@ -26,7 +26,7 @@
 <body>
 {% analytical_body_top %}
 <header>
-  <nav class="navbar navbar-expand-sm navbar-dark bg-dark" role="navigation">
+  <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark" role="navigation">
     <div class="container-fluid" style="vertical-align: midde;">
    	    <div class="navbar-header">
    	      <a class="navbar-brand" href="/">HERA Dashboard</a>
@@ -98,22 +98,27 @@
      </div>
    </nav>
 
-   <div class="col-sm-12">
-     <a class="weatherwidget-io" href="https://forecast7.com/en/n30d9622d15/carnarvon/" data-label_1="HERA" data-label_2="WEATHER" data-theme="original" >HERA WEATHER</a>
-   </div>
-</header>
-
-<main class="flex-grow-1 mb-12" role="main">
+ </header>
+ <main class="flex-shrink-0 mb-12 bg-light" role="main" style="padding-top: 60px; padding-bottom: 40px;">
+   <div class="container-fluid">
+     <div class="row-sm-12" style="padding-bottom: 1em;">
+       {% block precontent %}{% endblock %}
+     </div>
+     <div class="row-sm-12">
         {% block allcontent %} {% endblock %}
+      </div>
+    </div>
 </main>
 
-<footer class="footer navbar-light bg-light navbar-fixed-bottom col-sm-12">
-  {% block footer %}{% endblock %}
-  <p class="text-muted text-center">
-    <small><small>(c) HERA Collaboration 2020
-      <a target="_blank" href="https://github.com/HERA-Team/heranow">Source code</a>
-    </small></small>
-  </p>
+<footer class="footer fixed-bottom bg-dark">
+  <div class="conatiner">
+    {% block footer %}{% endblock %}
+    <p class="text-muted text-center">
+      <small><small>(c) HERA Collaboration 2020
+        <a target="_blank" href="https://github.com/HERA-Team/heranow">Source code</a>
+      </small></small>
+    </p>
+  </div>
 </footer>
 
 <!-- JavaScript -->
