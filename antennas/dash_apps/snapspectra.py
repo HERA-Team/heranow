@@ -30,20 +30,7 @@ def plot_df(df, hostname):
         "autosize": True,
         "showlegend": True,
         "hovermode": "closest",
-        "annotations": [
-            {
-                "x": 1.0,
-                "y": 1.05,
-                "align": "right",
-                "valign": "top",
-                "text": "ADC Port # : Antpol",
-                "showarrow": False,
-                "xref": "paper",
-                "yref": "paper",
-                "xanchor": "center",
-                "yanchor": "top",
-            }
-        ],
+        "legend": {"title": "ADC Port # : Antpol"},
     }
 
     fig = go.Figure()
