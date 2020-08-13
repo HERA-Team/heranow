@@ -277,3 +277,28 @@ class SnapSpectra(models.Model):
 
     def __str__(self):
         return f"SnapSpectra {self.hostname} #{self.input_number}"
+
+
+class HookupNotes(models.Model):
+    """
+    Description of the HookupNotes table formatted from HERA M&C database.
+
+    Field definitions are defined below
+
+    time : Datetime Column
+        The timestamp of the note
+    ant_number : Integer Column
+        The antenna number with which the note is associated
+    part : String Column
+        The part identification string of the note
+    note : Text Column
+        The modification noted in M&C
+    """
+
+    time = models.DateTimeField()
+    ant_number = models.IntegerField()
+    part = models.CharField(max_length=200)
+    note = models.TextField()
+
+    def __str__(self):
+        return f"HookupNotes Antenna: {self.ant_number} Part: {self.part} Date: {self.time}"
