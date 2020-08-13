@@ -11,6 +11,7 @@ from django.contrib.postgres.fields import ArrayField
 
 class Antenna(models.Model):
     ant_number = models.IntegerField()
+    ant_name = models.CharField(max_length=5)
     polarization = models.CharField(max_length=1)
     antpos_enu = ArrayField(models.FloatField(), size=3, default=list)
     constructed = models.BooleanField(default=False)
@@ -26,7 +27,7 @@ class Antenna(models.Model):
         ]
 
     def __str__(self):
-        return f"Antenna {self.ant_number}{self.polarization}"
+        return f"{self.ant_name} pol:{self.polarization} built:{self.constructed}"
 
 
 class AutoSpectra(models.Model):
@@ -236,7 +237,7 @@ class SnapStatus(models.Model):
         ]
 
     def __str__(self):
-        return f"SnapStatus {self.hostname} {self.time}"
+        return f"{self.hostname} observed:{self.time}"
 
 
 class SnapSpectra(models.Model):
@@ -276,7 +277,7 @@ class SnapSpectra(models.Model):
         ]
 
     def __str__(self):
-        return f"SnapSpectra {self.hostname} #{self.input_number}"
+        return f"{self.hostname} #{self.input_number} observed:{self.time}"
 
 
 class HookupNotes(models.Model):
@@ -301,4 +302,4 @@ class HookupNotes(models.Model):
     note = models.TextField()
 
     def __str__(self):
-        return f"HookupNotes Antenna: {self.ant_number} Part: {self.part} Date: {self.time}"
+        return f"Antenna: {self.ant_number} Part: {self.part} Date: {self.time}"
