@@ -20,8 +20,17 @@ from ..models import Antenna, AntennaStatus, AprioriStatus, AutoSpectra
 
 
 def plot_df(
-    df, mode="spectra", cbar_title="dB", vmax=None, vmin=None, colorscale="viridis"
+    df,
+    mode="spectra",
+    cbar_title="dB",
+    vmax=None,
+    vmin=None,
+    colorscale="viridis",
+    nodes=None,
 ):
+    if nodes is None or len(nodes) == 0:
+        nodes = df.node.unique()
+
     hovertemplate = "%{text}<extra></extra>"
 
     layout = {
@@ -87,35 +96,35 @@ def plot_df(
     )
 
     fig["layout"] = layout
-
+    df1 = df[df.node.isin(nodes)]
     trace = go.Scatter(
-        x=df[~df.constructed].antpos_x,
-        y=df[~df.constructed].antpos_y,
+        x=df1[~df1.constructed].antpos_x,
+        y=df1[~df1.constructed].antpos_y,
         mode="markers",
         marker={
-            "color": df[~df.constructed].color,
+            "color": df1[~df1.constructed].color,
             "size": 14,
             "symbol": "hexagon",
             "coloraxis": "coloraxis2",
-            "opacity": df[~df.constructed].opacity,
+            "opacity": df1[~df1.constructed].opacity,
         },
-        text=df[~df.constructed].text,
+        text=df1[~df1.constructed].text,
         hovertemplate=hovertemplate,
     )
     fig.add_trace(trace)
 
     trace = go.Scatter(
-        x=df[df.constructed].antpos_x,
-        y=df[df.constructed].antpos_y,
+        x=df1[df1.constructed].antpos_x,
+        y=df1[df1.constructed].antpos_y,
         mode="markers",
         marker={
-            "color": getattr(df[df.constructed], mode).fillna("orange"),
+            "color": getattr(df1[df1.constructed], mode).fillna("orange"),
             "size": 14,
             "coloraxis": "coloraxis",
             "symbol": "hexagon",
-            "opacity": df[df.constructed].opacity,
+            "opacity": df1[df1.constructed].opacity,
         },
-        text=df[df.constructed].text,
+        text=df1[df1.constructed].text,
         hovertemplate=hovertemplate,
     )
     fig.add_trace(trace)
@@ -157,6 +166,8 @@ for antenna in Antenna.objects.all():
         "opacity": 0.2,
         "constructed": antenna.constructed,
         "color": "black",
+        "node": "Unknown",
+        "apriori": "Unknown",
     }
     stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
     if stat is None:
@@ -303,14 +314,36 @@ dash_app.layout = html.Div(
                     ],
                     style={"width": "30%"},
                 ),
+                html.Label(
+                    [
+                        "Node(s):",
+                        dcc.Dropdown(
+                            id="node-dropdown",
+                            options=[
+                                {"label": f"Node {node}", "value": node}
+                                for node in sorted(
+                                    [
+                                        node
+                                        for node in df.node.unique()
+                                        if node != "Unknown"
+                                    ]
+                                )
+                            ]
+                            + [{"label": "Unknown Node", "value": "Unknown"}],
+                            multi=True,
+                            style={"width": "100%"},
+                        ),
+                    ],
+                    style={"width": "30%"},
+                ),
             ],
             justify="center",
             align="center",
         ),
         dcc.Graph(
-            figure=plot_df(df),
-            id="dash_app",
-            config={"doubleClick": "reset"},
+            figure=plot_df(df, mode="spectra"),
+            id="graph",
+            config={"doubleClick": "reset+autosize"},
             responsive=True,
             style={"height": "90%"},
         ),
@@ -320,7 +353,8 @@ dash_app.layout = html.Div(
 
 
 @dash_app.callback(
-    Output("dash_app", "figure"), [Input("stat-dropdown", "value"),],
+    Output("graph", "figure"),
+    [Input("stat-dropdown", "value"), Input("node-dropdown", "value")],
 )
-def redraw_statistic(stat_value):
-    return plot_df(df, mode=stat_value)
+def redraw_statistic(stat_value, nodes):
+    return plot_df(df, mode=stat_value, nodes=nodes)
