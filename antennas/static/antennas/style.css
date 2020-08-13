@@ -4,8 +4,16 @@ html {
     height: 100%;
     width:100%
 }
+
+ main {
+  padding-top: 65px;
+  padding-bottom: 80px;
+}
 header {
-  margin-bottom: 1em;
+  height: 0px;
+}
+footer {
+  height: 80px;
 }
 .navbar {
   margin-bottom: 0;
