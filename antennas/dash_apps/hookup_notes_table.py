@@ -98,7 +98,8 @@ dash_app.layout = html.Div(
                                     options=[
                                         {"label": f"{apriori[1]}", "value": apriori[0]}
                                         for apriori in AprioriStatus.AprioriStatusList.choices
-                                    ],
+                                    ]
+                                    + [{"label": "Unknown", "value": "Unknown"}],
                                     multi=True,
                                     style={"width": "100%"},
                                 ),
