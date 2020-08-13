@@ -9,12 +9,31 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import dash_html_components as html
+import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
 
 from antennas.models import HookupNotes, Antenna, AntennaStatus, AprioriStatus
 
-app_name = "dash_hookup_notes"
+
+def process_string(input_str, time_string_offset=37):
+    # the header is already 37 characters long
+    # take this offset into account but only on the first iteration
+    if len(input_str) > 80 - time_string_offset:
+        space_ind = 79 - time_string_offset
+
+        if " " in input_str[space_ind:]:
+            space_ind += input_str[space_ind:].index(" ")
+
+            input_str = (
+                input_str[:space_ind]
+                + "<br>\t\t\t\t\t\t\t\t"
+                + process_string(input_str[space_ind:], time_string_offset=8)
+            )
+    return input_str
+
+
+app_name = "dash_hex_notes"
 
 dash_app = DjangoDash(
     name=app_name,
@@ -30,8 +49,8 @@ dash_app = DjangoDash(
 
 data = []
 for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
+    antenna = Antenna.objects.filter(ant_number=ant["ant_number"]).last()
     stat = AntennaStatus.objects.filter(antenna__ant_number=ant["ant_number"]).last()
-
     node = "Unknown"
     apriori = "Unknown"
     if stat is not None:
@@ -45,9 +64,14 @@ for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
         if apriori_stat is not None:
             apriori = apriori_stat.apriori_status
 
-    note_text = """"""
+    note_text = f"""{ant['ant_name']}<br>"""
     for note in HookupNotes.objects.filter(ant_number=ant["ant_number"]):
-        note_text += f"""**{note.part}** ({note.time})  {note.note}  \n"""
+        notes = process_string(note.note)
+        note_text += f"""    {note.part} ({note.time})  {notes}<br>"""
+
+    # take on some text if there was nothing
+    if note_text == f"""{ant['ant_name']}<br>""":
+        note_text += "No Notes Information"
 
     data.append(
         {
@@ -55,7 +79,16 @@ for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
             "node": node,
             "apriori": apriori,
             "ant_number": ant["ant_number"],
-            "Hookup Notes": note_text,
+            "text": note_text,
+            "antpos_x": antenna.antpos_enu[0],
+            "antpos_y": antenna.antpos_enu[1],
+            "constructed": antenna.constructed,
+            "color": "green"
+            if stat is not None
+            else "red"
+            if antenna.constructed
+            else "black",
+            "opacity": 1 if stat is not None else 0.2,
         }
     )
 df = pd.DataFrame(data)
@@ -110,41 +143,22 @@ dash_app.layout = html.Div(
                     align="center",
                     style={"height": "10%"},
                 ),
-                dash_table.DataTable(
-                    id="table",
-                    columns=[
-                        {"name": i, "id": i, "presentation": "markdown"}
-                        for i in df.loc[:, ["Antenna", "Hookup Notes"]]
-                    ],
-                    data=df.to_dict("records"),
-                    page_size=20,
-                    style_cell={
-                        "textAlign": "left",
-                        "whiteSpace": "normal",
-                        "height": "auto",
-                    },
-                    style_header={"fontWeight": "bold", "fontSize": 18,},
-                    style_data_conditional=[
-                        {
-                            "if": {"row_index": "odd"},
-                            "backgroundColor": "rgb(248, 248, 248)",
-                        }
-                    ],
-                    style_table={"height": "90%"},
+                dcc.Graph(
+                    id="graph",
+                    config={"doubleClick": "reset"},
+                    responsive=True,
+                    style={"height": "90%"},
                 ),
             ],
             style={"height": "100%", "width": "100%"},
         ),
     ],
-    style={"display": "flex", "justify-content": "center"},
+    style={"height": "100%", "width": "100%"},
 )
 
 
 @dash_app.callback(
-    [
-        Output(component_id="table", component_property="data"),
-        Output(component_id="table", component_property="page_current"),
-    ],
+    Output(component_id="graph", component_property="figure"),
     [Input("node-dropdown", "value"), Input("apriori-dropdown", "value"),],
 )
 def reload_notes(nodes, apriori):
@@ -155,6 +169,54 @@ def reload_notes(nodes, apriori):
     if apriori is None or len(apriori) == 0:
         apriori = df.apriori.unique()
 
-    df1 = df[(df.node.isin(nodes)) & (df.apriori.isin(apriori))]
+    hovertemplate = "%{text}<extra></extra>"
 
-    return df1.to_dict("records"), 0
+    layout = {
+        "xaxis": {"title": "East-West Position [m]", "constrain": "domain",},
+        "yaxis": {
+            "title": "North-South Position [m]",
+            "scaleanchor": "x",
+            "scaleratio": 1,
+        },
+        "title": {"text": "Per Antpol Stats vs Hex position", "font": {"size": 24},},
+        "hoverlabel": {"align": "left"},
+        "margin": {"t": 40},
+        "autosize": True,
+        "showlegend": False,
+        "hovermode": "closest",
+    }
+    fig = go.Figure()
+    fig["layout"] = layout
+
+    df1 = df[(df.node.isin(nodes)) & (df.apriori.isin(apriori))]
+    # trace = go.Scatter(
+    #     x=df1[~df1.constructed].antpos_x,
+    #     y=df1[~df1.constructed].antpos_y,
+    #     mode="markers",
+    #     marker={
+    #         "color": df[~df.constructed].color,
+    #         "size": 14,
+    #         "symbol": "hexagon",
+    #         "opacity": df[~df.constructed].opacity,
+    #     },
+    #     text=df1[~df1.constructed].text,
+    #     hovertemplate=hovertemplate,
+    # )
+    # fig.add_trace(trace)
+
+    trace = go.Scatter(
+        x=df1.antpos_x,
+        y=df1.antpos_y,
+        mode="markers",
+        marker={
+            "color": df1.color,
+            "size": 14,
+            "symbol": "hexagon",
+            "opacity": df1.opacity,
+        },
+        text=df1.text,
+        hovertemplate=hovertemplate,
+    )
+    fig.add_trace(trace)
+
+    return fig

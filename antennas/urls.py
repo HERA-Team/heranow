@@ -8,6 +8,7 @@ from .dash_apps import (
     node_plot,
     snapspectra,
     hookup_notes_table,
+    hex_notes,
 )
 
 app_name = "antennas"
@@ -19,6 +20,7 @@ urlpatterns = [
     path("hex_stats", views.HexPlot.as_view(), name="hexplot"),
     path("node_stats", views.NodePlot.as_view(), name="nodeplot"),
     path("hookup_notes_table", views.NotesTable.as_view(), name="notestable"),
+    path("hookup_notes", views.PerAntHookups.as_view(), name="hex_notes"),
     path("snapspectra", views.SnapSpectra.as_view(), name="snapspectra"),
     path("Chronograf", views.Chronograf.as_view(), name="chronograf"),
     path("Grafana", views.Grafana.as_view(), name="grafana"),

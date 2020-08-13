@@ -224,11 +224,12 @@ class ListHookup(ChildTab):
     tab_id = "hookup"
 
 
-class PerAntHookups(ChildTab):
+class PerAntHookups(DashChildTab):
     """Link cable hookups."""
 
     tab_label = "Per Antenna Hookup Notes"
     tab_id = "hookup_notes"
+    app_name = "dash_hex_notes"
 
 
 class NotesTable(DashChildTab):
