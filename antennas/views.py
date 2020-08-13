@@ -231,11 +231,12 @@ class PerAntHookups(ChildTab):
     tab_id = "hookup_notes"
 
 
-class TableHookups(ChildTab):
+class NotesTable(DashChildTab):
     """Link cable hookups."""
 
     tab_label = "Table of Hookup Notes"
     tab_id = "hookup_notes_table"
+    app_name = "dash_hookup_notes"
 
 
 class SnapHookups(ChildTab):
