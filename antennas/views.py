@@ -106,11 +106,12 @@ class NodePlot(DashChildTab):
     app_name = "dash_nodeplot"
 
 
-class LibrarianLogs(ChildTab):
+class LibrarianLogs(ExternalChildTab):
     """Link to Librarian Logs."""
 
     tab_label = "Librarian Logs"
     tab_id = "librarian"
+    url = "https://enterprise.sese.asu.edu:8484/d/w6B2klSMk/librarian"
 
 
 class LibrarianTracker(ChildTab):
@@ -120,18 +121,20 @@ class LibrarianTracker(ChildTab):
     tab_id = "librariancheck"
 
 
-class CompterLoads(ChildTab):
+class CompterLoads(ExternalChildTab):
     """Link to Computer Loads."""
 
     tab_label = "Compter Loads"
     tab_id = "compute"
+    url = "https://enterprise.sese.asu.edu:8484/d/LDl5uQIMk/compute"
 
 
-class DailyQM(ChildTab):
+class DailyQM(ExternalChildTab):
     """Link to ADC histograms."""
 
     tab_label = "Daily Quality Metrics"
     tab_id = "qm"
+    url = "https://enterprise.sese.asu.edu:8484/d/LDl5uQIMk/quality-metrics"
 
 
 class SnapSpectra(DashChildTab):
