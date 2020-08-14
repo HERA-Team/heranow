@@ -17,8 +17,15 @@
     <link rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/css/bootstrap.min.css"
       integrity="sha384-VCmXjywReHh4PwowAiWNagnWcLhlEJLA5buUprzK8rxFgeH0kww/aWY76TfkUoSX"
-    crossorigin="anonymous">
-
+      crossorigin="anonymous">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.min.css"
+      integrity="sha512-f8mUMCRNrJxPBDzPJx3n+Y5TC5xp6SmStstEfgsDXZJTcxBakoB5hvPLhAfJKa9rCvH+n3xpJ2vQByxLk4WP2g=="
+      crossorigin="anonymous" />
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+      integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+      crossorigin="anonymous" />
     {% analytical_head_bottom %}
     {% block headcontent %}{% endblock %}
     {% plotly_header %}
@@ -108,14 +115,26 @@
     </div>
 </main>
 
-<footer class="footer fixed-bottom bg-dark">
-  <div class="conatiner">
-    {% block footer %}{% endblock %}
-    <p class="text-muted text-center">
-      <small><small>(c) HERA Collaboration 2020
-        <a target="_blank" href="https://github.com/HERA-Team/heranow">Source code</a>
-      </small></small>
-    </p>
+<footer class="footer navbar navbar-dark navbar-expand-md fixed-bottom navbar-fixed-bottom bg-dark justify-content-between">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-nav">
+         <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse collapse dual-nav order-1 order-md-0">
+      <ul class="navbar-nav">
+        {% block footer %}{% endblock %}
+      </ul>
+    </div>
+
+    <span class="text-centered text-muted"> &copy; HERA Collaboration 2020 </span>
+
+    <div class="navbar-collapse collapse order-2">
+      <div class="navbar-nav ml-auto navbar-text text-muted">
+            <a class="btn btn-block btn-sm btn-github" target="_blank" href="https://github.com/HERA-Team/heranow">
+              <i class="fab fa-github"></i> Source code
+            </a>
+      </div>
+    </div>
   </div>
 </footer>
 

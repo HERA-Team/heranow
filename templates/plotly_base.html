@@ -36,7 +36,7 @@
 {% endblock %}
 
 {% block footer %}
-      <p class="text-muted text-center"><small><small>
+      <li class="text-muted text-center"><small><small>
         {% if data_type is not defined %}
         Panel last update: <span id="age">???</span> ago at {{ gen_date }}<br>
         {% endif %}
@@ -44,5 +44,5 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         Executing host: {{ hostname }}
         </small></small>
-      </p>
+      </li>
 {% endblock %}

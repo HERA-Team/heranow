@@ -7,13 +7,13 @@ html {
 
  main {
   padding-top: 65px;
-  padding-bottom: 80px;
+  padding-bottom: 35px;
 }
 header {
   height: 0px;
 }
 footer {
-  height: 80px;
+  height: 36px;
 }
 .navbar {
   margin-bottom: 0;
