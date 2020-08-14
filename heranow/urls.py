@@ -17,6 +17,7 @@ Examples:
 
 """
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path, include
 
 urlpatterns = [
@@ -24,3 +25,8 @@ urlpatterns = [
     path("", include("antennas.urls")),
     path("django_plotly_dash/", include("django_plotly_dash.urls")),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns = [path("debug/", include(debug_toolbar.urls)),] + urlpatterns
