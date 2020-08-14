@@ -26,7 +26,7 @@ urlpatterns = [
     path("django_plotly_dash/", include("django_plotly_dash.urls")),
 ]
 
-if settings.DEBUG:
-    import debug_toolbar
-
-    urlpatterns = [path("debug/", include(debug_toolbar.urls)),] + urlpatterns
+# if settings.DEBUG:
+#     import debug_toolbar
+#
+#     urlpatterns = [path("debug/", include(debug_toolbar.urls)),] + urlpatterns
