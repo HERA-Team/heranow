@@ -124,4 +124,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Collected static files
+static/
+
+# secret key
 .django_key
