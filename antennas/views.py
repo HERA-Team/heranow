@@ -134,7 +134,7 @@ class DailyQM(ExternalChildTab):
 
     tab_label = "Daily Quality Metrics"
     tab_id = "qm"
-    url = "https://enterprise.sese.asu.edu:8484/d/LDl5uQIMk/quality-metrics"
+    url = "https://enterprise.sese.asu.edu:8484/d/el0JGlIGk/quality-metrics"
 
 
 class SnapSpectra(DashChildTab):
