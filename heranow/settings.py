@@ -33,7 +33,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
-
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
 # Application definition
 
 INSTALLED_APPS = [
