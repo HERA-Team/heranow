@@ -303,3 +303,36 @@ class HookupNotes(models.Model):
 
     def __str__(self):
         return f"Antenna: {self.ant_number} Part: {self.part} Date: {self.time}"
+
+
+class CommissioningIssue(models.Model):
+    """
+    Description of the Commisioning issues table.
+
+
+    Used to track nighlty notebooks and more.
+
+
+    julian_date : Integer Column
+        The JD of the observation
+    exists : Boolean Column
+        A boolean flag indicating if the Issue Exists
+    related_issues : Array Column
+        Other Issues reference in this one. Stored as an array of issue number
+    labels : Array Column
+        Labels given to the github issue. Stored as an array of strings.
+    new_issues : Integer Column
+        Number of new issues opened on this day
+
+    """
+
+    julian_date = models.IntegerField()
+    exists = models.BooleanField()
+    related_issues = ArrayField(models.IntegerField(), null=True, blank=True)
+    labels = ArrayField(models.CharField(max_length=200), null=True, blank=True)
+    new_issues = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["julian_date"], name="julian date"),
+        ]
