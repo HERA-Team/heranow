@@ -1,6 +1,7 @@
 """A dash application to plot autospectra."""
 import re
 
+import uuid
 import copy
 import numpy as np
 import pandas as pd
@@ -19,6 +20,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
+from flask_caching import Cache
+
 import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
@@ -26,7 +29,142 @@ from django_plotly_dash import DjangoDash
 from ..models import AutoSpectra, AntennaStatus, AprioriStatus
 
 
-def get_data():
+app_name = "dash_autospectra"
+
+dash_app = DjangoDash(
+    name=app_name,
+    serve_locally=False,
+    app_name=app_name,
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
+    ],
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    add_bootstrap_links=True,
+)
+
+
+def serve_layout():
+    timestamp = Time(0, format="jd")
+    init_time_ago = (Time.now() - timestamp).to("min")
+    init_time_color = "red"
+    session_id = str(uuid.uuid4())
+
+    return html.Div(
+        [
+            html.Div(session_id, id="session-id", style={"display": "none"}),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        daq.BooleanSwitch(
+                            id="reload-box",
+                            on=False,
+                            label="Reload Data",
+                            labelPosition="top",
+                        ),
+                    ),
+                    dbc.Col(
+                        html.Div(
+                            id="auto-time",
+                            children=[
+                                html.Span(
+                                    "Autocorrelations from ",
+                                    style={"font-weight": "bold"},
+                                ),
+                                html.Span(
+                                    f"{init_time_ago.value:.0f} {init_time_ago.unit.long_names[0]}s ago ",
+                                    style={
+                                        "font-weight": "bold",
+                                        "color": init_time_color,
+                                    },
+                                ),
+                                html.Span(
+                                    f"({timestamp.iso} JD:{timestamp.jd:.3f})",
+                                    style={"font-weight": "bold"},
+                                ),
+                            ],
+                            style={"text-align": "center"},
+                        ),
+                        style={"width": 3},
+                    ),
+                ],
+                justify="center",
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    html.Label([""], style={"width": "10%"}),
+                    html.Label(
+                        [
+                            "Node(s):",
+                            dcc.Dropdown(
+                                id="node-dropdown",
+                                options=[{"label": "Unknown Node", "value": "Unknown"}],
+                                multi=True,
+                                style={"width": "100%"},
+                            ),
+                        ],
+                        style={"width": "30%"},
+                    ),
+                    html.Label(
+                        [
+                            "Apriori Status(es):",
+                            dcc.Dropdown(
+                                id="apriori-dropdown",
+                                options=[
+                                    {"label": f"{apriori[1]}", "value": apriori[0]}
+                                    for apriori in AprioriStatus.AprioriStatusList.choices
+                                ]
+                                + [{"label": "Unknown", "value": "Unknown"}],
+                                multi=True,
+                                style={"width": "100%"},
+                            ),
+                        ],
+                        style={"width": "30%"},
+                    ),
+                ],
+                justify="center",
+                align="center",
+                style={"height": "10%"},
+            ),
+            # dcc.Loading(
+            dcc.Graph(
+                id="dash_app", config={"doubleClick": "reset"}, style={"height": "85%"},
+            ),
+            # ),
+            # Hidden div inside the app that stores the intermediate value
+            # html.Div(
+            #     id="intermediate-value",
+            #     style={"display": "none"},
+            #     children=[pd.DataFrame().to_json(), pd.DataFrame().to_json(), timestamp.jd],
+            # ),
+            # A timer to re-load data every minute
+            # interval value is milliseconds
+            dcc.Interval(
+                id="interval-component",
+                interval=60 * 1000,
+                n_intervals=0,
+                disabled=True,
+            ),
+        ],
+        style={"height": "100%", "width": "100%"},
+    )
+
+
+dash_app.layout = serve_layout
+
+config = {
+    "CACHE_TYPE": "filesystem",
+    "CACHE_DIR": "cache-directory",
+    # should be equal to maximum number of active users
+    "CACHE_THRESHOLD": 50,
+}
+cache = Cache(config=config)
+
+cache.init_app(dash_app.as_dash_instance(), config=config)
+
+
+@cache.memoize()
+def get_data(session_id, interval):
     df_full = pd.DataFrame()
     df_down = pd.DataFrame()
 
@@ -91,7 +229,7 @@ def get_data():
             df1 = pd.DataFrame(data1)
             df_down = df_down.append(df1)
     else:
-        return None, None, Time(0, format="jd")
+        auto_time = Time(0, format="jd")
 
     if not df_full.empty:
         # Sort according to increasing frequencies and antpols
@@ -100,7 +238,7 @@ def get_data():
         df_full.reset_index(drop=True, inplace=True)
         df_down.reset_index(drop=True, inplace=True)
 
-    return df_full, df_down, auto_time
+    return df_full.to_json(), df_down.to_json(), auto_time.jd
 
 
 def plot_df(df, nodes=None, apriori=None):
@@ -164,150 +302,60 @@ def plot_df(df, nodes=None, apriori=None):
 
 max_points = 4000
 
-timestamp = Time(0, format="jd")
-init_time_ago = (Time.now() - timestamp).to("min")
-init_time_color = "red"
 
-app_name = "dash_autospectra"
+def read_json_data(session_id, n_intervals):
+    frames = get_data(session_id, n_intervals)
+    return (
+        pd.read_json(frames[0]),
+        pd.read_json(frames[1]),
+        Time.time(frames[2], format="jd"),
+    )
 
-dash_app = DjangoDash(
-    name=app_name,
-    serve_locally=False,
-    app_name=app_name,
-    meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
-    ],
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
-    add_bootstrap_links=True,
+
+@dash_app.callback(
+    Output("interval-component", "disabled"), [Input("reload-box", "on")],
 )
+def start_reload_counter(reload_box):
+    return not reload_box
 
 
-dash_app.layout = html.Div(
+# @dash_app.callback(
+#     Output("intermediate-value", "children"),
+#     [Input("interval-component", "n_intervals"), Input('session-id', 'children')],
+#     [State("reload-box", "on")],
+# )
+# def reload_data(n_intervals, session_id, reload_box):
+#     print("Checking: ", end="")
+#     if reload_box or n_intervals == 0:
+#         df_full, df_down, auto_time = read_json_data(session_id, n_intervals)
+#         print("Loading")
+#         hidden_div = [df_full.to_json(), df_down.to_json(), auto_time.jd]
+#         return hidden_div
+#     else:
+#         print("Skip")
+#         raise PreventUpdate()
+
+
+# @lru_cache
+# def read_json_data(hidden_div):
+#     print("Reading Data")
+#     df_full = pd.read_json(hidden_div[0])
+#     df_down = pd.read_json(hidden_div[1])
+#     auto_time = Time(hidden_div[2], format="jd")
+#     return df_full, df_down, auto_time
+
+
+@dash_app.callback(
+    Output("auto-time", "children"),
     [
-        dbc.Row(
-            [
-                dbc.Col(
-                    daq.BooleanSwitch(
-                        id="reload-box",
-                        on=False,
-                        label="Reload Data",
-                        labelPosition="top",
-                    ),
-                ),
-                dbc.Col(
-                    html.Div(
-                        id="auto-time",
-                        children=[
-                            html.Span(
-                                "Autocorrelations from ", style={"font-weight": "bold"}
-                            ),
-                            html.Span(
-                                f"{init_time_ago.value:.0f} {init_time_ago.unit.long_names[0]}s ago ",
-                                style={
-                                    "font-weight": "bold",
-                                    "color": init_time_color,
-                                },
-                            ),
-                            html.Span(
-                                f"({timestamp.iso} JD:{timestamp.jd:.3f})",
-                                style={"font-weight": "bold"},
-                            ),
-                        ],
-                        style={"text-align": "center"},
-                    ),
-                    style={"width": 3},
-                ),
-            ],
-            justify="center",
-            align="center",
-        ),
-        dbc.Row(
-            [
-                html.Label([""], style={"width": "10%"}),
-                html.Label(
-                    [
-                        "Node(s):",
-                        dcc.Dropdown(
-                            id="node-dropdown",
-                            options=[{"label": "Unknown Node", "value": "Unknown"}],
-                            multi=True,
-                            style={"width": "100%"},
-                        ),
-                    ],
-                    style={"width": "30%"},
-                ),
-                html.Label(
-                    [
-                        "Apriori Status(es):",
-                        dcc.Dropdown(
-                            id="apriori-dropdown",
-                            options=[
-                                {"label": f"{apriori[1]}", "value": apriori[0]}
-                                for apriori in AprioriStatus.AprioriStatusList.choices
-                            ]
-                            + [{"label": "Unknown", "value": "Unknown"}],
-                            multi=True,
-                            style={"width": "100%"},
-                        ),
-                    ],
-                    style={"width": "30%"},
-                ),
-            ],
-            justify="center",
-            align="center",
-            style={"height": "10%"},
-        ),
-        # dcc.Loading(
-        dcc.Graph(
-            id="dash_app", config={"doubleClick": "reset"}, style={"height": "85%"},
-        ),
-        # ),
-        # Hidden div inside the app that stores the intermediate value
-        html.Div(
-            id="intermediate-value",
-            style={"display": "none"},
-            children=[pd.DataFrame().to_json(), pd.DataFrame().to_json(), timestamp.jd],
-        ),
-        # A timer to re-load data every minute
-        # interval value is milliseconds
-        dcc.Interval(id="interval-component", interval=60 * 1000, n_intervals=0),
+        # Input("intermediate-value", "children"),
+        Input("session-id", "children"),
+        Input("interval-component", "n_intervals"),
     ],
-    style={"height": "100%", "width": "100%"},
 )
-
-
-@dash_app.callback(
-    Output("intermediate-value", "children"),
-    [Input("interval-component", "n_intervals")],
-    [State("reload-box", "on")],
-)
-def reload_data(n_intervals, reload_box):
-    print("Checking: ", end="")
-    if reload_box or n_intervals == 0:
-        df_full, df_down, auto_time = get_data()
-        print("Loading")
-        hidden_div = [df_full.to_json(), df_down.to_json(), auto_time.jd]
-        return hidden_div
-    else:
-        print("Skip")
-        raise PreventUpdate()
-
-
-@lru_cache
-def read_json_data(hidden_div):
-    print("Reading Data")
-    df_full = pd.read_json(hidden_div[0])
-    df_down = pd.read_json(hidden_div[1])
-    auto_time = Time(hidden_div[2], format="jd")
-    return df_full, df_down, auto_time
-
-
-@dash_app.callback(
-    Output("auto-time", "children"), [Input("intermediate-value", "children")],
-)
-def update_time_data(hidden_div):
+def update_time_data(session_id, n_intervals):
     print("Updating time info")
-    df_full, df_down, auto_time = read_json_data(tuple(hidden_div))
+    df_full, df_down, auto_time = read_json_data(session_id, n_intervals)
 
     time_ago = (Time.now() - auto_time).to("min")
 
@@ -335,11 +383,12 @@ def update_time_data(hidden_div):
 
 
 @dash_app.callback(
-    Output("node-dropdown", "options"), [Input("intermediate-value", "children")],
+    Output("node-dropdown", "options"),
+    [Input("session-id", "children"), Input("interval-component", "n_intervals")],
 )
-def update_node_selection(hidden_div):
+def update_node_selection(session_id, n_intervals):
     print("making labels")
-    df_full, df_down, auto_time = read_json_data(tuple(hidden_div))
+    df_full, df_down, auto_time = read_json_data(session_id, n_intervals)
     node_labels = [
         {"label": f"Node {node}", "value": node}
         for node in sorted(
@@ -355,12 +404,15 @@ def update_node_selection(hidden_div):
         Input("dash_app", "relayoutData"),
         Input("node-dropdown", "value"),
         Input("apriori-dropdown", "value"),
-        Input("intermediate-value", "children"),
+        Input("session-id", "children"),
+        Input("interval-component", "n_intervals"),
     ],
 )
-def draw_undecimated_data(selection, node_value, apriori_value, hidden_div):
+def draw_undecimated_data(
+    selection, node_value, apriori_value, session_id, n_intervals
+):
     print("plotting Time!")
-    df_full, df_down, auto_time = read_json_data(tuple(hidden_div))
+    df_full, df_down, auto_time = read_json_data(session_id, n_intervals)
 
     df_ant = df_full[df_full.ant == df_full.ant.unique()[0]]
     df_ant = df_ant[df_ant.pol == df_ant.pol.unique()[0]]
