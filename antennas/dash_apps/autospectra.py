@@ -31,17 +31,16 @@ max_points = 4000
 
 @lru_cache
 def get_data(session_id, interval):
-    df_full = pd.DataFrame()
-    df_down = pd.DataFrame()
+    df_full = []
+    df_down = []
 
     last_spectra = AutoSpectra.objects.last()
     if last_spectra is not None:
         auto_time = Time(last_spectra.time, format="datetime")
-        all_spectra = AutoSpectra.objects.filter(time=last_spectra.time).order_by(
-            "antenna"
-        )
 
-        for stat in all_spectra:
+        for stat in AutoSpectra.objects.filter(time=last_spectra.time).order_by(
+            "antenna"
+        ):
             ant_stat = (
                 AntennaStatus.objects.filter(antenna=stat.antenna)
                 .order_by("time")
@@ -64,39 +63,38 @@ def get_data(session_id, interval):
 
             _freqs = np.asarray(stat.frequencies) / 1e6
             _spectra = (10 * np.log10(np.ma.masked_invalid(stat.spectra))).filled(-100)
-            # _freqs = freqs / 1e6
-            # _spectra = spectra
-            data = [
-                {
-                    "freqs": f,
-                    "spectra": d,
-                    "ant": stat.antenna.ant_number,
-                    "pol": f"{stat.antenna.polarization}",
-                    "node": node,
-                    "apriori": apriori,
-                }
-                for f, d in zip(_freqs, _spectra)
-            ]
-            df1 = pd.DataFrame(data)
 
-            df_full = df_full.append(df1)
+            df_full.append(
+                pd.DataFrame(
+                    {
+                        "freqs": _freqs,
+                        "spectra": _spectra,
+                        "ant": stat.antenna.ant_number,
+                        "pol": f"{stat.antenna.polarization}",
+                        "node": node,
+                        "apriori": apriori,
+                    }
+                )
+            )
             downsampled = lttb.downsample(np.stack([_freqs, _spectra,], axis=1), 350,)
-            data1 = [
-                {
-                    "freqs": f,
-                    "spectra": d,
-                    "ant": stat.antenna.ant_number,
-                    "pol": f"{stat.antenna.polarization}",
-                    "node": node,
-                    "apriori": apriori,
-                }
-                for f, d in zip(downsampled[:, 0], downsampled[:, 1])
-            ]
-            df1 = pd.DataFrame(data1)
-            df_down = df_down.append(df1)
+
+            df_down.append(
+                pd.DataFrame(
+                    {
+                        "freqs": downsampled[:, 0],
+                        "spectra": downsampled[:, 1],
+                        "ant": stat.antenna.ant_number,
+                        "pol": f"{stat.antenna.polarization}",
+                        "node": node,
+                        "apriori": apriori,
+                    }
+                )
+            )
+
     else:
         auto_time = Time(0, format="jd")
-
+    df_full = pd.concat(df_full)
+    df_down = pd.concat(df_down)
     if not df_full.empty:
         # Sort according to increasing frequencies and antpols
         df_full.sort_values(["freqs", "ant", "pol"], inplace=True)

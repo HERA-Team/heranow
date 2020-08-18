@@ -2,16 +2,20 @@
 import re
 
 import copy
+import uuid
 import numpy as np
 import pandas as pd
 
 from astropy.time import Time
+from functools import lru_cache
 
 import dash
-from dash.dependencies import Input, Output
+import dash_daq as daq
 import dash_core_components as dcc
-import dash_bootstrap_components as dbc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output
+
 import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
@@ -59,9 +63,9 @@ def plot_df(df, nodes=None, apriori=None):
         for pol in _df_ant.pol.unique():
             antpol = f"{ant}{pol}"
             _df1 = _df_ant[_df_ant.pol == pol]
-            if _df1.node[0] not in nodes or _df1.apriori[0] not in apriori:
+            if _df1.node.iloc[0] not in nodes or _df1.apriori.iloc[0] not in apriori:
                 continue
-            timestamp = Time(_df1.time[0], format="datetime")
+            timestamp = Time(_df1.time.iloc[0], format="datetime")
             trace = go.Scatter(
                 x=_df1.bins,
                 y=_df1.adchist,
@@ -69,10 +73,126 @@ def plot_df(df, nodes=None, apriori=None):
                 mode="lines",
                 hovertemplate=hovertemplate,
                 text=f"observed at {timestamp.iso}<br>(JD {timestamp.jd:.3f})",
-                meta=[_df1.node[0], _df1.apriori[0]],
+                meta=[_df1.node.iloc[0], _df1.apriori.iloc[0]],
             )
             fig.add_trace(trace)
     return fig
+
+
+@lru_cache
+def get_data(session_id, interval):
+    df = []
+
+    for antenna in Antenna.objects.all():
+        stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
+        if stat is not None:
+            node = "Unknown"
+            match = re.search(r"heraNode(?P<node>\d+)Snap", stat.snap_hostname)
+            if match is not None:
+                node = int(match.group("node"))
+
+            apriori = "Unknown"
+            apriori_stat = (
+                AprioriStatus.objects.filter(antenna=stat.antenna)
+                .order_by("time")
+                .last()
+            )
+            if apriori_stat is not None:
+                apriori = apriori_stat.apriori_status
+            if stat.adc_hist is not None:
+                df.append(
+                    pd.DataFrame(
+                        {
+                            "bins": stat.adc_hist[0],
+                            "adchist": stat.adc_hist[1],
+                            "ant": stat.antenna.ant_number,
+                            "pol": f"{stat.antenna.polarization}",
+                            "node": node,
+                            "apriori": apriori,
+                            "time": stat.time,
+                        }
+                    )
+                )
+
+    df = pd.concat(df)
+    # Sort according to increasing bins and antpols
+    if not df.empty:
+        df.sort_values(["bins", "ant", "pol"], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+
+    return df
+
+
+def serve_layout():
+    session_id = str(uuid.uuid4())
+
+    return html.Div(
+        [
+            html.Div(session_id, id="session-id", style={"display": "none"}),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        daq.BooleanSwitch(
+                            id="reload-box",
+                            on=False,
+                            label="Reload Data",
+                            labelPosition="top",
+                        ),
+                        width=1,
+                    ),
+                ],
+                justify="center",
+                align="center",
+            ),
+            dbc.Row(
+                [
+                    html.Label(
+                        [
+                            "Node(s):",
+                            dcc.Dropdown(
+                                id="node-dropdown",
+                                options=[{"label": "Unknown Node", "value": "Unknown"}],
+                                multi=True,
+                                style={"width": "100%"},
+                            ),
+                        ],
+                        style={"width": "40%"},
+                    ),
+                    html.Label(
+                        [
+                            "Apriori Status(es):",
+                            dcc.Dropdown(
+                                id="apriori-dropdown",
+                                options=[
+                                    {"label": f"{apriori[1]}", "value": apriori[0]}
+                                    for apriori in AprioriStatus.AprioriStatusList.choices
+                                ]
+                                + [{"label": "Unknown", "value": "Unknown"}],
+                                multi=True,
+                                style={"width": "100%"},
+                            ),
+                        ],
+                        style={"width": "40%"},
+                    ),
+                ],
+                justify="center",
+                align="center",
+            ),
+            dcc.Graph(
+                id="dash_app",
+                config={"doubleClick": "reset"},
+                responsive=True,
+                style={"height": "90%"},
+            ),
+            dcc.Interval(
+                id="interval-component",
+                interval=60 * 1000,
+                n_intervals=0,
+                disabled=True,
+            ),
+        ],
+        style={"height": "100%", "width": "100%"},
+    )
 
 
 app_name = "dash_adchists"
@@ -88,99 +208,27 @@ dash_app = DjangoDash(
     add_bootstrap_links=True,
 )
 
-df = pd.DataFrame()
+dash_app.layout = serve_layout
 
-for antenna in Antenna.objects.all():
-    stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
-    if stat is not None:
-        node = "Unknown"
-        match = re.search(r"heraNode(?P<node>\d+)Snap", stat.snap_hostname)
-        if match is not None:
-            node = int(match.group("node"))
 
-        apriori = "Unknown"
-        apriori_stat = (
-            AprioriStatus.objects.filter(antenna=stat.antenna).order_by("time").last()
-        )
-        if apriori_stat is not None:
-            apriori = apriori_stat.apriori_status
-        if stat.adc_hist is not None:
-            data = [
-                {
-                    "bins": _bin,
-                    "adchist": _hist,
-                    "ant": stat.antenna.ant_number,
-                    "pol": f"{stat.antenna.polarization}",
-                    "node": node,
-                    "apriori": apriori,
-                    "time": stat.time,
-                }
-                for _bin, _hist in zip(stat.adc_hist[0], stat.adc_hist[1])
-            ]
-            df1 = pd.DataFrame(data)
-
-            df = df.append(df1)
-# Sort according to increasing bins and antpols
-if not df.empty:
-    df = df.sort_values(["bins", "ant", "pol"])
-
-dash_app.layout = html.Div(
-    [
-        dbc.Row([], justify="center", align="center"),
-        dbc.Row(
-            [
-                html.Label(
-                    [
-                        "Node(s):",
-                        dcc.Dropdown(
-                            id="node-dropdown",
-                            options=[
-                                {"label": f"Node {node}", "value": node}
-                                for node in sorted(
-                                    [
-                                        node
-                                        for node in df.node.unique()
-                                        if node != "Unknown"
-                                    ]
-                                )
-                            ]
-                            + [{"label": "Unknown Node", "value": "Unknown"}],
-                            multi=True,
-                            style={"width": "100%"},
-                        ),
-                    ],
-                    style={"width": "40%"},
-                ),
-                html.Label(
-                    [
-                        "Apriori Status(es):",
-                        dcc.Dropdown(
-                            id="apriori-dropdown",
-                            options=[
-                                {"label": f"{apriori[1]}", "value": apriori[0]}
-                                for apriori in AprioriStatus.AprioriStatusList.choices
-                            ]
-                            + [{"label": "Unknown", "value": "Unknown"}],
-                            multi=True,
-                            style={"width": "100%"},
-                        ),
-                    ],
-                    style={"width": "40%"},
-                ),
-            ],
-            justify="center",
-            align="center",
-        ),
-        dcc.Graph(
-            figure=plot_df(df),
-            id="dash_app",
-            config={"doubleClick": "reset"},
-            responsive=True,
-            style={"height": "90%"},
-        ),
-    ],
-    style={"height": "100%", "width": "100%"},
+@dash_app.callback(
+    Output("interval-component", "disabled"), [Input("reload-box", "on")],
 )
+def start_reload_counter(reload_box):
+    return not reload_box
+
+
+@dash_app.callback(
+    Output("node-dropdown", "options"),
+    [Input("session-id", "children"), Input("interval-component", "n_intervals")],
+)
+def update_node_selection(session_id, n_intervals):
+    df = get_data(session_id, n_intervals)
+    node_labels = [
+        {"label": f"Node {node}", "value": node}
+        for node in sorted([node for node in df.node.unique() if node != "Unknown"])
+    ] + [{"label": "Unknown Node", "value": "Unknown"}]
+    return node_labels
 
 
 @dash_app.callback(
@@ -189,7 +237,12 @@ dash_app.layout = html.Div(
         Input("dash_app", "relayoutData"),
         Input("node-dropdown", "value"),
         Input("apriori-dropdown", "value"),
+        Input("session-id", "children"),
+        Input("interval-component", "n_intervals"),
     ],
 )
-def draw_undecimated_data(selection, node_value, apriori_value):
+def draw_undecimated_data(
+    selection, node_value, apriori_value, session_id, n_intervals
+):
+    df = get_data(session_id, n_intervals)
     return plot_df(df, node_value, apriori_value)
