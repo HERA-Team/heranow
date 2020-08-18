@@ -207,9 +207,9 @@ def serve_layout():
                                     style={"font-weight": "bold"},
                                 ),
                             ],
-                            style={"text-align": "center"},
+                            style={"text-align": "left"},
                         ),
-                        width=3,
+                        width=6,
                     ),
                 ],
                 justify="center",
@@ -251,17 +251,9 @@ def serve_layout():
                 align="center",
                 style={"height": "10%"},
             ),
-            # dcc.Loading(
             dcc.Graph(
                 id="dash_app", config={"doubleClick": "reset"}, style={"height": "85%"},
             ),
-            # ),
-            # Hidden div inside the app that stores the intermediate value
-            # html.Div(
-            #     id="intermediate-value",
-            #     style={"display": "none"},
-            #     children=[pd.DataFrame().to_json(), pd.DataFrame().to_json(), timestamp.jd],
-            # ),
             # A timer to re-load data every minute
             # interval value is milliseconds
             dcc.Interval(
