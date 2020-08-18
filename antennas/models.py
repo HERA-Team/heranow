@@ -315,8 +315,8 @@ class CommissioningIssue(models.Model):
 
     julian_date : Integer Column
         The JD of the observation
-    exists : Boolean Column
-        A boolean flag indicating if the Issue Exists
+    number : Integer Column
+        The issue number, if none, issue does not exist
     related_issues : Array Column
         Other Issues reference in this one. Stored as an array of issue number
     labels : Array Column
@@ -327,7 +327,7 @@ class CommissioningIssue(models.Model):
     """
 
     julian_date = models.IntegerField()
-    exists = models.BooleanField()
+    number = models.BooleanField(null=True, blank=True)
     related_issues = ArrayField(models.IntegerField(), null=True, blank=True)
     labels = ArrayField(models.CharField(max_length=200), null=True, blank=True)
     new_issues = models.IntegerField(null=True, blank=True)
