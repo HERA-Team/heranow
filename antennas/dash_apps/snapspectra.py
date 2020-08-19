@@ -144,8 +144,8 @@ def get_data(session_id, interval):
 
 def serve_layout():
     session_id = str(uuid.uuid4())
-    df, dropdown_labels = get_data(session_id, 0)
-    hostlist = list(dropdown_labels.keys())
+    # df, dropdown_labels = get_data(session_id, 0)
+    # hostlist = list(dropdown_labels.keys())
     return html.Div(
         [
             html.Div(session_id, id="session-id", style={"display": "none"}),
@@ -165,11 +165,8 @@ def serve_layout():
                             "Snap:",
                             dcc.Dropdown(
                                 id="hostname-dropdown",
-                                options=[
-                                    {"label": host, "value": host} for host in hostlist
-                                ],
+                                options=[],
                                 multi=False,
-                                value=hostlist[0],
                                 clearable=False,
                                 style={"width": "100%", "display": "inline-block"},
                             ),
@@ -177,7 +174,7 @@ def serve_layout():
                         style={"width": "15%"},
                     ),
                     html.Div(
-                        children=dropdown_labels[hostlist[0]],
+                        # children=dropdown_labels[hostlist[0]],
                         id="snap-stats",
                         style={"padding-left": "1em"},
                     ),
@@ -186,7 +183,7 @@ def serve_layout():
                 align="center",
             ),
             dcc.Graph(
-                figure=plot_df(df, hostname=hostlist[0]),
+                # figure=plot_df(df, hostname=hostlist[0]),
                 id="dash_app",
                 config={"doubleClick": "reset"},
                 responsive=True,
@@ -228,6 +225,16 @@ def start_reload_counter(reload_box):
 
 
 @dash_app.callback(
+    [Output("hostname-dropdown", "options"), Output("hostname-dropdown", "value")],
+    [Input("session-id", "children"), Input("interval-component", "n_intervals")],
+)
+def update_snap_selection(session_id, n_intervals):
+    df, dropdown_labels = get_data(session_id, n_intervals)
+    options = [{"label": host, "value": host} for host in dropdown_labels.keys()]
+    return options, options[0]["value"]
+
+
+@dash_app.callback(
     [Output("dash_app", "figure"), Output("snap-stats", "children"),],
     [
         Input("hostname-dropdown", "value"),
@@ -237,4 +244,6 @@ def start_reload_counter(reload_box):
 )
 def redraw_statistic(hostname, session_id, n_intervals):
     df, dropdown_labels = get_data(session_id, n_intervals)
+    if hostname is None:
+        hostname = list(dropdown_labels.keys())[0]
     return plot_df(df, hostname=hostname), dropdown_labels[hostname]

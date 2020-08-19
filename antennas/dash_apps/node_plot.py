@@ -221,7 +221,6 @@ def get_data(session_id, n_intervals):
 
 def serve_layout():
     session_id = str(uuid.uuid4())
-    df = get_data(session_id, 0)
     return html.Div(
         [
             html.Div(session_id, id="session-id", style={"display": "none"}),
@@ -267,7 +266,6 @@ def serve_layout():
                 style={"height": "10%"},
             ),
             dcc.Graph(
-                figure=plot_df(df, mode="spectra"),
                 id="dash_app",
                 config={"doubleClick": "reset"},
                 responsive=True,
