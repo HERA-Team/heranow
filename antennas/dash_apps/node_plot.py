@@ -114,7 +114,7 @@ def plot_df(
 @lru_cache
 def get_data(session_id, n_intervals):
 
-    df = pd.DataFrame()
+    df = []
 
     # a shorter variable to help with the text section
     NA = "Unknown"
@@ -208,11 +208,13 @@ def get_data(session_id, n_intervals):
                 }
             )
 
-        df = df.append([data])
+        df.append(data)
 
+    df = pd.DataFrame(df)
     # Sort according to increasing bins and antpols
     if not df.empty:
-        df = df.sort_values(["node", "snap", "ant", "pol"])
+        df.sort_values(["node", "snap", "ant", "pol"], inplace=True)
+        df.reset_index(inplace=True, drop=True)
 
     return df
 
