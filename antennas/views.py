@@ -1,12 +1,12 @@
 import socket
 import logging
 
-
 from tabination.views import TabView
 from django.shortcuts import redirect
+from django_tables2 import SingleTableView
 
-from .models import AntennaStatus, AutoSpectra, AprioriStatus
-from .plotting_scripts import autospectra
+from .models import CommissioningIssue
+from .tables import ComIssueTable
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -42,7 +42,6 @@ class DashChildTab(ChildTab):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        # Add in a QuerySet of all the books
         context["app_name"] = self.app_name
         return context
 
@@ -261,6 +260,25 @@ class Hookups(BaseTab):
         "hookup_notes_table",
         "snaphookup",
     ]
+
+
+class IssueLog(SingleTableView, BaseTab):
+    """Commissioning Issue Log."""
+
+    tab_label = "Issue Log"
+    tab_id = "issue_log"
+    _is_tab = False
+    model = CommissioningIssue
+    table_class = ComIssueTable
+    template_name = "table.html"
+
+    def get_queryset(self):
+        """Return the newest JDs first."""
+        return CommissioningIssue.objects.order_by("-julian_date")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_list = self.get_queryset()
 
 
 class Help(ExternalTab):

@@ -1,5 +1,7 @@
 import datetime
 
+from astropy.time import Time
+
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -331,6 +333,13 @@ class CommissioningIssue(models.Model):
     related_issues = ArrayField(models.IntegerField(), null=True, blank=True)
     labels = ArrayField(models.CharField(max_length=200), null=True, blank=True)
     new_issues = models.IntegerField(null=True, blank=True)
+
+    def nightly_notebook_date(self):
+        return self.julian_date
+
+    def rfi_notebook_date(self):
+        obs_date = Time(self.julian_date, format="jd")
+        return obs_date.isot.split("T")[0].replace("-", "")
 
     class Meta:
         constraints = [

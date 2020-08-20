@@ -30,5 +30,6 @@ urlpatterns = [
     path("Notebooks", views.Notebooks.as_view(), name="notebooks"),
     path("DailyLog", views.DailyLog.as_view(), name="dailylogs"),
     path("NewIssue", views.NewIssue.as_view(), name="newissues"),
+    path("issue_log", views.IssueLog.as_view(), name="issue_log"),
     path("Help", views.Help.as_view(), name="help"),
 ]
