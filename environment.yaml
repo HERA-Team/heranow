@@ -1,0 +1,41 @@
+name: heranow
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.8
+  - astropy
+  - cartopy
+  - django
+  - gunicorn
+  - numpy
+  - pandas
+  - plotly
+  - pre-commit
+  - psycopg2
+  - pyuvdata
+  - pyyaml
+  - redis-py
+  - setuptools-scm
+  - sqlalchemy
+  - tabulate
+  - uvicorn
+  - pip
+  - pip:
+    - dash
+    - dash-bootstrap-components
+    - dash-core-components
+    - dash-daq
+    - dash-html-components
+    - dash-renderer
+    - dash-table
+    - dpd-components
+    - dpd_static_support
+    - django-analytical
+    - django-bootstrap4
+    - django-extensions
+    - django-plotly-dash
+    - django-tabination
+    - django-tables2
+    - lttb
+    - whitenoise
