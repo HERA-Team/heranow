@@ -71,12 +71,12 @@ class ComIssueTable(tables.Table):
         return format_html(
             "<a target='_blank' href={}>{}</a>",
             notebook_view.format(value),
-            "Check Availaility",
+            "Check Availability",
         )
 
     def render_rfi(self, value):
         return format_html(
             "<a target='_blank' href={}>{}</a>",
             rfi_view.format(value),
-            "Check Availaility",
+            "Check Availability",
         )
