@@ -2,6 +2,8 @@
 {% extends "home_base.html" %}
 {% load static %}
 {% load plotly_dash %}
+{% load render_table from django_tables2 %}
+
 
 {% block precontent %}
 <div class="row-sm-12" style="padding-bottom: 1em;">
@@ -20,10 +22,13 @@
         <td style="width: 30%;"><div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="/hex_stats">(open in new tab)</a></div>
           <iframe scrolling="no" src="/django_plotly_dash/app/dash_hexplot/" width=100%, height=100% frameborder="0"></iframe>
         <td rowspan=3 style=" width: 40%; height: 100%;"><div class="dashboard-inset-titlebar">
-            Commissioning Daily Logs -- <a target="_blank" href="http://heranow.reionization.org/issue_log.html">(open in new tab)</a>
+            Commissioning Daily Logs -- <a target="_blank" href="issue_log">(open in new tab)</a>
           </div>
-          <iframe scrolling="no" height=100% width=100% src=http://heranow.reionization.org/issue_log.html frameborder="0">
-          </iframe>
+          <div style="height:100%;">
+          {% render_table table %}
+         </div>
+          <!-- <iframe scrolling="no" height=100% width=100% src=issue_log frameborder="0"> -->
+          <!-- </iframe> -->
         </td>
     </tr>
     <tr class="noBorder"  style="height: 30%;">
