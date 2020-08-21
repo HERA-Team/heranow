@@ -53,8 +53,9 @@ tr.noBorder td {
   position: relative;
   padding: 0;
 }
+
 iframe {
- overflow: hidden;
+  overflow: hidden;
 }
 
 

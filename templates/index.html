@@ -6,25 +6,28 @@
 
 
 {% block precontent %}
-<div class="row-sm-12" style="padding-bottom: 1em;">
+<div class="d-none d-md-block row-sm-12">
   <div class="col-sm-12">
     <a class="weatherwidget-io" href="https://forecast7.com/en/n30d9622d15/carnarvon/" data-label_1="HERA" data-label_2="WEATHER" data-theme="original" >HERA WEATHER</a>
   </div>
 </div>
 {% endblock %}
 
-{% block content %}
+{% block allcontent %}
   <table border=0 style="width: 100%; height: 100%;">
-    <tr class="noBorder" style="height: 30%;">
-        <td style="width: 30%;"><div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new tab)</a></div>
-            <iframe  width=100% height=100% scrolling="no" src="/django_plotly_dash/app/dash_autospectra/" frameborder="0"></iframe>
+    <tr class="noBorder" style="height: 40%;">
+        <td style="width: 30%;">
+          <div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new tab)</a></div>
+            <iframe width=100% height=100% scrolling="no" src="/django_plotly_dash/app/dash_autospectra/" frameborder="0"></iframe>
         </td>
-        <td style="width: 30%;"><div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="/hex_stats">(open in new tab)</a></div>
+        <td style="width: 30%;">
+          <div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="/hex_stats">(open in new tab)</a></div>
           <iframe scrolling="no" src="/django_plotly_dash/app/dash_hexplot/" width=100%, height=100% frameborder="0"></iframe>
-        <td rowspan=3 style=" width: 40%; height: 100%;"><div class="dashboard-inset-titlebar">
-            Commissioning Daily Logs -- <a target="_blank" href="issue_log">(open in new tab)</a>
+        <td rowspan=3 style=" width: 40%; height: 100%;">
+          <div class="dashboard-inset-titlebar">
+            Commissioning Daily Logs -- <a target="_blank" href="/issue_log">(open in new tab)</a>
           </div>
-          <div style="height:100%;">
+          <div style="height: 100%; padding-top: 1em; padding-left: 1em; padding-right: 1em;">
           {% render_table table %}
          </div>
           <!-- <iframe scrolling="no" height=100% width=100% src=issue_log frameborder="0"> -->
@@ -38,7 +41,7 @@
           <iframe scrolling="no" src="http://heranow.reionization.org/mc_html_summary.html" width=100% height=100% frameborder="0"></iframe></td>
    </tr>
 
-    <tr class="noBorder"  style="height: 20%;">
+    <tr class="noBorder"  style="height: 30%;">
       <td>
         <div style="text-align: center; height: 100%;">
           <img align="middle" id="radiosky" src="http://heranow.reionization.org/radiosky.png">
