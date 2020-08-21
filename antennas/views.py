@@ -66,11 +66,23 @@ class ExternalChildTab(ChildTab):
         return redirect(self.url)
 
 
-class home(BaseTab):
+class home(BaseTab, SingleTableView):
     """The home-page. Should just be simple html with links to what to do."""
 
     _is_tab = False
     template_name = "index.html"
+
+    model = CommissioningIssue
+    table_class = ComIssueTable
+    table_pagination = False
+
+    def get_queryset(self):
+        """Return the newest JDs first."""
+        return list(CommissioningIssue.objects.order_by("-julian_date")[:30])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object_list = self.get_queryset()
 
 
 class AutoSpectraPlot(DashChildTab):
