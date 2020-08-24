@@ -167,11 +167,10 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("node-dropdown", "options"),
-    [Input("session-id", "children"), Input("interval-component", "n_intervals")],
+    Output("node-dropdown", "options"), [Input("session-id", "children")],
 )
-def update_node_selection(session_id, n_intervals):
-    df = get_data(session_id, n_intervals)
+def update_node_selection(session_id):
+    df = get_data(session_id)
     node_labels = [
         {"label": f"Node {node}", "value": node}
         for node in sorted([node for node in df.node.unique() if node != "Unknown"])
