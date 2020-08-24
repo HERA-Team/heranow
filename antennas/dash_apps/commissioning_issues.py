@@ -126,15 +126,15 @@ def serve_layout():
                                 style_cell_conditional=[
                                     {
                                         "if": {"column_id": "Julian Date"},
-                                        "width": "30%",
+                                        "width": "20%",
                                     },
                                     {
                                         "if": {"column_id": "Related Issues"},
-                                        "width": "10%",
+                                        "width": "15%",
                                     },
                                     {
                                         "if": {"column_id": "Issue Labels"},
-                                        "width": "10%",
+                                        "width": "15%",
                                     },
                                     {
                                         "if": {"column_id": "Nightly Notebook"},
