@@ -42,12 +42,11 @@ footer {
   height: 1.5em;
   width: 100%;
 }
-table
-{
-  /* table-layout: fixed;
-  width:100%;
-  height:  100% !important; */
+
+#table_com div.cell.cell-1-1.dash-fixed-content {
+  width: 100%;
 }
+
 tr.noBorder td {
   border: 0;
   position: relative;
@@ -57,7 +56,6 @@ tr.noBorder td {
 iframe {
   overflow: hidden;
 }
-
 
 div.django-plotly-dash.django-plotly-dash-direct {
   height: 100%;

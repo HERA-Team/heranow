@@ -27,14 +27,17 @@
           <div class="dashboard-inset-titlebar">
             Commissioning Daily Logs -- <a target="_blank" href="/issue_log">(open in new tab)</a>
           </div>
-          <iframe scrolling="yes" height=100% width=100% src="/django_plotly_dash/app/dash_commissioning_issue" frameborder="0"></iframe>
+          <!-- <div style="height: 100%; width: 100%; overflow-x: scroll;"> -->
+            {%plotly_direct name="dash_commissioning_issue"%}
+          <!-- <iframe scrolling="auto" height=100% width=100% src="/django_plotly_dash/app/dash_commissioning_issue" frameborder="0"></iframe> -->
+        <!-- </div> -->
         </td>
     </tr>
     <tr class="noBorder"  style="height: 35%;">
         <td><div class="dashboard-inset-titlebar">Power by Node -- <a target="_blank" href="/node_stats">(open in new tab)</a></div>
           <iframe scrolling="no" src="/django_plotly_dash/app/dash_nodeplot/" width=100%, height=100% frameborder="0"></iframe>
         <td><div class="dashboard-inset-titlebar">System Summary</div>
-          <iframe scrolling="no" src="http://heranow.reionization.org/mc_html_summary.html" width=100% height=100% frameborder="0"></iframe></td>
+          <iframe scrolling="no" height=100% width=100% src="http://heranow.reionization.org/mc_html_summary.html" width=100% height=100% frameborder="0"></iframe></td>
    </tr>
 
     <tr class="noBorder"  style="height: 30%;">

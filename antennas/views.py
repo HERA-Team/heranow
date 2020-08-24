@@ -265,6 +265,7 @@ class IssueLog(DashChildTab):
     tab_id = "issue_log"
     _is_tab = True
     top = True
+    template_name = "plotly_direct_table.html"
     app_name = "dash_commissioning_issue"
 
 

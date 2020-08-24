@@ -101,53 +101,57 @@ def serve_layout():
                         [], justify="center", align="center", style={"height": "10%"},
                     ),
                     dbc.Row(
-                        dash_table.DataTable(
-                            id="table",
-                            columns=[
-                                {"name": i, "id": i, "presentation": "markdown"}
-                                for i in df
-                            ],
-                            data=df.to_dict("records"),
-                            page_size=20,
-                            style_cell={
-                                "textAlign": "center",
-                                "whiteSpace": "normal",
-                                "height": "auto",
-                            },
-                            style_header={"fontWeight": "bold", "fontSize": 18,},
-                            style_data_conditional=[
-                                {
-                                    "if": {"row_index": "odd"},
-                                    "backgroundColor": "rgb(248, 248, 248)",
-                                }
-                            ],
-                            style_table={
-                                "height": "90%",
-                                "width": "80%",
-                                "padding-left": "5em",
-                                "padding-right": "5em",
-                                "table-layout": "fixed",
-                            },
-                            style_cell_conditional=[
-                                {
-                                    "if": {
-                                        "column_id": "New Issues Opened On This Day"
+                        dbc.Col(
+                            dash_table.DataTable(
+                                id="table_com",
+                                columns=[
+                                    {"name": i, "id": i, "presentation": "markdown"}
+                                    for i in df
+                                ],
+                                data=df.to_dict("records"),
+                                page_size=20,
+                                style_cell={
+                                    "textAlign": "center",
+                                    "whiteSpace": "normal",
+                                    "height": "auto",
+                                },
+                                style_header={"fontWeight": "bold", "fontSize": 18,},
+                                style_data_conditional=[
+                                    {
+                                        "if": {"row_index": "odd"},
+                                        "backgroundColor": "rgb(248, 248, 248)",
+                                    }
+                                ],
+                                style_table={"height": "90%", "width": "100%",},
+                                style_cell_conditional=[
+                                    {
+                                        "if": {"column_id": "Julian Date"},
+                                        "width": "30%",
                                     },
-                                    "min-width": "100px",
-                                },
-                                {
-                                    "if": {
-                                        "column_id": "New Issues Opened On This Day"
+                                    {
+                                        "if": {"column_id": "Related Issues"},
+                                        "width": "10%",
                                     },
-                                    "width": "75px",
-                                    "min-width": "25px",
-                                },
-                                {
-                                    "if": {"column_id": "Related Issues"},
-                                    "width": "100px",
-                                },
-                                {"if": {"column_id": "Issue Labels"}, "width": "100px"},
-                            ],
+                                    {
+                                        "if": {"column_id": "Issue Labels"},
+                                        "width": "10%",
+                                    },
+                                    {
+                                        "if": {"column_id": "Nightly Notebook"},
+                                        "width": "20%",
+                                    },
+                                    {
+                                        "if": {"column_id": "RFI Notebook"},
+                                        "width": "20%",
+                                    },
+                                    {
+                                        "if": {
+                                            "column_id": "New Issues Opened On This Day"
+                                        },
+                                        "width": "10%",
+                                    },
+                                ],
+                            ),
                         ),
                         justify="center",
                         align="center",
@@ -159,7 +163,7 @@ def serve_layout():
                         disabled=False,
                     ),
                 ],
-                style={"height": "100%", "width": "100%"},
+                style={"height": "100%", "width": "90%"},
             ),
         ],
         style={"display": "flex", "justify-content": "center"},
@@ -172,10 +176,7 @@ dash_app = DjangoDash(
     name=app_name,
     serve_locally=False,
     app_name=app_name,
-    meta_tags=[
-        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
-    ],
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.BOOTSTRAP, "/static/antennas/style.css"],
     add_bootstrap_links=True,
 )
 
@@ -183,9 +184,9 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    [Output("table", "data"), Output("table", "page_current"),],
+    [Output("table_com", "data"), Output("table_com", "page_current"),],
     [Input("session-id", "children"), Input("interval-component", "n_intervals"),],
-    [State("table", "page_current")],
+    [State("table_com", "page_current")],
 )
 def refresh_data(session_id, n_intervals, page_number):
     return get_data(session_id).to_dict("records"), page_number
