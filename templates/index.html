@@ -14,8 +14,8 @@
 {% endblock %}
 
 {% block allcontent %}
-  <table border=0 style="width: 100%; height: 100%;">
-    <tr class="noBorder" style="height: 40%;">
+  <table border=0 style="width: 100%; height: 100em;">
+    <tr class="noBorder" style="height: 35%;">
         <td style="width: 30%;">
           <div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new tab)</a></div>
             <iframe width=100% height=100% scrolling="no" src="/django_plotly_dash/app/dash_autospectra/" frameborder="0"></iframe>
@@ -27,14 +27,10 @@
           <div class="dashboard-inset-titlebar">
             Commissioning Daily Logs -- <a target="_blank" href="/issue_log">(open in new tab)</a>
           </div>
-          <div style="height: 100%; padding-top: 1em; padding-left: 1em; padding-right: 1em;">
-          {% render_table table %}
-         </div>
-          <!-- <iframe scrolling="no" height=100% width=100% src=issue_log frameborder="0"> -->
-          <!-- </iframe> -->
+          <iframe scrolling="yes" height=100% width=100% src="/django_plotly_dash/app/dash_commissioning_issue" frameborder="0"></iframe>
         </td>
     </tr>
-    <tr class="noBorder"  style="height: 30%;">
+    <tr class="noBorder"  style="height: 35%;">
         <td><div class="dashboard-inset-titlebar">Power by Node -- <a target="_blank" href="/node_stats">(open in new tab)</a></div>
           <iframe scrolling="no" src="/django_plotly_dash/app/dash_nodeplot/" width=100%, height=100% frameborder="0"></iframe>
         <td><div class="dashboard-inset-titlebar">System Summary</div>

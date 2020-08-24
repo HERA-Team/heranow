@@ -9,6 +9,7 @@ from .dash_apps import (
     snapspectra,
     hookup_notes_table,
     hex_notes,
+    commissioning_issues,
 )
 
 app_name = "antennas"

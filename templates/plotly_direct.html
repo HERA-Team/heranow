@@ -16,11 +16,6 @@
 
 {% block footer %}
       <li class="text-muted text-center"><small><small>
-        {% if data_type is not defined %}
-        Panel last update: <span id="age">???</span> ago at {{ gen_date }}<br>
-        {% endif %}
-        Script name: {{ scriptname }}
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         Executing host: {{ hostname }}
         </small></small>
       </li>
