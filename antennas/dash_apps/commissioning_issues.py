@@ -176,7 +176,7 @@ dash_app = DjangoDash(
     name=app_name,
     serve_locally=False,
     app_name=app_name,
-    external_stylesheets=[dbc.themes.BOOTSTRAP, "/static/antennas/style.css"],
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
     add_bootstrap_links=True,
 )
 
