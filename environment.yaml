@@ -13,6 +13,8 @@ dependencies:
   - plotly
   - pre-commit
   - psycopg2
+  - psutil
+  - python-dateutil
   - pyuvdata
   - pyyaml
   - redis-py
@@ -40,3 +42,4 @@ dependencies:
     - django-tables2
     - lttb
     - whitenoise
+    - git+https://github.com/HERA-Team/hera_mc.git
