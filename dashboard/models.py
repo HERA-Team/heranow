@@ -32,11 +32,16 @@ class Antenna(models.Model):
         return f"{self.ant_name} pol:{self.polarization} built:{self.constructed}"
 
 
+def _get_eq_default():
+    return [1]
+
+
 class AutoSpectra(models.Model):
     antenna = models.ForeignKey(Antenna, on_delete=models.CASCADE)
     spectra = ArrayField(models.FloatField())
     frequencies = ArrayField(models.FloatField())
     time = models.DateTimeField("Status Time")
+    eq_coeffs = ArrayField(models.FloatField(), default=_get_eq_default)
 
     def is_recent(self):
         now = timezone.now()
@@ -46,14 +51,17 @@ class AutoSpectra(models.Model):
     is_recent.boolean = True
     is_recent.short_description = "Recent Spectra?"
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["antenna", "time"], name="One antpol auto per time"
+            ),
+        ]
+
     def clean(self):
         if len(self.frequencies) != len(self.spectra):
             raise ValidationError(
                 "Input frequencies and spectra must be the same length."
-            )
-        if len(self.frequencies) != len(self.eq_coeffs):
-            raise ValidationError(
-                "Input frequencies and eq_coeffs must be the same length."
             )
 
 
@@ -73,6 +81,13 @@ class AprioriStatus(models.Model):
         CALIBRATION_TRIAGE = "CaT", gettext_lazy("Calibration Triage")
 
     apriori_status = models.CharField(max_length=3, choices=AprioriStatusList.choices)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["antenna", "time"], name="One antpol apriori per time"
+            ),
+        ]
 
     def observation_ready(self):
         return self.apriori_status in {
@@ -190,6 +205,13 @@ class AntennaStatus(models.Model):
         ):
             raise ValidationError("snap_channel_number must be in the range [0,7].")
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["antenna", "time"], name="One antpol status per time"
+            ),
+        ]
+
 
 class SnapStatus(models.Model):
     """
@@ -235,7 +257,9 @@ class SnapStatus(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["hostname"], name="unique hostname"),
+            models.UniqueConstraint(
+                fields=["hostname", "time"], name="one snap status per time"
+            ),
         ]
 
     def __str__(self):
@@ -274,7 +298,8 @@ class SnapSpectra(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["hostname", "input_number"], name="unique snap input"
+                fields=["time", "hostname", "input_number"],
+                name="unique snap input per time",
             ),
         ]
 
@@ -347,21 +372,21 @@ class CommissioningIssue(models.Model):
         ]
 
 
-class MCSummary(models.Model):
-    """A front page summary table from M&C.
-
-    last_obs : DateTime Column
-        The date of the last recorded observation
-    n_files : Integer Column
-        The Number of files recorded.
-    node_pings : Array of Char Columns
-        List of Nodes and number of pings "Node#:Ping_Count"
-    is_recording : BooleanField
-        Boolean Flag if correlator state is set to recording.
-
-    """
-
-    last_obs = models.DateTimeField()
-    n_files = models.IntegerField()
-    node_pings = ArrayField(models.CharField(max_length=100))
-    is_recording = models.BooleanField()
+# class MCSummary(models.Model):
+#     """A front page summary table from M&C.
+#
+#     last_obs : DateTime Column
+#         The date of the last recorded observation
+#     n_files : Integer Column
+#         The Number of files recorded.
+#     node_pings : Array of Char Columns
+#         List of Nodes and number of pings "Node#:Ping_Count"
+#     is_recording : BooleanField
+#         Boolean Flag if correlator state is set to recording.
+#
+#     """
+#
+#     last_obs = models.DateTimeField()
+#     n_files = models.IntegerField()
+#     node_pings = ArrayField(models.CharField(max_length=100))
+#     is_recording = models.BooleanField()
