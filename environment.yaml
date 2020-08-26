@@ -22,6 +22,7 @@ dependencies:
   - uvicorn
   - pip
   - pip:
+    - celery
     - dash
     - dash-bootstrap-components
     - dash-core-components
@@ -30,7 +31,7 @@ dependencies:
     - dash-renderer
     - dash-table
     - dpd-components
-    - dpd_static_support
+    - dpd-static-support
     - django-analytical
     - django-bootstrap4
     - django-extensions

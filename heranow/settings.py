@@ -163,3 +163,12 @@ PLOTLY_COMPONENTS = [
     # Other components, as needed
     "dash_bootstrap_components",
 ]
+
+
+# CELERY Configuration
+CELERY_BROKER_URL = "redis://localhost:6380"
+CELERY_RESULT_BACKEND = "redis://localhost:6380"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
