@@ -127,9 +127,10 @@ dmypy.json
 # Collected static files
 static/
 
-# secret key
+# secret keys
 .django_key
-
 *.pem
-
 .github_app_id
+
+# celery files
+celerybeat*
