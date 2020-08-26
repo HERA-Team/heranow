@@ -172,3 +172,8 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
+
+
+# M&C config options
+MC_CONFIG_PATH = os.path.expanduser("~/.hera_mc")
+MC_DB_NAME = "hera_mc"
