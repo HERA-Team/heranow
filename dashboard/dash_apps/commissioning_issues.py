@@ -18,7 +18,7 @@ from dash.dependencies import Input, Output, State
 
 from django_plotly_dash import DjangoDash
 
-from antennas.models import CommissioningIssue
+from dashboard.models import CommissioningIssue
 
 
 notebook_link = (

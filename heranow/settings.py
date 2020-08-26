@@ -37,7 +37,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = None
 # Application definition
 
 INSTALLED_APPS = [
-    "antennas",
+    "dashboard",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "dpd_static_support",
     "bootstrap4",
     "django_tables2",
+    "django_rename_app",
 ]
 
 MIDDLEWARE = [
@@ -133,7 +134,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = [
-    os.path.join(os.path.join(BASE_DIR, "antennas"), "static"),
+    os.path.join(os.path.join(BASE_DIR, "dashboard"), "static"),
     # os.path.join(BASE_DIR, "static"),
 ]
 # List of finder classes that know how to find static files in

@@ -15,7 +15,7 @@
 
 {% block allcontent %}
   <table border=0 style="width: 100%; height: 100em;">
-    <tr class="noBorder" style="height: 35%;">
+    <tr class="noBorder" style="height: 33%;">
         <td style="width: 30%;">
           <div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new tab)</a></div>
             <iframe width=100% height=100% scrolling="no" src="/django_plotly_dash/app/dash_autospectra/" frameborder="0"></iframe>
@@ -33,14 +33,15 @@
         <!-- </div> -->
         </td>
     </tr>
-    <tr class="noBorder"  style="height: 35%;">
+    <tr class="noBorder"  style="height: 33%;">
         <td><div class="dashboard-inset-titlebar">Power by Node -- <a target="_blank" href="/node_stats">(open in new tab)</a></div>
           <iframe scrolling="no" src="/django_plotly_dash/app/dash_nodeplot/" width=100%, height=100% frameborder="0"></iframe>
         <td><div class="dashboard-inset-titlebar">System Summary</div>
           <iframe scrolling="no" height=100% width=100% src="http://heranow.reionization.org/mc_html_summary.html" width=100% height=100% frameborder="0"></iframe></td>
+        </td>
    </tr>
 
-    <tr class="noBorder"  style="height: 30%;">
+    <tr class="noBorder"  style="height: 28%;">
       <td>
         <div style="text-align: center; height: 100%;">
           <img align="middle" id="radiosky" src="http://heranow.reionization.org/radiosky.png">

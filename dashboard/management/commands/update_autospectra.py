@@ -4,7 +4,7 @@ from astropy.time import Time
 from django.utils import timezone
 
 from django.core.management.base import BaseCommand, CommandError
-from antennas.models import Antenna, AutoSpectra
+from dashboard.models import Antenna, AutoSpectra
 
 
 class Command(BaseCommand):

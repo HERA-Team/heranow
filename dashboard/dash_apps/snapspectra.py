@@ -18,7 +18,7 @@ import plotly.graph_objs as go
 
 from django_plotly_dash import DjangoDash
 
-from antennas.models import SnapSpectra, SnapStatus, AntennaStatus
+from dashboard.models import SnapSpectra, SnapStatus, AntennaStatus
 
 
 def plot_df(df, hostname):

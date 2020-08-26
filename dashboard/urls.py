@@ -12,7 +12,7 @@ from .dash_apps import (
     commissioning_issues,
 )
 
-app_name = "antennas"
+app_name = "dashboard"
 
 urlpatterns = [
     path("", views.home.as_view(), name="index"),

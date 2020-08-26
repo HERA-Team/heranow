@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
                     "antenna",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="antennas.Antenna",
+                        to="dashboard.Antenna",
                     ),
                 ),
             ],

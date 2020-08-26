@@ -3,7 +3,7 @@ from argparse import Namespace
 from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup
 
 from django.core.management.base import BaseCommand, CommandError
-from antennas.models import HookupNotes
+from dashboard.models import HookupNotes
 
 
 class Command(BaseCommand):

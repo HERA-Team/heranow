@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("antennas", "0001_initial"),
+        ("dashboard", "0001_initial"),
     ]
 
     operations = [
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                     "antenna",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="antennas.Antenna",
+                        to="dashboard.Antenna",
                     ),
                 ),
             ],
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                     "antenna",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="antennas.Antenna",
+                        to="dashboard.Antenna",
                     ),
                 ),
             ],

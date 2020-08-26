@@ -2,7 +2,7 @@ import logging  # noqa
 from hera_corr_cm import HeraCorrCM
 
 from django.core.management.base import BaseCommand, CommandError
-from antennas.models import Antenna, AntennaStatus
+from dashboard.models import Antenna, AntennaStatus
 
 logger = logging.getLogger(__name__)
 

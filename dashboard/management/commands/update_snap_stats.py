@@ -4,7 +4,7 @@ from hera_corr_cm import HeraCorrCM
 from hera_mc import mc
 
 from django.core.management.base import BaseCommand, CommandError
-from antennas.models import SnapSpectra, SnapStatus
+from dashboard.models import SnapSpectra, SnapStatus
 
 logger = logging.getLogger(__name__)
 

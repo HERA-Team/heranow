@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("antennas", "0003_auto_20200805_2157"),
+        ("dashboard", "0004_auto_20200805_2158"),
     ]
 
     operations = [
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             model_name="antenna",
             name="antpos_enu",
             field=django.contrib.postgres.fields.ArrayField(
-                base_field=models.FloatField(), default=[], size=3
+                base_field=models.FloatField(), default=list, size=3
             ),
         ),
     ]
