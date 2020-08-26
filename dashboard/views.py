@@ -88,7 +88,7 @@ class ADCHistograms(DashChildTab):
 class HexPlot(DashChildTab):
     """Link to Stats by Hex plot."""
 
-    tab_label = "Statistisc by Hex Position"
+    tab_label = "Statistics by Hex Position"
     tab_id = "hex_stats"
     app_name = "dash_hexplot"
 
@@ -96,7 +96,7 @@ class HexPlot(DashChildTab):
 class NodePlot(DashChildTab):
     """Link to Stats by Hex plot."""
 
-    tab_label = "Statistisc by Node"
+    tab_label = "Statistics by Node"
     tab_id = "node_stats"
     app_name = "dash_nodeplot"
 
