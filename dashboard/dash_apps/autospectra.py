@@ -61,8 +61,12 @@ def get_data(session_id, interval):
             if apriori_stat is not None:
                 apriori = apriori_stat.apriori_status
 
+            _spectra = stat.spectra
+            if ant_stat.eq_coeffs is not None:
+                _spectra /= np.median(ant_stat.eq_coeffs) ** 2
+
             _freqs = np.asarray(stat.frequencies) / 1e6
-            _spectra = (10 * np.log10(np.ma.masked_invalid(stat.spectra))).filled(-100)
+            _spectra = (10 * np.log10(np.ma.masked_invalid(_spectra))).filled(-100)
 
             df_full.append(
                 pd.DataFrame(
