@@ -328,6 +328,13 @@ class HookupNotes(models.Model):
     part = models.CharField(max_length=200)
     note = models.TextField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["time", "ant_number", "part"], name="unique part note per time",
+            ),
+        ]
+
     def __str__(self):
         return f"Antenna: {self.ant_number} Part: {self.part} Date: {self.time}"
 
