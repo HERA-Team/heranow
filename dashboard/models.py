@@ -299,7 +299,7 @@ class SnapSpectra(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["time", "hostname", "input_number"],
-                name="unique snap input per time",
+                name="unique snap spectra per time",
             ),
         ]
 
