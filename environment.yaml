@@ -40,7 +40,7 @@ dependencies:
     - django-plotly-dash
     - django-tabination
     - django-tables2
-    - github3
+    - github3.py
     - lttb
     - whitenoise
     - git+https://github.com/HERA-Team/hera_mc.git
