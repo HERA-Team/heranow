@@ -160,7 +160,15 @@ def get_data(session_id, n_intervals):
                 except AutoSpectra.DoesNotExist:
                     auto = None
                 if auto is not None:
-                    spectra = (10 * np.log10(np.ma.masked_invalid(auto.spectra))).mean()
+                    if auto.eq_coeffs is not None:
+                        spectra = auto.spectra / auto.eq_coeffs ** 2
+                    else:
+                        spectra = auto.spectra
+                    spectra = (
+                        (10 * np.log10(np.ma.masked_invalid(spectra)))
+                        .filled(-100)
+                        .mean()
+                    )
                 else:
                     spectra = None
             else:
