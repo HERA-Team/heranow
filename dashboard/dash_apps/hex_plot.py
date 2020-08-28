@@ -198,7 +198,9 @@ def get_data(session_id, n_intervals):
                 if auto is not None:
 
                     if auto.eq_coeffs is not None:
-                        spectra = auto.spectra / auto.eq_coeffs ** 2
+                        spectra = (
+                            np.array(auto.spectra) / np.median(auto.eq_coeffs) ** 2
+                        )
                     else:
                         spectra = auto.spectra
                     spectra = (
