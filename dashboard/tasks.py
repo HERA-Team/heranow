@@ -164,9 +164,7 @@ def get_snap_status_from_redis():
 
 
 @periodic_task(
-    run_every=(crontab(minute="0 */6 * * *")),
-    name="get_hookup_notes",
-    ignore_result=True,
+    run_every=(crontab(hour="*/6")), name="get_hookup_notes", ignore_result=True,
 )
 def update_hookup_notes():
     logger.info("Getting Hookup Notes from M&C")
