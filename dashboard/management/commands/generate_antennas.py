@@ -73,7 +73,7 @@ class Command(BaseCommand):
                             ant_number=ant_number,
                             ant_name=name,
                             polarization=pol,
-                            antpos_enu=antpos[:, ind],
+                            antpos_enu=antpos[:, ind].tolist(),
                             constructed=ant_number in stations,
                         )
                     )
