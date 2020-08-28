@@ -1,3 +1,4 @@
+import os
 import redis
 import numpy as np
 from astropy.time import Time
@@ -125,10 +126,7 @@ def get_snap_status_from_redis():
 
     snap_status = corr_cm.get_f_status()
 
-    mc_args = Namespace()
-    mc_args.mc_db_name = settings.MC_DB_NAME
-    mc_args.mc_config_path = settings.MC_CONFIG_PATH
-    db = mc.connect_to_mc_db(args=mc_args)
+    db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
 
@@ -169,10 +167,7 @@ def get_snap_status_from_redis():
 def update_hookup_notes():
     logger.info("Getting Hookup Notes from M&C")
 
-    mc_args = Namespace()
-    mc_args.mc_db_name = settings.MC_DB_NAME
-    mc_args.mc_config_path = settings.MC_CONFIG_PATH
-    db = mc.connect_to_mc_db(args=mc_args)
+    db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
         hookup = cm_hookup.Hookup(mc_session)
