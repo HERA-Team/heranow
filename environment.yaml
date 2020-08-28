@@ -44,3 +44,4 @@ dependencies:
     - lttb
     - whitenoise
     - git+https://github.com/HERA-Team/hera_mc.git
+    - git+https://github.com/HERA-Team/hera_corr_cm.git
