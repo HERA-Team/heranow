@@ -276,15 +276,6 @@ def serve_layout():
             dbc.Row(
                 [
                     dbc.Col(
-                        daq.BooleanSwitch(
-                            id="reload-box",
-                            on=False,
-                            label="Reload Data",
-                            labelPosition="top",
-                        ),
-                        width=1,
-                    ),
-                    dbc.Col(
                         html.Div(
                             id="auto-time",
                             children=[
@@ -304,9 +295,9 @@ def serve_layout():
                                     style={"font-weight": "bold"},
                                 ),
                             ],
-                            style={"text-align": "left"},
+                            style={"text-align": "center"},
                         ),
-                        width=6,
+                        width=10,
                     ),
                 ],
                 justify="center",
@@ -314,6 +305,15 @@ def serve_layout():
             ),
             dbc.Row(
                 [
+                    dbc.Col(
+                        daq.BooleanSwitch(
+                            id="reload-box",
+                            on=False,
+                            label="Reload Data",
+                            labelPosition="top",
+                        ),
+                        width=1,
+                    ),
                     html.Label(
                         [
                             "Statistic:",
