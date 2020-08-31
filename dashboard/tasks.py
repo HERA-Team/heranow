@@ -110,6 +110,9 @@ def get_snap_spectra_from_redis():
         for key in stats:
             if stats[key] == "None":
                 stats[key] = None
+            if key == "histogram" and stats[key] is not None:
+                if len(stats[key][0]) != len(stats[key][1]):
+                    stats[key] = None
         hostname, input_number = snap_key.split(":")
         spectra = SnapSpectra(
             hostname=hostname,
@@ -229,6 +232,9 @@ def get_antenna_status_from_redis():
         for key in stats:
             if stats[key] == "None":
                 stats[key] = None
+            if key == "histogram" and stats[key] is not None:
+                if len(stats[key][0]) != len(stats[key][1]):
+                    stats[key] = None
 
         if stats["fem_id"] is not None and stats["fem_id"] != -1:
             fem_id = _pam_fem_serial_list_to_string(stats["fem_id"])
@@ -381,6 +387,9 @@ def update_apriori():
                 for ant in Antenna.objects.filter(
                     ant_name=ant_name, polarization__in=pol_list
                 ):
+                    if status.status not in AprioriStatus._mc_apriori_mapping.keys():
+                        # some antennas still have old mappings, just ignore for now
+                        continue
                     a_stats.append(
                         AprioriStatus(
                             antenna=ant,
