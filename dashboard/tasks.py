@@ -15,7 +15,8 @@ from celery.utils.log import get_task_logger
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
 
-from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup
+from sqlachemy import func, and_, or_
+from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
 from hera_mc.correlator import _pam_fem_serial_list_to_string
 
 from hera_corr_cm import HeraCorrCM
@@ -26,6 +27,7 @@ from dashboard.models import (
     Antenna,
     AntennaStatus,
     AutoSpectra,
+    AprioriStatus,
     SnapSpectra,
     SnapStatus,
     HookupNotes,
@@ -324,6 +326,74 @@ def update_constructed_antennas():
                 )
 
     Antenna.objects.bulk_update(bulk_add, ["constructed"])
+
+
+def get_mc_apriori(handling, antenna):
+    if isinstance(antenna, Antenna):
+        ant = antenna.ant_name.upper()
+    else:
+        ant = antenna.upper()
+    at_date = Time.now().gps
+    cmapa = cm_partconnect.AprioriAntenna
+    apa = (
+        handling.session.query(cmapa)
+        .filter(
+            or_(
+                and_(
+                    func.upper(cmapa.antenna) == ant,
+                    cmapa.start_gpstime <= at_date,
+                    cmapa.stop_gpstime.is_(None),
+                ),
+                and_(
+                    func.upper(cmapa.antenna) == ant,
+                    cmapa.start_gpstime <= at_date,
+                    cmapa.stop_gpstime > at_date,
+                ),
+            )
+        )
+        .first()
+    )
+    return apa
+
+
+@periodic_task(
+    run_every=(crontab(hour="*/1")), name="update_apriori", ignore_result=True,
+)
+def update_apriori():
+    db = mc.connect_to_mc_db(None)
+
+    with db.sessionmaker() as session:
+        handling = cm_sysutils.Handling(session)
+        pol_list = [
+            p["polarization"]
+            for p in Antenna.objects.order_by().values("polarization").distinct()
+        ]
+        a_stats = []
+        for names in (
+            Antenna.objects.filter(constructed=True)
+            .order_by()
+            .values("ant_name")
+            .distinct()
+        ):
+            ant_name = names["ant_name"]
+            status = get_mc_apriori(handling, ant_name)
+            if status is not None and status.status != "not_connected":
+                for ant in Antenna.objects.filter(
+                    ant_name=ant_name, polarization__in=pol_list
+                ):
+                    a_stats.append(
+                        AprioriStatus(
+                            antenna=ant,
+                            time=timezone.make_aware(
+                                Time(status.start_gpstime, format="gps").datetime
+                            ),
+                            apriori_status=AprioriStatus._mc_apriori_mapping[
+                                status.status
+                            ],
+                        )
+                    )
+        AprioriStatus.objects.bulk_create(a_stats, ignore_conflicts=True)
+    return
 
 
 @periodic_task(

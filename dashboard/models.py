@@ -77,6 +77,18 @@ class AprioriStatus(models.Model):
     antenna = models.ForeignKey(Antenna, on_delete=models.CASCADE)
     time = models.DateTimeField("Status Time")
 
+    _mc_apriori_mapping = {
+        "dish_maintenance": "DhM",
+        "dish_ok": "DhO",
+        "RF_maintenance": "RFM",
+        "RF_ok": "RFO",
+        "digital_maintenance": "DiM",
+        "digital_ok": "DiO",
+        "calibration_maintenance": "CaM",
+        "calibration_ok": "CaO",
+        "calibration_triage": "CaT",
+    }
+
     class AprioriStatusList(models.TextChoices):
         DISH_MAINTENANCE = "DhM", gettext_lazy("Dish Maintenance")
         DISH_OK = "DhO", gettext_lazy("Dish OK")
@@ -99,11 +111,16 @@ class AprioriStatus(models.Model):
 
     def observation_ready(self):
         return self.apriori_status in {
-            self.AprioriStatus.DIGITAL_OK,
-            self.AprioriStatus.CALIBRATION_MAINTENANCE,
-            self.AprioriStatus.CALIBRATION_OK,
-            self.AprioriStatus.CALIBRATION_TRIAGE,
+            self.AprioriStatusList.DIGITAL_OK,
+            self.AprioriStatusList.CALIBRATION_MAINTENANCE,
+            self.AprioriStatusList.CALIBRATION_OK,
+            self.AprioriStatusList.CALIBRATION_TRIAGE,
         }
+
+    def __str__(self):
+        return (
+            f"{self.antenna.ant_name} staus:{self.AprioriStatusList(self.status).label}"
+        )
 
 
 class AntennaStatus(models.Model):
