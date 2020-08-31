@@ -46,7 +46,7 @@
                       <li class="nav-item dropdown">
                           <a href="#" class="nav-link dropdown-toggle"
                              data-toggle="dropdown" id="dropdown-{{ tab.tab_label }}"
-                             aria-haspopup="true" aria-expanded="false">
+                             aria-haspopup="true" aria-expanded="false" style="font-size: medium;">
                               {{ tab.tab_label }}
                           </a>
                           <div class="dropdown-menu" aria-labelledby="dropdown-{{ tab.tab_label }}">
@@ -55,12 +55,12 @@
                                   {% if alltabs.external %}
                                       <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %}"
                                          target="_blank"
-                                         href="{{ alltabs.tab_id }}">
+                                         href="{{ alltabs.tab_id }}" style="font-size: medium;">
                                           {{ alltabs.tab_label }}
                                       </a>
                                   {% else %}
                                       <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %}"
-                                        href="{{ alltabs.tab_id }}">
+                                        href="{{ alltabs.tab_id }}"style="font-size: medium;">
                                          {{ alltabs.tab_label }}
                                       </a>
                                   {% endif %}
@@ -74,13 +74,13 @@
                   {% if not tab.my_children %}
                       {% if tab.external %}
                       <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
-                          <a class='nav-link' target="_blank" href="{{ tab.tab_id }}">
+                          <a class='nav-link' target="_blank" href="{{ tab.tab_id }}" style="font-size: medium;">
                               {{ tab.tab_label }}
                           </a>
                       </li>
                       {% else %}
                       <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
-                          <a class='nav-link' href="{{ tab.tab_id }}">
+                          <a class='nav-link' href="{{ tab.tab_id }}" style="font-size: medium;">
                               {{ tab.tab_label }}
                           </a>
                       </li>
