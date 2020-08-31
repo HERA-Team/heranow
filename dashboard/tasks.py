@@ -33,7 +33,6 @@ logger = get_task_logger(__name__)
     run_every=(crontab(minute="*/1")), name="get_autos_from_redis", ignore_result=True,
 )
 def get_autospectra_from_redis():
-    logger.info("Getting AutoSpectra from Redis")
     redis_pool = redis.ConnectionPool(host="redishost", port=6379)
     with redis.Redis(connection_pool=redis_pool) as rsession:
         for antenna in Antenna.objects.all():
@@ -89,7 +88,6 @@ def get_autospectra_from_redis():
                 spectra.append(auto_spectra)
 
         AutoSpectra.objects.bulk_create(spectra, ignore_conflicts=True)
-    logger.info("Done")
     return
 
 
@@ -97,7 +95,6 @@ def get_autospectra_from_redis():
     run_every=(crontab(minute="*/1")), name="get_snap_spectra", ignore_result=True,
 )
 def get_snap_spectra_from_redis():
-    logger.info("Getting Snap Spectra from Redis")
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     snap_spectra = corr_cm.get_snaprf_status()
     spectra_list = []
@@ -117,7 +114,6 @@ def get_snap_spectra_from_redis():
         spectra_list.append(spectra)
 
     SnapSpectra.objects.bulk_create(spectra_list, ignore_conflicts=True)
-    logger.info("Done")
     return
 
 
@@ -125,7 +121,6 @@ def get_snap_spectra_from_redis():
     run_every=(crontab(minute="*/1")), name="get_snap_status", ignore_result=True,
 )
 def get_snap_status_from_redis():
-    logger.info("Getting Snap Status from Redis")
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
 
     snap_status = corr_cm.get_f_status()
@@ -161,7 +156,6 @@ def get_snap_status_from_redis():
             )
             snaps.append(snap)
         SnapStatus.objects.bulk_create(snaps, ignore_conflicts=True)
-    logger.info("Done")
     return
 
 
@@ -169,8 +163,6 @@ def get_snap_status_from_redis():
     run_every=(crontab(hour="*/6")), name="get_hookup_notes", ignore_result=True,
 )
 def update_hookup_notes():
-    logger.info("Getting Hookup Notes from M&C")
-
     db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
@@ -216,8 +208,6 @@ def update_hookup_notes():
     run_every=(crontab(minute="*/1")), name="get_ant_status", ignore_result=True,
 )
 def get_antenna_status_from_redis():
-    logger.info("Getting Antenna Status from redis")
-
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     ant_stats = corr_cm.get_ant_status()
     bulk_add = []
@@ -272,7 +262,6 @@ def get_antenna_status_from_redis():
         bulk_add.append(antenna_status)
 
     AntennaStatus.objects.bulk_create(bulk_add, ignore_conflicts=True)
-    logger.info("Done")
     return
 
 
