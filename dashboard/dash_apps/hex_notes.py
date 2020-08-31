@@ -97,25 +97,19 @@ def serve_layout():
     return html.Div(
         [
             html.Div(session_id, id="session-id", style={"display": "none"}),
-            dbc.Row(
-                [
-                    dbc.Col(
-                        daq.BooleanSwitch(
-                            id="reload-box",
-                            on=False,
-                            label="Reload Data",
-                            labelPosition="top",
-                        ),
-                        width=1,
-                    ),
-                ],
-                justify="center",
-                align="center",
-            ),
             html.Div(
                 [
                     dbc.Row(
                         [
+                            dbc.Col(
+                                daq.BooleanSwitch(
+                                    id="reload-box",
+                                    on=False,
+                                    label="Reload Data",
+                                    labelPosition="top",
+                                ),
+                                width=1,
+                            ),
                             html.Label(
                                 [
                                     "Node(s):",

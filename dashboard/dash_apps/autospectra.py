@@ -217,7 +217,6 @@ def serve_layout():
             ),
             dbc.Row(
                 [
-                    # html.Label([""], style={"width": "10%"}),
                     dbc.Col(
                         daq.BooleanSwitch(
                             id="reload-box",

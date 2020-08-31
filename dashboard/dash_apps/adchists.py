@@ -140,12 +140,6 @@ def serve_layout():
                         ),
                         width=1,
                     ),
-                ],
-                justify="center",
-                align="center",
-            ),
-            dbc.Row(
-                [
                     html.Label(
                         [
                             "Node(s):",
@@ -156,7 +150,7 @@ def serve_layout():
                                 style={"width": "100%"},
                             ),
                         ],
-                        style={"width": "40%"},
+                        style={"width": "30%"},
                     ),
                     html.Label(
                         [
@@ -172,7 +166,7 @@ def serve_layout():
                                 style={"width": "100%"},
                             ),
                         ],
-                        style={"width": "40%"},
+                        style={"width": "30%"},
                     ),
                 ],
                 justify="center",
