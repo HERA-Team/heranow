@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 with open(os.path.join(BASE_DIR, ".django_key"), "r") as key_file:
     SECRET_KEY = key_file.read()
 
-with open(os.environ["GITHUB_APP_KEY_FILE"], "r") as keyfile:
+with open(os.environ.get("GITHUB_APP_KEY_FILE", ""), "r") as keyfile:
     GITHUB_APP_KEY = keyfile.read()
-with open(os.environ["GITHUB_APP_ID_FILE"], "r") as appid_file:
+with open(os.environ.get("GITHUB_APP_ID_FILE", ""), "r") as appid_file:
     GITHUB_APP_ID = appid_file.read()
 
 
