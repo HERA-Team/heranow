@@ -280,7 +280,7 @@ def get_antenna_status_from_redis():
 
 
 @periodic_task(
-    run_every=(crontab(hour="0")),
+    run_every=(crontab(hour="0", minute="0")),
     name="update_constructed_antenna",
     ignore_result=True,
 )
@@ -363,7 +363,9 @@ def get_mc_apriori(handling, antenna):
 
 
 @periodic_task(
-    run_every=(crontab(hour="*/1")), name="update_apriori", ignore_result=True,
+    run_every=(crontab(hour="*/1", minute="0")),
+    name="update_apriori",
+    ignore_result=True,
 )
 def update_apriori():
     db = mc.connect_to_mc_db(None)
