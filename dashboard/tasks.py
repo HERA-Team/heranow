@@ -1,9 +1,13 @@
 import os
+import re
 import lttb
 import redis
+import github3
 import numpy as np
 from astropy.time import Time
 from argparse import Namespace
+from datetime import datetime, timedelta
+
 from django.utils import timezone
 
 from celery.decorators import task
@@ -17,6 +21,7 @@ from hera_mc.correlator import _pam_fem_serial_list_to_string
 from hera_corr_cm import HeraCorrCM
 
 from heranow import settings
+
 from dashboard.models import (
     Antenna,
     AntennaStatus,
@@ -24,6 +29,7 @@ from dashboard.models import (
     SnapSpectra,
     SnapStatus,
     HookupNotes,
+    CommissioningIssue,
 )
 
 logger = get_task_logger(__name__)
@@ -318,3 +324,73 @@ def update_constructed_antennas():
                 )
 
     Antenna.objects.bulk_update(bulk_add, ["constructed"])
+
+
+@periodic_task(
+    run_every=(crontab(hour="*/6")), name="update_issue_log", ignore_result=True,
+)
+def update_issue_log():
+    key = settings.GITHUB_APP_KEY
+    app_id = settings.GITHUB_APP_ID
+
+    gh = github3.github.GitHub()
+    gh.login_as_app(key.encode(), app_id)
+    ap = gh.authenticated_app()
+    inst = gh.app_installation_for_repository("HERA-Team", "HERA_Commissioning")
+    gh.login_as_app_installation(key.encode(), ap.id, inst.id)
+    repo = gh.repository("HERA-Team", "HERA_Commissioning")
+
+    issues = repo.issues(labels="Daily", state="all")
+
+    local_issue_regex = r"[^a-zA-Z0-9]#(\d+)"
+    # the foreign issue reference may be useful in the future
+    # foreign_issue_regex = r"[a-zA-Z0-9]#(\d+)"
+
+    for issue in issues:
+        # only look at issues edited in the last 6 hours
+        if not issue.updated_at >= timezone.make_aware(datetime.now()) - timedelta(
+            hours=6
+        ):
+            continue
+
+        try:
+            jd = int(issue.title.split(" ")[-1])
+        except ValueError:
+            match = re.search(r"\d{7}", issue.title)
+            if match is not None:
+                jd = int(match.group())
+            else:
+                continue
+
+        obs_date = Time(jd, format="jd")
+
+        obs_date = timezone.make_aware(obs_date.datetime)
+        obs_end = obs_date + timedelta(days=1)
+
+        num_opened = len(
+            list(repo.issues(state="all", sort="created", since=obs_date))
+        ) - len(list(repo.issues(state="all", sort="created", since=obs_end)))
+
+        other_labels = [lab.name for lab in issue.labels() if lab.name != "Daily"]
+        iss_nums = map(int, re.findall(local_issue_regex, issue.body))
+        related_issues = set()
+        related_issues.update(iss_nums)
+        for comm in issue.comments():
+            nums = map(int, re.findall(local_issue_regex, issue.body))
+            related_issues.update(nums)
+        related_issues = sorted(related_issues)
+
+        iss_values = dict(
+            julian_date=jd,
+            number=issue.number,
+            related_issues=related_issues,
+            labels=other_labels,
+            new_issues=num_opened,
+        )
+
+        CommissioningIssue.objects.update_or_create(julian_date=jd, defaults=iss_values)
+
+    # check if the current JD exists, otherwise create it
+    current_jd = np.floor(Time.Now().jd)
+    CommissioningIssue.objects.update_or_create(julian_date=current_jd)
+    return
