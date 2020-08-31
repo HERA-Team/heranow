@@ -55,7 +55,7 @@ def get_autospectra_from_redis():
 
         timestamp = np.frombuffer(rsession["auto:timestamp"], dtype=np.float64)[0]
         timestamp = Time(timestamp, format="jd")
-        timestamp = timestamp.datetime
+        timestamp = timezone.make_aware(timestamp.datetime)
 
         spectra = []
         for antenna in Antenna.objects.all():
@@ -109,7 +109,7 @@ def get_snap_spectra_from_redis():
         spectra = SnapSpectra(
             hostname=hostname,
             input_number=input_number,
-            time=stats["timestamp"],
+            time=timezone.make_aware(stats["timestamp"]),
             spectra=stats["autocorrelation"],
             eq_coeffs=stats["eq_coeffs"],
             adc_hist=stats["histogram"],
@@ -148,7 +148,7 @@ def get_snap_status_from_redis():
             else:
                 node, loc_num = None, None
             snap = SnapStatus(
-                time=stat["timestamp"],
+                time=timezone.make_aware(stat["timestamp"]),
                 hostname=key,
                 node=node,
                 snap_loc_num=loc_num,
@@ -248,7 +248,7 @@ def get_antenna_status_from_redis():
 
         antenna_status = AntennaStatus(
             antenna=antenna,
-            time=stats["timestamp"],
+            time=timezone.make_aware(stats["timestamp"]),
             snap_hostname=stats["f_host"],
             snap_channel_number=stats["host_ant_id"],
             adc_mean=stats["adc_mean"],
