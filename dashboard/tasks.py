@@ -15,7 +15,7 @@ from celery.utils.log import get_task_logger
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
 
-from sqlachemy import func, and_, or_
+from sqlalchemy import func, and_, or_
 from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
 from hera_mc.correlator import _pam_fem_serial_list_to_string
 
