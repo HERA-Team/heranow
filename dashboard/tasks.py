@@ -158,7 +158,7 @@ def get_snap_status_from_redis():
                 pps_count=stat["pps_count"],
                 fpga_temp=stat["temp"],
                 uptime_cycles=stat["uptime"],
-                last_programmed_time=stat["last_programmed"],
+                last_programmed_time=timezone.make_aware(stat["last_programmed"]),
             )
             snaps.append(snap)
         SnapStatus.objects.bulk_create(snaps, ignore_conflicts=True)
