@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 from django.core.management.base import BaseCommand, CommandError
 
+from heranow import settings
 from dashboard.models import CommissioningIssue
 
 logger = logging.getLogger(__name__)
@@ -21,10 +22,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--key", dest="key", type=str, help="File where the app key is stored.",
+            "--key",
+            dest="key",
+            type=str,
+            default=settings.GITHUB_APP_KEY_FILE,
+            help="File where the app key is stored.",
         )
         parser.add_argument(
-            "--appid", dest="appid", type=str, help="File container github app id.",
+            "--appid",
+            dest="appid",
+            type=str,
+            default=settings.GITHUB_APP_ID_FILE,
+            help="File container github app id.",
         )
 
     def handle(self, *args, **options):
@@ -63,7 +72,7 @@ class Command(BaseCommand):
 
             obs_date = Time(jd, format="jd")
 
-            obs_date = dateparser.parse(obs_date.iso).astimezone(timezone.utc)
+            obs_date = timezone.make_aware(obs_date.datetime)
             obs_end = obs_date + timedelta(days=1)
 
             num_opened = len(
