@@ -270,6 +270,12 @@ def serve_layout():
                 n_intervals=0,
                 disabled=True,
             ),
+            dcc.Interval(
+                id="time-display-interval-component",
+                interval=60 * 1000,
+                n_intervals=0,
+                disabled=False,
+            ),
         ],
         style={"height": "100%", "width": "100%"},
     )
@@ -300,9 +306,13 @@ def start_reload_counter(reload_box):
 
 @dash_app.callback(
     Output("auto-time", "children"),
-    [Input("session-id", "children"), Input("interval-component", "n_intervals"),],
+    [
+        Input("session-id", "children"),
+        Input("interval-component", "n_intervals"),
+        Input("time-display-interval-component", "n_intervals"),
+    ],
 )
-def update_time_data(session_id, n_intervals):
+def update_time_data(session_id, n_intervals, n_intervals_time_display):
     df_full, df_down, auto_time = get_data(session_id, n_intervals)
 
     time_ago = (Time.now() - auto_time).to("min")
