@@ -270,3 +270,58 @@ def get_antenna_status_from_redis():
     AntennaStatus.objects.bulk_create(bulk_add, ignore_conflicts=True)
     logger.info("Done")
     return
+
+
+@periodic_task(
+    run_every=(crontab(hour="0")),
+    name="update_constructed_antenna",
+    ignore_result=True,
+)
+def update_constructed_antennas():
+    db = mc.connect_to_mc_db(None)
+    antpos = np.genfromtxt(
+        os.path.join(mc.data_path, "HERA_350.txt"),
+        usecols=(0, 1, 2, 3),
+        dtype={
+            "names": ("ANTNAME", "EAST", "NORTH", "UP"),
+            "formats": ("<U5", "<f8", "<f8", "<f8"),
+        },
+        encoding=None,
+    )
+    antnames = antpos["ANTNAME"]
+    inds = [int(j[2:]) for j in antnames]
+    inds = np.argsort(inds)
+
+    antnames = np.take(antnames, inds)
+
+    antpos = np.array([antpos["EAST"], antpos["NORTH"], antpos["UP"]])
+    array_center = np.mean(antpos, axis=1, keepdims=True)
+    antpos -= array_center
+    antpos = np.take(antpos, inds, axis=1)
+
+    with db.sessionmaker() as session:
+        hsession = cm_sysutils.Handling(session)
+
+        stations = []
+        for station_type in hsession.geo.parse_station_types_to_check("default"):
+            for stn in hsession.geo.station_types[station_type]["Stations"]:
+                stations.append(stn)
+
+        # stations is a list of HH??? numbers we just want the ints
+        stations = list(map(int, [j[2:] for j in stations]))
+
+        bulk_add = []
+        for ind, name in enumerate(antnames):
+            ant_number = int(name[2:])
+            for pol in ["e", "n"]:
+                bulk_add.append(
+                    Antenna(
+                        ant_number=ant_number,
+                        ant_name=name,
+                        polarization=pol,
+                        antpos_enu=antpos[:, ind].tolist(),
+                        constructed=ant_number in stations,
+                    )
+                )
+
+    Antenna.objects.bulk_update(bulk_add, ["constructed"])
