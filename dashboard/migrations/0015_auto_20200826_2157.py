@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name="eq_coeffs",
             field=django.contrib.postgres.fields.ArrayField(
                 base_field=models.FloatField(),
-                default=dashboard.models._get_eq_default,
+                default=dashboard.models._get_dummy_default,
                 size=None,
             ),
         ),

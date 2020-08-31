@@ -32,7 +32,7 @@ class Antenna(models.Model):
         return f"{self.ant_name} pol:{self.polarization} built:{self.constructed}"
 
 
-def _get_eq_default():
+def _get_dummy_default():
     return [1]
 
 
@@ -41,7 +41,11 @@ class AutoSpectra(models.Model):
     spectra = ArrayField(models.FloatField())
     frequencies = ArrayField(models.FloatField())
     time = models.DateTimeField("Status Time")
-    eq_coeffs = ArrayField(models.FloatField(), default=_get_eq_default)
+    eq_coeffs = ArrayField(models.FloatField(), default=_get_dummy_default)
+    frequencies_downsampled = ArrayField(
+        models.FloatField(), default=_get_dummy_default
+    )
+    spectra_downsampled = ArrayField(models.FloatField(), default=_get_dummy_default)
 
     def is_recent(self):
         now = timezone.now()
@@ -62,6 +66,10 @@ class AutoSpectra(models.Model):
         if len(self.frequencies) != len(self.spectra):
             raise ValidationError(
                 "Input frequencies and spectra must be the same length."
+            )
+        if len(self.frequencies_downsampled) != len(self.spectra_downsampled):
+            raise ValidationError(
+                "Input downsampled frequencies and spectra must be the same length."
             )
 
 

@@ -1,4 +1,5 @@
 import os
+import lttb
 import redis
 import numpy as np
 from astropy.time import Time
@@ -62,6 +63,7 @@ def get_autospectra_from_redis():
             if d is not None:
                 auto = np.frombuffer(d, dtype=np.float32)[0:NCHANS].copy()
 
+                downsampled = lttb.downsample(np.stack([freqs, auto,], axis=1), 350,)
                 eq_coeffs = rsession.hget(
                     f"eq:ant:{antenna.ant_number:d}{antenna.polarization:s}".encode(),
                     "values",
@@ -81,6 +83,8 @@ def get_autospectra_from_redis():
                     frequencies=freqs.tolist(),
                     time=timestamp,
                     eq_coeffs=eq_coeffs.tolist(),
+                    frequencies_downsampled=downsampled[:, 0].tolist(),
+                    spectra_downsampled=downsampled[:, 1].tolist(),
                 )
                 spectra.append(auto_spectra)
 

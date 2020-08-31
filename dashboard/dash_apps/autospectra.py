@@ -80,13 +80,19 @@ def get_data(session_id, interval):
                     }
                 )
             )
-            downsampled = lttb.downsample(np.stack([_freqs, _spectra,], axis=1), 350,)
+
+            _d_spectra = stat.spectra_downsampled
+            if stat.eq_coeffs is not None:
+                _d_spectra /= np.median(stat.eq_coeffs) ** 2
+
+            _d_freqs = np.asarray(stat.frequencies_downsampled) / 1e6
+            _d_spectra = (10 * np.log10(np.ma.masked_invalid(_d_spectra))).filled(-100)
 
             df_down.append(
                 pd.DataFrame(
                     {
-                        "freqs": downsampled[:, 0],
-                        "spectra": downsampled[:, 1],
+                        "freqs": _d_freqs,
+                        "spectra": _d_spectra,
                         "ant": stat.antenna.ant_number,
                         "pol": f"{stat.antenna.polarization}",
                         "node": node,
