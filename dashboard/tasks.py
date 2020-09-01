@@ -408,7 +408,9 @@ def update_apriori():
 
 
 @periodic_task(
-    run_every=(crontab(hour="*/6")), name="update_issue_log", ignore_result=True,
+    run_every=(crontab(hour="*/6", minute="0")),
+    name="update_issue_log",
+    ignore_result=True,
 )
 def update_issue_log():
     key = settings.GITHUB_APP_KEY
