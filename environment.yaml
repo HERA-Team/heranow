@@ -8,6 +8,8 @@ dependencies:
   - cartopy
   - django
   - gunicorn
+  - healpy
+  - matplotlib
   - numpy
   - pandas
   - plotly

@@ -2,22 +2,28 @@ import os
 import re
 import lttb
 import redis
+import healpy
 import github3
 import numpy as np
-from astropy.time import Time
+import matplotlib.pyplot as plt
+
 from argparse import Namespace
+from pyuvdata import get_telescope
 from datetime import datetime, timedelta
+
+from astropy.time import Time
+from astropy import coordinates
 
 from django.utils import timezone
 
 from celery.decorators import task
-from celery.utils.log import get_task_logger
 from celery.task.schedules import crontab
 from celery.decorators import periodic_task
+from celery.utils.log import get_task_logger
 
 from sqlalchemy import func, and_, or_
-from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
 from hera_mc.correlator import _pam_fem_serial_list_to_string
+from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
 
 from hera_corr_cm import HeraCorrCM
 
@@ -476,4 +482,100 @@ def update_issue_log():
     # check if the current JD exists, otherwise create it
     current_jd = np.floor(Time.now().jd)
     CommissioningIssue.objects.update_or_create(julian_date=current_jd)
+    return
+
+
+@periodic_task(
+    run_every=(crontab(minute="*/1")), name="replot_radiosky", ignore_result=True,
+)
+def replot_radiosky():
+    radio_map = healpy.read_map(os.path.join(settings.BASE_DIR, "test4.fits"))
+    hera_telescope = get_telescope("HERA")
+    hera_loc = coordinates.EarthLocation.from_geocentric(
+        *hera_telescope.telescope_location, unit="m",
+    )
+    hera_time = Time.now()
+    hera_time.location = hera_loc
+    sidereal_time = hera_time.sidereal_time("apparent")
+
+    healpy_rotation = [
+        sidereal_time.to_value("deg") - 360,
+        hera_loc.geodetic.lat.to_value("deg"),
+    ]
+
+    moon = coordinates.get_moon(hera_time, ephemeris=None)
+    sun = coordinates.get_sun(hera_time)
+
+    pic = coordinates.SkyCoord(ra="05h19m49.7230919028", dec="-45d 46m 44s")  # Pictor
+    forn = coordinates.SkyCoord(ra="03h23m25.1s", dec="-37d 08m")
+    cass = coordinates.SkyCoord(ra="23h 23m 24s", dec="+58d 48.9m")
+    crab = coordinates.SkyCoord(ra="05h 34m 31s", dec="+22d 00m 52.2s")
+    lmc = coordinates.SkyCoord(ra="05h 40m 05s", dec="-69d 45m 51s")
+    smc = coordinates.SkyCoord(ra="00h 52m 44.8s", dec="-72d 49m 43s")
+    cenA = coordinates.SkyCoord(ra="13h 25m 27.6s", dec="-43d 01m 09s")
+    callibrator1 = coordinates.SkyCoord(ra=109.32351, dec=-25.0817, unit="deg",)
+    callibrator2 = coordinates.SkyCoord(ra=30.05044, dec=-30.89106, unit="deg")
+    callibrator3 = coordinates.SkyCoord(ra=6.45484, dec=-26.0363, unit="deg",)
+
+    source_list = [
+        {"source": sun, "name": "sun", "color": "y", "size": 1000},
+        {"source": moon, "name": "moon", "color": "slategrey", "size": 200},
+        {"source": pic, "name": "pictor", "color": "w", "size": 50},
+        {"source": forn, "name": "fornax", "color": "w", "size": 50},
+        {"source": cass, "name": "Cass A", "color": "w", "size": 50},
+        {"source": crab, "name": "Crab", "color": "w", "size": 50},
+        {"source": lmc, "name": "LMC", "color": "w", "size": 50},
+        {"source": cenA, "name": "Cen A", "color": "w", "size": 50},
+        {"source": smc, "name": "SMC", "color": "w", "size": 50},
+        {"source": callibrator1, "name": "J071717.6-250454", "color": "r", "size": 50},
+        {"source": callibrator2, "name": "J020012.1-305327", "color": "r", "size": 50},
+        {"source": callibrator3, "name": "J002549.1-260210", "color": "r", "size": 50},
+    ]
+
+    healpy.orthview(
+        np.log10(radio_map),
+        title=sidereal_time.to_string(),
+        coord=["G", "C"],
+        rot=healpy_rotation,
+        return_projected_map=True,
+        min=0,
+        max=2,
+        half_sky=1,
+    )
+
+    for item in source_list:
+        sky_loc = item["source"]
+        healpy.projscatter(
+            sky_loc.ra,
+            sky_loc.dec,
+            lonlat=True,
+            s=item["size"],
+            c=item["color"],
+            label=item["name"],
+        )
+        healpy.projtext(sky_loc.ra, sky_loc.dec, lonlat=True, color="k", s=item["name"])
+
+    solar_bodies = [
+        "mercury",
+        "venus",
+        "mars",
+        "jupiter",
+        "saturn",
+        "neptune",
+        "uranus",
+    ]
+    colors = ["grey", "pink", "red", "orange", "yellow", "blue", "blue", "blue"]
+
+    for name, color in zip(solar_bodies, colors):
+        body = coordinates.get_body(name, hera_time)
+        healpy.projscatter(
+            body.ra, body.dec, lonlat=True, s=50, color=color, label=name
+        )
+        healpy.projtext(body.ra, body.dec, lonlat=True, color="k", s=name)
+
+    plt.savefig(
+        os.path.join(settings.BASE_DIR, "radiosky.png"),
+        bbox_inches="tight",
+        pad_inches=0.2,
+    )
     return
