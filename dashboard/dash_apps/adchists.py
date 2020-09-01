@@ -24,7 +24,7 @@ from ..models import Antenna, AntennaStatus, AprioriStatus
 
 
 def plot_df(df, nodes=None, apriori=None):
-    hovertemplate = "(%{x:.1},\t%{y})<br>%{fullData.text}"
+    hovertemplate = "(%{x:.1},\t%{y})<br>%{fullData.text}<extra>%{fullData.name}<br>Node: %{meta[0]}<br>Status: %{meta[1]}</extra>"
     if nodes is not None and isinstance(nodes, str):
         nodes = [nodes]
     elif nodes is None or len(nodes) == 0:
