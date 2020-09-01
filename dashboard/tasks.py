@@ -204,7 +204,7 @@ def update_hookup_notes():
                     time = Time(gtime, format="gps").datetime
                     notes.append(
                         HookupNotes(
-                            time=time,
+                            time=timezone.make_aware(time),
                             ant_number=ant_num,
                             part=note_key,
                             note=hu_notes[ant_key][note_key][gtime],
