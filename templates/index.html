@@ -4,7 +4,6 @@
 {% load plotly_dash %}
 {% load render_table from django_tables2 %}
 
-
 {% block precontent %}
 <div class="d-none d-md-block row-sm-12">
   <div class="col-sm-12">
@@ -45,8 +44,7 @@
       <div class="row no-gutters" style="height: 28%">
         <div class="col-6">
           <div style="text-align: center; height: 100%;">
-            <img align="middle" id="radiosky" src="http://heranow.reionization.org/radiosky.png">
-            </img>
+            <img align="middle" id="radiosky" src="{{ MEDIA_URL }}radiosky.png"></img>
           </div>
         </div>
         <div class="col-6">
