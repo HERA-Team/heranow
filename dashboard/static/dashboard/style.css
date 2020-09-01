@@ -64,3 +64,11 @@ div.django-plotly-dash.django-plotly-dash-direct {
 div#react-entry-point {
   height: 100%;
 }
+
+img {
+  height: 100%;
+  max-width: 100%;
+  width: 100%;
+  display: block;
+  margin: auto;
+}
