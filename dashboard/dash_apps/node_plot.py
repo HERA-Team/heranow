@@ -153,7 +153,7 @@ def get_data(session_id, n_intervals):
                 .last()
             )
             if apriori_stat is not None:
-                apriori = apriori_stat.apriori_status
+                apriori = apriori_stat.get_apriori_status_display()
             if all_spectra is not None:
                 try:
                     auto = all_spectra.get(antenna=antenna)

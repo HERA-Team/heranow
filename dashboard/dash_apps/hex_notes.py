@@ -58,7 +58,7 @@ def get_data(session_id, interval):
                 .last()
             )
             if apriori_stat is not None:
-                apriori = apriori_stat.apriori_status
+                apriori = apriori_stat.get_apriori_status_display()
 
         note_text = f"""{ant['ant_name']}<br>"""
         for note in HookupNotes.objects.filter(ant_number=ant["ant_number"]):

@@ -118,9 +118,7 @@ class AprioriStatus(models.Model):
         }
 
     def __str__(self):
-        return (
-            f"{self.antenna.ant_name} staus:{self.AprioriStatusList(self.status).label}"
-        )
+        return f"{self.antenna.ant_name} staus:{self.AprioriStatusList(self.apriori_status).label}"
 
 
 class AntennaStatus(models.Model):

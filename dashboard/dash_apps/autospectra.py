@@ -59,7 +59,7 @@ def get_data(session_id, interval):
                 .last()
             )
             if apriori_stat is not None:
-                apriori = apriori_stat.apriori_status
+                apriori = apriori_stat.get_apriori_status_display()
 
             _spectra = stat.spectra
             if stat.eq_coeffs is not None:
