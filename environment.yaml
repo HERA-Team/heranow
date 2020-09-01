@@ -39,6 +39,7 @@ dependencies:
     - django-analytical
     - django-bootstrap4
     - django-extensions
+    - django-environ
     - django-plotly-dash
     - django-tabination
     - django-tables2
