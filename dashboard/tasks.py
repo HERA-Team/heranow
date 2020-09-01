@@ -472,6 +472,6 @@ def update_issue_log():
         CommissioningIssue.objects.update_or_create(julian_date=jd, defaults=iss_values)
 
     # check if the current JD exists, otherwise create it
-    current_jd = np.floor(Time.Now().jd)
+    current_jd = np.floor(Time.now().jd)
     CommissioningIssue.objects.update_or_create(julian_date=current_jd)
     return
