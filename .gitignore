@@ -136,3 +136,5 @@ static/
 celerybeat*
 
 media/
+
+test4.fits
