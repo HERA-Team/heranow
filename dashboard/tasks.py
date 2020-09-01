@@ -573,8 +573,9 @@ def replot_radiosky():
         )
         healpy.projtext(body.ra, body.dec, lonlat=True, color="k", s=name)
 
+    filename = settings.MEDIA_ROOT / "radiosky.png"
     plt.savefig(
-        os.path.join(settings.MEDIA_ROOT, "radiosky.png"),
+        filename,
         bbox_inches="tight",
         pad_inches=0.2,
     )
