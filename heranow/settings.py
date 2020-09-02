@@ -16,7 +16,7 @@ import environ
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
@@ -33,9 +33,9 @@ environ.Env.read_env(env_file=str(BASE_DIR / ".env"))
 with open(BASE_DIR / env.str("DJANGO_KEY"), "r") as key_file:
     SECRET_KEY = key_file.read()
 
-with open( BASE_DIR / env.str("GITHUB_APP_KEY_FILE"), "r") as keyfile:
+with open(BASE_DIR / env.str("GITHUB_APP_KEY_FILE"), "r") as keyfile:
     GITHUB_APP_KEY = keyfile.read()
-with open( BASE_DIR /  env.str("GITHUB_APP_ID_FILE"), "r") as appid_file:
+with open(BASE_DIR / env.str("GITHUB_APP_ID_FILE"), "r") as appid_file:
     GITHUB_APP_ID = appid_file.read()
 
 
@@ -103,9 +103,7 @@ WSGI_APPLICATION = "heranow.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    "default": env.db_url("DJANGO_DB")
-}
+DATABASES = {"default": env.db_url("DJANGO_DB")}
 
 
 # Password validation
@@ -143,7 +141,7 @@ MEDIA_URL = "/media/"
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = [
-    BASE_DIR/ "dashboard" / "static",
+    BASE_DIR / "dashboard" / "static",
     # os.path.join(BASE_DIR, "static"),
 ]
 # List of finder classes that know how to find static files in
@@ -178,7 +176,7 @@ PLOTLY_COMPONENTS = [
 
 # CELERY Configuration
 CELERY_BROKER_URL = env.str("CELERY_REDIS_URL")
-CELERY_RESULT_BACKEND = env.str("CELERY_REDIS_URL") 
+CELERY_RESULT_BACKEND = env.str("CELERY_REDIS_URL")
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

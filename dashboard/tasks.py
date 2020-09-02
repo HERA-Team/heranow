@@ -575,8 +575,35 @@ def replot_radiosky():
 
     filename = settings.MEDIA_ROOT / "radiosky.png"
     plt.savefig(
-        filename,
-        bbox_inches="tight",
-        pad_inches=0.2,
+        filename, bbox_inches="tight", pad_inches=0.2,
     )
     return
+
+
+@periodic_task(
+    run_every=(crontab(hour="*/12", minute="0")),
+    name="update_hookup",
+    ignore_result=True,
+)
+def update_hookup():
+    db = mc.connect_to_mc_db(None)
+
+    with db.sessionmaker() as mc_session:
+
+        H = cm_hookup.Hookup(mc_session)
+        hlist = cm_sysdef.hera_zone_prefixes
+        output_file = settings.BASE_DIR / "templates" / "sys_conn_tmp.html"
+
+        hookup_dict = H.get_hookup(
+            hpn=hlist, pol="all", at_date="now", exact_match=False, hookup_type=None,
+        )
+        H.show_hookup(
+            hookup_dict=hookup_dict,
+            cols_to_show="all",
+            state="full",
+            ports=True,
+            revs=True,
+            sortby="node,station",
+            filename=output_file,
+            output_format="html",
+        )

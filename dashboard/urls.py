@@ -23,6 +23,7 @@ urlpatterns = [
     path("compute", views.CompterLoads.as_view(), name="compute"),
     path("librarian", views.LibrarianLogs.as_view(), name="librarian"),
     path("qm", views.DailyQM.as_view(), name="qm"),
+    path("hookup", views.ListHookup.as_view(), name="hookup"),
     path("hookup_notes_table", views.NotesTable.as_view(), name="notestable"),
     path("hookup_notes", views.PerAntHookups.as_view(), name="hex_notes"),
     path("snapspectra", views.SnapSpectra.as_view(), name="snapspectra"),

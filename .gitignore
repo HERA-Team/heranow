@@ -138,3 +138,5 @@ celerybeat*
 media/
 
 test4.fits
+
+templates/sys_conn_tmp.html

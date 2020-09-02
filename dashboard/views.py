@@ -220,6 +220,13 @@ class ListHookup(ChildTab):
 
     tab_label = "Cable Hookup Listings"
     tab_id = "hookup"
+    template_name = "included_page.html"
+
+    def get_context_data(self, **kwargs):
+        """Add executing hostname to context."""
+        context = super().get_context_data(**kwargs)
+        context["sub_page"] = "sys_conn_tmp.html"
+        return context
 
 
 class PerAntHookups(DashChildTab):
