@@ -244,7 +244,10 @@ def serve_layout():
                             dcc.Dropdown(
                                 id="apriori-dropdown",
                                 options=[
-                                    {"label": f"{apriori[1]}", "value": apriori[0]}
+                                    {
+                                        "label": f"{str(apriori[1])}",
+                                        "value": str(apriori[1]),
+                                    }
                                     for apriori in AprioriStatus.AprioriStatusList.choices
                                 ]
                                 + [{"label": "Unknown", "value": "Unknown"}],
