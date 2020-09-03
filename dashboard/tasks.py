@@ -78,8 +78,7 @@ def get_autospectra_from_redis():
 
                 downsampled = lttb.downsample(np.stack([freqs, auto,], axis=1), 350,)
                 eq_coeffs = rsession.hget(
-                    f"eq:ant:{antenna.ant_number:d}{antenna.polarization:s}".encode(),
-                    "values",
+                    f"eq:ant:{antenna.ant_number:d}:{antenna.polarization:s}", "values",
                 )
                 if eq_coeffs is not None:
                     eq_coeffs = np.fromstring(
