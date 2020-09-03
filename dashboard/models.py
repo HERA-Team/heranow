@@ -480,8 +480,8 @@ class SnapToAnt(models.Model):
 
     time = models.DateTimeField("Snap mapping timestamp")
     snap_hostname = models.CharField(max_length=200)
-    node = models.IntegerField()
-    snap = models.IntegerField()
+    node = models.IntegerField(null=True, blank=True)
+    snap = models.IntegerField(null=True, blank=True)
     ants = ArrayField(models.CharField(max_length=6))
     inds = ArrayField(models.IntegerField(), null=True, blank=True)
 
