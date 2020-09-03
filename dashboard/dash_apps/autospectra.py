@@ -215,7 +215,6 @@ def serve_layout():
                 ],
                 justify="center",
                 align="center",
-                style={"height": "10%"},
             ),
             dbc.Row(
                 [
@@ -262,10 +261,11 @@ def serve_layout():
                 ],
                 justify="center",
                 align="center",
-                style={"height": "10%"},
             ),
             dcc.Graph(
-                id="dash_app", config={"doubleClick": "reset"}, style={"height": "80%"},
+                id="dash_app",
+                config={"doubleClick": "reset"},
+                style={"height": "100%", "max-height": "72.5vh"},
             ),
             # A timer to re-load data every minute
             # interval value is milliseconds
