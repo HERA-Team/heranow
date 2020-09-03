@@ -187,7 +187,7 @@ def serve_layout():
                 id="dash_app",
                 config={"doubleClick": "reset"},
                 responsive=True,
-                style={"height": "100%", "max-height": "72.5vh"},
+                style={"height": "72.5vh"},
             ),
             dcc.Interval(
                 id="interval-component",

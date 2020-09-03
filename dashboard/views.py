@@ -245,6 +245,7 @@ class NotesTable(DashChildTab):
     tab_label = "Table of Hookup Notes"
     tab_id = "hookup_notes_table"
     app_name = "dash_hookup_notes"
+    template_name = "plotly_direct_table.html"
 
 
 class SnapHookups(ChildTab):

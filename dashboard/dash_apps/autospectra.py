@@ -265,7 +265,7 @@ def serve_layout():
             dcc.Graph(
                 id="dash_app",
                 config={"doubleClick": "reset"},
-                style={"height": "100%", "max-height": "72.5vh"},
+                style={"height": "72.5vh"},
             ),
             # A timer to re-load data every minute
             # interval value is milliseconds

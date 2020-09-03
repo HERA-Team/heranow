@@ -139,13 +139,12 @@ def serve_layout():
                                 "backgroundColor": "rgb(248, 248, 248)",
                             }
                         ],
-                        style_table={"height": "100%", "max-height": "72.5vh"},
                     ),
                 ],
                 style={"height": "100%", "width": "100%"},
             ),
         ],
-        style={"display": "flex", "justify-content": "center"},
+        style={"height": "100%", "justify-content": "center"},
     )
 
 

@@ -113,7 +113,6 @@ def serve_layout():
                                 style_cell={
                                     "textAlign": "center",
                                     "whiteSpace": "normal",
-                                    "height": "auto",
                                 },
                                 style_header={"fontWeight": "bold", "fontSize": 18,},
                                 style_data_conditional=[
