@@ -118,7 +118,7 @@ class AprioriStatus(models.Model):
         }
 
     def __str__(self):
-        return f"{self.antenna.ant_name} staus:{self.AprioriStatusList(self.apriori_status).label}"
+        return f"{self.antenna.ant_name} staus: {self.get_apriori_status_display()}"
 
 
 class AntennaStatus(models.Model):
@@ -286,7 +286,7 @@ class SnapStatus(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.hostname} observed:{self.time}"
+        return f"{self.hostname} observed: {self.time}"
 
 
 class SnapSpectra(models.Model):
@@ -327,7 +327,7 @@ class SnapSpectra(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.hostname} #{self.input_number} observed:{self.time}"
+        return f"{self.hostname} #{self.input_number} observed: {self.time}"
 
 
 class HookupNotes(models.Model):
@@ -400,6 +400,102 @@ class CommissioningIssue(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["julian_date"], name="julian date"),
         ]
+
+
+class XengChannels(models.Model):
+    """
+    Description of the  Xeng Channel mapping table.
+
+    number : Integer Column
+        The xeng's assigned number.
+    chans : ArrayField
+        The array of integers of channel numbers assigned to the xeng.
+
+    """
+
+    time = models.DateTimeField()
+    number = models.IntegerField()
+    chans = ArrayField(models.IntegerField())
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["number", "chans"], name="xengs must have disjoint channels."
+            )
+        ]
+
+    def __str__(self):
+        return f"xeng: {self.number} chans: {self.chans[0]}...{self.chans[-1]}"
+
+
+class AntToSnap(models.Model):
+    """
+    Description of Antenna to Snap mapping table.
+
+    time : DateTimeField
+        Time the mapping was last updated
+    antenna : Antenna class object
+        Instance of the antenna associated with the snap
+    snap_hostname : Text Column
+        The snap name associated.
+    chan : Integer Column
+        The snap channel into which the antenna is plugged.
+
+    """
+
+    time = models.DateTimeField("Snap mapping timestamp")
+    antenna = models.ForeignKey(Antenna, on_delete=models.CASCADE)
+    snap_hostname = models.CharField(max_length=200)
+    chan = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["time", "antenna"], name="One ant to snap mapping per time"
+            )
+        ]
+
+    def __str__(self):
+        return f"{str(self.antenna.ant_number)}{str(self.antenna.polarization)} snap: {self.snap_hostname}:{self.chan}"
+
+
+class SnapToAnt(models.Model):
+    """
+    Description of the Snap to Antenna mapping table.
+
+    time : DateTimeField
+        The time associatd with the mapping
+    snap_hostname : Text Column
+        The Name of the snap
+    node : Integer Column
+        The Node number of the snap
+    snap : Integer Column
+        The Snap number of the snap
+    ants : Array Field
+        An array of antenna nemes associated with the snap.
+    inds : Array Field
+        Array of correlator antenna indices associated with the snap
+
+    """
+
+    time = models.DateTimeField("Snap mapping timestamp")
+    snap_hostname = models.CharField(max_length=200)
+    node = models.IntegerField()
+    snap = models.IntegerField()
+    ants = ArrayField(models.CharField(max_length=6))
+    inds = ArrayField(models.IntegerField(), null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["time", "snap_hostname"],
+                name="One snap to ant mappering per time",
+            )
+        ]
+        ordering = ["node", "snap"]
+
+    def __str__(self):
+        return f"host: {self.snap_hostname} ants: {self.ants} inds: {self.inds}"
 
 
 # class MCSummary(models.Model):

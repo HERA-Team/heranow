@@ -16,3 +16,11 @@ def listify(data):
 def islist(data):
     """Check if input data is a list."""
     return isinstance(data, list)
+
+
+@register.filter("snapsummary")
+def return_item(input):
+    try:
+        return f"{input[0]}...{input[-1]}"
+    except:  # noqa
+        return None

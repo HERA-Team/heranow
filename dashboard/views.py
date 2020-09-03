@@ -4,6 +4,8 @@ import logging
 from tabination.views import TabView
 from django.shortcuts import redirect
 
+from dashboard.models import AntToSnap, SnapToAnt, XengChannels
+
 logger = logging.getLogger(__name__)
 # Create your views here.
 
@@ -250,6 +252,23 @@ class SnapHookups(ChildTab):
 
     tab_label = "SNAP Hookup Listing"
     tab_id = "snaphookup"
+    template_name = "snaphookup.html"
+
+    def get_context_data(self, **kwargs):
+        """Add executing hostname to context."""
+        context = super().get_context_data(**kwargs)
+        last_xeng_time = XengChannels.objects.last().time
+        last_mapping_time = AntToSnap.objects.last().time
+        context["xengs"] = XengChannels.objects.filter(time=last_xeng_time).order_by(
+            "number"
+        )
+        context["ants"] = AntToSnap.objects.filter(time=last_mapping_time).order_by(
+            "antenna__ant_number"
+        )
+        context["snaps"] = SnapToAnt.objects.filter(time=last_mapping_time).order_by(
+            "node", "snap"
+        )
+        return context
 
 
 class Hookups(BaseTab):

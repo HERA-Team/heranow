@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block allcontent %}
+<div class="row flex-grow-0" style="height: 100% !important;">
+<div class="col-3" style="max-height: 850px; overflow-y: auto;">
+  <table class="table table-sm table-striped">
+    <caption style="text-align: center; caption-side: top;">Xeng to Channel Mapping</caption>
+  <thead>
+    <tr>
+      <th scope="col">Xeng</th>
+      <th scope="col">Channels</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for xeng in xengs %}
+    <tr>
+      <td>{{ xeng.number }}</td>
+      <td>{{ xeng.chans|snapsummary }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="col-3 flex-grow-0" style="max-height: 850px; overflow-y: auto;">
+  <table  class="table table-sm table-striped">
+    <caption style="text-align: center; caption-side: top; position: sticky;">Antenna to Snap Mapping</caption>
+
+    <thead>
+      <tr>
+        <th scope="col">Antenna</th>
+        <th scope="col">Snap Hostname</th>
+        <th scope="col">Snap Channel #</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ant in ants %}
+      <tr>
+      <td>{{ ant.antenna.ant_name }}{{ ant.antenna.polarization }}</td>
+      <td>{{ ant.snap_hostname }}</td>
+      <td>{{ ant.chan }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+   </table>
+ </div>
+
+<div class="col-3 flex-grow-0" style="max-height: 850px; overflow-y: auto;">
+  <table class="table table-sm table-striped">
+    <caption style="text-align: center; caption-side: top;">Snap to Antenna Mapping</caption>
+
+    <thead>
+      <tr>
+        <th scope="col">Snap Hostname</th>
+        <th scope="col">Antennas</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for snap in snaps %}
+      <tr>
+      <td>{{ snap.snap_hostname }}</td>
+      <td>{{ snap.ants }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+   </table>
+</div>
+
+<div class="col-3 flex-grow-0" style="max-height: 850px; overflow-y: auto;">
+ <table class="table table-sm table-striped">
+   <caption style="text-align: center; caption-side: top;">Snap to Antenna Indices</caption>
+
+   <thead>
+     <tr>
+       <th scope="col">Snap Hostname</th>
+       <th scope="col">Antenna Indices</th>
+     </tr>
+   </thead>
+   <tbody>
+     {% for snap in snaps %}
+     <tr>
+     <td>{{ snap.snap_hostname }}</td>
+     <td>{{ snap.inds }}</td>
+     </tr>
+     {% endfor %}
+   </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

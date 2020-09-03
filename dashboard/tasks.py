@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import lttb
 import redis
 import healpy
@@ -32,12 +33,15 @@ from heranow import settings
 from dashboard.models import (
     Antenna,
     AntennaStatus,
-    AutoSpectra,
+    AntToSnap,
     AprioriStatus,
+    AutoSpectra,
+    CommissioningIssue,
+    HookupNotes,
     SnapSpectra,
     SnapStatus,
-    HookupNotes,
-    CommissioningIssue,
+    SnapToAnt,
+    XengChannels,
 )
 
 logger = get_task_logger(__name__)
@@ -606,3 +610,98 @@ def update_hookup():
             filename=output_file,
             output_format="html",
         )
+
+
+@periodic_task(
+    run_every=(crontab(minute="0", hour="*/1")),
+    name="update_xengs",
+    ignore_result=True,
+)
+def update_xengs():
+    corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
+    xeng_chan_mapping = corr_cm.r.hgetall("corr:xeng_chans")
+    bulk_objects = []
+    xeng_time = timezone.make_aware(datetime.now())
+    for xeng, chans in xeng_chan_mapping.items():
+        xeng = int(xeng)
+        chans = json.loads(chans)
+        bulk_objects.append(XengChannels(time=xeng_time, number=xeng, chans=chans,))
+    XengChannels.objects.bulk_create(bulk_objects, ignore_conflicts=True)
+    return
+
+
+@periodic_task(
+    run_every=(crontab(minute="0", hour="*/1")),
+    name="update_ant_to_snap",
+    ignore_result=True,
+)
+def update_ant_to_snap():
+    corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
+    corr_map = corr_cm.r.hgetall("corr:map")
+
+    update_time = Time(float(corr_map["update_time"]), format="unix").datetime
+
+    ant_to_snap = json.loads(corr_map["ant_to_snap"])
+    bulk_objects = []
+    for ant in sorted(map(int, ant_to_snap)):
+        ant = str(ant)
+        pol = ant_to_snap[ant]
+        for p in pol:
+            vals = pol[p]
+            host = vals["host"]
+            chan = vals["channel"]
+            antenna = Antenna.objects.get(ant_number=ant, polarization=p)
+            bulk_objects.append(
+                AntToSnap(
+                    time=timezone.make_aware(update_time),
+                    antenna=antenna,
+                    snap_hostname=host,
+                    chan=chan,
+                )
+            )
+    AntToSnap.objects.bulk_create(bulk_objects, ignore_conflicts=True)
+    return
+
+
+@periodic_task(
+    run_every=(crontab(minute="0", hour="*/1")),
+    name="update_snap_to_ant",
+    ignore_result=True,
+)
+def update_snap_to_ant():
+    corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
+    corr_map = corr_cm.r.hgetall("corr:map")
+
+    update_time = Time(float(corr_map["update_time"]), format="unix").datetime
+
+    snap_to_ant = json.loads(corr_map["snap_to_ant"])
+    snap_to_ant_inds = corr_cm.r.hgetall("corr:snap_ants")
+    bulk_objects = []
+    for host in sorted(snap_to_ant):
+        ants = [a or "N/A" for a in snap_to_ant[host]]
+        try:
+            ant_inds = json.loads(snap_to_ant_inds[host])
+        except KeyError:
+            ant_inds = None
+
+        match = re.search(r"heraNode(?P<node>\d+)Snap(?P<snap>\d+)", host)
+        if match is not None:
+            node = int(match.group("node"))
+            snap = int(match.group("snap"))
+        else:
+            node = None
+            snap = None
+
+        bulk_objects.append(
+            SnapToAnt(
+                time=timezone.make_aware(update_time),
+                snap_hostname=host,
+                node=node,
+                snap=snap,
+                ants=ants,
+                inds=ant_inds,
+            )
+        )
+
+    SnapToAnt.objects.bulk_create(bulk_objects, ignore_conflicts=True)
+    return
