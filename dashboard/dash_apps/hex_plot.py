@@ -276,26 +276,28 @@ def serve_layout():
             dbc.Row(
                 [
                     dbc.Col(
-                        html.Div(
-                            id="auto-time",
-                            children=[
-                                html.Span(
-                                    "Autocorrelations from ",
-                                    style={"font-weight": "bold"},
-                                ),
-                                html.Span(
-                                    f"{init_time_ago.value:.0f} {init_time_ago.unit.long_names[0]}s ago ",
-                                    style={
-                                        "font-weight": "bold",
-                                        "color": init_time_color,
-                                    },
-                                ),
-                                html.Span(
-                                    f"({timestamp.iso} JD:{timestamp.jd:.3f})",
-                                    style={"font-weight": "bold"},
-                                ),
-                            ],
-                            style={"text-align": "center"},
+                        html.Small(
+                            html.Div(
+                                id="auto-time",
+                                children=[
+                                    html.Span(
+                                        "Autocorrelations from ",
+                                        style={"font-weight": "bold"},
+                                    ),
+                                    html.Span(
+                                        f"{init_time_ago.value:.0f} {init_time_ago.unit.long_names[0]}s ago ",
+                                        style={
+                                            "font-weight": "bold",
+                                            "color": init_time_color,
+                                        },
+                                    ),
+                                    html.Span(
+                                        f"({timestamp.iso} JD:{timestamp.jd:.3f})",
+                                        style={"font-weight": "bold"},
+                                    ),
+                                ],
+                                style={"text-align": "center"},
+                            ),
                         ),
                         width=10,
                     ),
