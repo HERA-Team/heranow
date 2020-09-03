@@ -40,11 +40,18 @@ def process_string(input_str, time_string_offset=37):
 @lru_cache
 def get_data(session_id, interval):
     data = []
+    all_stats = (
+        AntennaStatus.objects.filter(antenna__polarization="e")
+        .order_by("antenna__ant_number", "-time")
+        .distinct("antenna__ant_number")
+    )
     for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
-        antenna = Antenna.objects.filter(ant_number=ant["ant_number"]).last()
-        stat = AntennaStatus.objects.filter(
-            antenna__ant_number=ant["ant_number"]
-        ).last()
+        stat = all_stats.filter(antenna__ant_number=ant["ant_number"]).last()
+        if stat is not None:
+            antenna = stat.antenna
+        else:
+            antenna = Antenna.objects.filter(ant_number=ant["ant_number"]).last()
+
         node = "Unknown"
         apriori = "Unknown"
         if stat is not None:

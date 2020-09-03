@@ -21,10 +21,13 @@ from dashboard.models import HookupNotes, Antenna, AntennaStatus, AprioriStatus
 @lru_cache
 def get_data(session_id):
     data = []
+    all_stats = (
+        AntennaStatus.objects.filter(antenna__polarization="e")
+        .order_by("antenna__ant_number", "-time")
+        .distinct("antenna__ant_number")
+    )
     for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
-        stat = AntennaStatus.objects.filter(
-            antenna__ant_number=ant["ant_number"]
-        ).last()
+        stat = all_stats.filter(antenna__ant_number=ant["ant_number"]).last()
 
         node = "Unknown"
         apriori = "Unknown"
