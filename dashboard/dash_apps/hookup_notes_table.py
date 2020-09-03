@@ -118,7 +118,6 @@ def serve_layout():
                         ],
                         justify="center",
                         align="center",
-                        style={"height": "10%"},
                     ),
                     dash_table.DataTable(
                         id="table",
@@ -140,7 +139,7 @@ def serve_layout():
                                 "backgroundColor": "rgb(248, 248, 248)",
                             }
                         ],
-                        style_table={"height": "90%"},
+                        style_table={"height": "100%", "max-height": "72.5vh"},
                     ),
                 ],
                 style={"height": "100%", "width": "100%"},

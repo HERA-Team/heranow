@@ -273,13 +273,12 @@ def serve_layout():
                 ],
                 justify="center",
                 align="center",
-                style={"height": "10%"},
             ),
             dcc.Graph(
                 id="dash_app",
                 config={"doubleClick": "reset"},
                 responsive=True,
-                style={"height": "90%"},
+                style={"height": "100%", "max-height": "72.5vh"},
             ),
             dcc.Interval(
                 id="interval-component",

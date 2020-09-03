@@ -361,7 +361,7 @@ def serve_layout():
                 id="graph",
                 config={"doubleClick": "reset+autosize"},
                 responsive=True,
-                style={"height": "90%"},
+                style={"height": "100%", "max-height": "72.5vh"},
             ),
             # A timer to re-load data every minute
             # interval value is milliseconds
