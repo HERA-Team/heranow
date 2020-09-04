@@ -416,16 +416,18 @@ def start_reload_counter(reload_box):
 def update_time_data(session_id, n_intervals, n_intervals_time_display):
     df, auto_time = get_data(session_id, n_intervals)
 
-    time_ago = (Time.now() - auto_time).to("min")
+    time_ago = (Time.now() - auto_time).to("s")
 
-    if time_ago.value > 10:
+    if time_ago.to_value("s") > 600:
         time_color = "red"
     else:
         time_color = "black"
 
-    if time_ago.value > 60:
+    if time_ago.to_value("s") > 300:
+        time_ago = time_ago.to("min")
+    if time_ago.to_value("min") > 60:
         time_ago = time_ago.to("hour")
-    if time_ago.value > 24:
+    if time_ago.to_value("hour") > 24:
         time_ago = time_ago.to("day")
 
     time_data = [
