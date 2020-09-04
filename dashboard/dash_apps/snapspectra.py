@@ -36,6 +36,7 @@ def plot_df(df, hostname):
         "showlegend": True,
         "hovermode": "closest",
         "legend": {"title": "ADC Port # : Antpol"},
+        "uirevision": hostname,
     }
 
     fig = go.Figure()
@@ -225,13 +226,13 @@ def start_reload_counter(reload_box):
 
 
 @dash_app.callback(
-    [Output("hostname-dropdown", "options"), Output("hostname-dropdown", "value")],
+    Output("hostname-dropdown", "options"),
     [Input("session-id", "children"), Input("interval-component", "n_intervals")],
 )
 def update_snap_selection(session_id, n_intervals):
     df, dropdown_labels = get_data(session_id, n_intervals)
     options = [{"label": host, "value": host} for host in dropdown_labels.keys()]
-    return options, options[0]["value"]
+    return options
 
 
 @dash_app.callback(
