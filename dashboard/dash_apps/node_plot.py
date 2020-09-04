@@ -99,7 +99,7 @@ def plot_df(
             y=df1.index,
             mode="markers",
             marker={
-                "color": getattr(df, mode).fillna("orange"),
+                "color": getattr(df1, mode).fillna("orange"),
                 "size": 14,
                 "symbol": "hexagon",
                 "coloraxis": "coloraxis",
