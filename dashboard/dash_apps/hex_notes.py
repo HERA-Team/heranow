@@ -160,7 +160,6 @@ def serve_layout():
                     dcc.Graph(
                         id="graph",
                         config={"doubleClick": "reset"},
-                        responsive=True,
                         style={"height": "72.5vh"},
                     ),
                     dcc.Interval(

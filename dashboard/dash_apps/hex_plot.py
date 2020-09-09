@@ -360,7 +360,6 @@ def serve_layout():
             dcc.Graph(
                 id="graph",
                 config={"doubleClick": "reset+autosize"},
-                responsive=True,
                 style={"height": "72.5vh"},
             ),
             # A timer to re-load data every minute

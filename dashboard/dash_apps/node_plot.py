@@ -277,7 +277,6 @@ def serve_layout():
             dcc.Graph(
                 id="dash_app",
                 config={"doubleClick": "reset"},
-                responsive=True,
                 style={"height": "72.5vh"},
             ),
             dcc.Interval(

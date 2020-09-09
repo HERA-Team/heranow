@@ -187,7 +187,6 @@ def serve_layout():
                 # figure=plot_df(df, hostname=hostlist[0]),
                 id="dash_app",
                 config={"doubleClick": "reset"},
-                responsive=True,
                 style={"height": "72.5vh"},
             ),
             dcc.Interval(
