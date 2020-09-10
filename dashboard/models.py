@@ -206,12 +206,20 @@ class AntennaStatus(models.Model):
     # adc histograms first row centers, second row values
     adc_hist = ArrayField(ArrayField(models.FloatField()), blank=True, null=True)
 
+    _fem_mapping = {
+        "antenna": "ANT",
+        "load": "LOAD",
+        "noise": "NOISE",
+    }
+
     class FemSwitchStates(models.TextChoices):
         ANTENNA = "ANT", gettext_lazy("Antenna")
         LOAD = "LOAD", gettext_lazy("Load")
         NOISE = "NOISE", gettext_lazy("Noise")
 
-    fem_switch = models.CharField(max_length=5, choices=FemSwitchStates.choices)
+    fem_switch = models.CharField(
+        max_length=5, choices=FemSwitchStates.choices, null=True
+    )
 
     def status_is_recent(self):
         now = timezone.now()

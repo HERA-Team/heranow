@@ -244,11 +244,18 @@ def get_antenna_status_from_redis():
             if key == "histogram" and stats[key] is not None:
                 if len(stats[key][0]) != len(stats[key][1]):
                     stats[key] = None
+            if key == "fem_switch" and stats[key] == "null":
+                stats[key] = None
 
         if stats["fem_id"] is not None and stats["fem_id"] != -1:
             fem_id = _pam_fem_serial_list_to_string(stats["fem_id"])
         else:
             fem_id = None
+
+        if stats["fem_switch"] is None:
+            fem_switch = None
+        else:
+            fem_switch = AntennaStatus._fem_mapping[stats["fem_switch"]]
 
         if stats["pam_id"] is not None and stats["pam_id"] != -1:
             pam_id = _pam_fem_serial_list_to_string(stats["pam_id"])
@@ -278,6 +285,7 @@ def get_antenna_status_from_redis():
             fem_imu=[stats["fem_imu_theta"], stats["fem_imu_phi"]],
             fem_temp=stats["fem_temp"],
             fem_lna_power=fem_lna_power,
+            fem_switch=fem_switch,
             fft_overflow=stats["fft_of"],
             eq_coeffs=stats["eq_coeffs"],
             adc_hist=stats["histogram"],
