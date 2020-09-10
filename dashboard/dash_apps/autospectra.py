@@ -47,10 +47,13 @@ def get_data(session_id, interval):
                 .last()
             )
             node = "Unknown"
+            fem_switch = "Unknown"
             if ant_stat is not None:
                 match = re.search(r"heraNode(?P<node>\d+)Snap", ant_stat.snap_hostname)
                 if match is not None:
                     node = int(match.group("node"))
+
+                fem_switch = ant_stat.get_fem_switch_display() or "Unknown"
 
             apriori = "Unknown"
             apriori_stat = (
@@ -77,6 +80,7 @@ def get_data(session_id, interval):
                         "pol": f"{stat.antenna.polarization}",
                         "node": node,
                         "apriori": apriori,
+                        "fem_switch": fem_switch,
                     }
                 )
             )
@@ -97,6 +101,7 @@ def get_data(session_id, interval):
                         "pol": f"{stat.antenna.polarization}",
                         "node": node,
                         "apriori": apriori,
+                        "fem_switch": fem_switch,
                     }
                 )
             )
@@ -129,7 +134,8 @@ def plot_df(df, nodes=None, apriori=None):
 
     hovertemplate = (
         "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]"
-        "<extra>%{fullData.name}<br>Node: %{meta[0]}<br>Status: %{meta[1]}</extra>"
+        "<extra>%{fullData.name}<br>Node: %{meta[0]}"
+        "<br>Status: %{meta[1]}<br>Fem Switch: %{meta[2]}</extra>"
     )
 
     layout = {
@@ -168,7 +174,7 @@ def plot_df(df, nodes=None, apriori=None):
                 y=_df1.spectra,
                 name=antpol,
                 mode="lines",
-                meta=[_df1.node.iloc[0], _df1.apriori.iloc[0]],
+                meta=[_df1.node.iloc[0], _df1.apriori.iloc[0], _df1.fem_switch.iloc[0]],
                 hovertemplate=hovertemplate,
             )
             fig.add_trace(trace)

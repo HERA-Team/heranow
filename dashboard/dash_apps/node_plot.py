@@ -194,6 +194,7 @@ def get_data(session_id, n_intervals):
                     "eq_coeffs": np.median(stat.eq_coeffs)
                     if stat.eq_coeffs is not None
                     else None,
+                    "fem_switch": stat.get_fem_switch_display(),
                 }
             )
 
@@ -204,6 +205,7 @@ def get_data(session_id, n_intervals):
                         f"Snap: {stat.snap_hostname or NA}<br>"
                         f"PAM: {stat.pam_id or NA}<br>"
                         f"Status: {apriori}<br>"
+                        f"Fem Switch: {stat.get_fem_switch_display() or NA}<br>"
                         f"Auto  [dB]: {spectra or NA:{'.2f' if spectra else 's'}}<br>"
                         f"PAM [dB]: {stat.pam_power or NA:{'.2f' if stat.pam_power else 's'}}<br>"
                         f"ADC [dB]: {adc_power or NA:{'.2f' if adc_power else 's'}}<br>"
