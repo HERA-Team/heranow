@@ -245,7 +245,7 @@ def get_antenna_status_from_redis():
                 if len(stats[key][0]) != len(stats[key][1]):
                     stats[key] = None
             if key == "fem_switch" and (
-                stats[key] == "null" or stats[key] == "Unkown mode"
+                stats[key] == "null" or stats[key] == "Unknown mode"
             ):
                 stats[key] = None
 
