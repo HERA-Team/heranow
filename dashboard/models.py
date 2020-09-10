@@ -27,6 +27,10 @@ class Antenna(models.Model):
                 check=models.Q(ant_number__lte=350), name="ant_num_lte_350"
             ),
         ]
+        indexes = [
+            models.Index(fields=["ant_number", "polarization"]),
+            models.Index(fields=["ant_name"]),
+        ]
 
     def __str__(self):
         return f"{self.ant_name} pol:{self.polarization} built:{self.constructed}"
@@ -60,6 +64,9 @@ class AutoSpectra(models.Model):
             models.UniqueConstraint(
                 fields=["antenna", "time"], name="One antpol auto per time"
             ),
+        ]
+        indexes = [
+            models.Index(fields=["antenna", "time"]),
         ]
 
     def clean(self):
@@ -107,6 +114,9 @@ class AprioriStatus(models.Model):
             models.UniqueConstraint(
                 fields=["antenna", "time"], name="One antpol apriori per time"
             ),
+        ]
+        indexes = [
+            models.Index(fields=["antenna", "time"]),
         ]
 
     def observation_ready(self):
@@ -242,6 +252,10 @@ class AntennaStatus(models.Model):
                 fields=["antenna", "time"], name="One antpol status per time"
             ),
         ]
+        indexes = [
+            models.Index(fields=["antenna", "time"]),
+            models.Index(fields=["snap_hostname", "snap_channel_number"]),
+        ]
 
 
 class SnapStatus(models.Model):
@@ -292,6 +306,10 @@ class SnapStatus(models.Model):
                 fields=["hostname", "time"], name="one snap status per time"
             ),
         ]
+        indexes = [
+            models.Index(fields=["hostname", "time"]),
+            models.Index(fields=["hostname", "snap_loc_num"]),
+        ]
 
     def __str__(self):
         return f"{self.hostname} observed: {self.time}"
@@ -332,6 +350,10 @@ class SnapSpectra(models.Model):
                 fields=["time", "hostname", "input_number"],
                 name="unique snap spectra per time",
             ),
+        ]
+        indexes = [
+            models.Index(fields=["hostname", "time"]),
+            models.Index(fields=["hostname", "input_number"]),
         ]
 
     def __str__(self):
