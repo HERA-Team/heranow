@@ -61,7 +61,7 @@ def plot_df(df, hostname):
 def get_data(session_id, interval):
     data = []
     for unique_hosts in (
-        SnapSpectra.objects.order_by().values("hostname", "input_number").distinct()
+        SnapSpectra.objects.values("hostname", "input_number").distinct().iterator()
     ):
         hostname = unique_hosts["hostname"]
         loc_num = unique_hosts["input_number"]
@@ -71,7 +71,7 @@ def get_data(session_id, interval):
 
         last_spectra = SnapSpectra.objects.filter(
             hostname=hostname, input_number=loc_num
-        ).last()
+        ).latest("time")
         spectra = np.atleast_1d(
             np.ma.masked_invalid(
                 10
@@ -82,9 +82,12 @@ def get_data(session_id, interval):
             ).filled(-100)
         )
         mc_name = "Unknown"
-        ant_stat = AntennaStatus.objects.filter(
-            snap_hostname=hostname, snap_channel_number=loc_num
-        ).last()
+        try:
+            ant_stat = AntennaStatus.objects.filter(
+                snap_hostname=hostname, snap_channel_number=loc_num
+            ).latest("time")
+        except AntennaStatus.DoesNotExist:
+            ant_stat = None
         if ant_stat is not None:
             mc_name = f"{ant_stat.antenna.ant_number}{ant_stat.antenna.polarization}"
         freqs = np.linspace(0, 250, spectra.size)
@@ -113,7 +116,10 @@ def get_data(session_id, interval):
     dropdown_labels = {}
     hostlist = df.hostname.unique()
     for hostname in hostlist:
-        stat = SnapStatus.objects.filter(hostname=hostname).last()
+        try:
+            stat = SnapStatus.objects.filter(hostname=hostname).latest("time")
+        except SnapStatus.DoesNotExist:
+            stat = None
         if stat is not None:
             label = [
                 dcc.Markdown(
