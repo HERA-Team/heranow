@@ -21,9 +21,15 @@ from django_plotly_dash import DjangoDash
 from dashboard.models import CommissioningIssue
 
 
-notebook_link = (
+old_notebook_link = (
     "https://github.com/HERA-Team/H3C_plots/blob/master/data_inspect_{}.ipynb"
 )
+new_notebook_types = ["all_ants", "known_good", "maybe_good"]
+new_notebooks = [
+    f"https://github.com/HERA-Team/H4C_Notebooks/blob/master/data_inspect_{notebook_type}/data_inspect_{notebook_type}_{{}}.ipynb"
+    for notebook_type in new_notebook_types
+]
+
 issue_link = "https://github.com/HERA-Team/HERA_Commissioning/issues/{}"
 new_issue_link = (
     "https://github.com/HERA-Team/HERA_Commissioning/issues"
@@ -36,7 +42,12 @@ rfi_link = (
 )
 
 label_link = 'https://github.com/HERA-Team/HERA_Commissioning/issues?q=is%3Aissue+is%3Aopen+label%3A"{}"'
-notebook_view = notebook_link.replace("github.com", "nbviewer.jupyter.org/github")
+old_notebook_view = old_notebook_link.replace(
+    "github.com", "nbviewer.jupyter.org/github"
+)
+new_notebook_views = [
+    nb.replace("github.com", "nbviewer.jupyter.org/github") for nb in new_notebooks
+]
 rfi_view = rfi_link.replace("github.com", "nbviewer.jupyter.org/github")
 
 
@@ -63,8 +74,15 @@ def get_data(session_id):
         related = " ".join(related)
         labels = " ".join(labels)
 
-        url = notebook_view.format(issue.julian_date)
-        notebook = f"[Check Availability]({url})"
+        if issue.julian_date >= 2459078:
+            notebook = ""
+            for nb, name in zip(new_notebook_views, new_notebook_types):
+                url = nb.format(issue.julian_date)
+                notebook += f"[{name}]({url}) "
+
+        else:
+            url = old_notebook_view.format(issue.julian_date)
+            notebook = f"[Check Availability]({url})"
 
         obs_date = Time(issue.julian_date, format="jd")
         request_date = obs_date.isot.split("T")[0].replace("-", "")
