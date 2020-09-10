@@ -244,7 +244,9 @@ def get_antenna_status_from_redis():
             if key == "histogram" and stats[key] is not None:
                 if len(stats[key][0]) != len(stats[key][1]):
                     stats[key] = None
-            if key == "fem_switch" and stats[key] == "null":
+            if key == "fem_switch" and (
+                stats[key] == "null" or stats[key] == "Unkown mode"
+            ):
                 stats[key] = None
 
         if stats["fem_id"] is not None and stats["fem_id"] != -1:
