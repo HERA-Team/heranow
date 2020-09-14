@@ -1,0 +1,85 @@
+version: '3'
+services:
+    redishost:
+       build: 
+         context: .
+         dockerfile: ./dockerfiles/redis_cm_docker
+       networks:
+           - nginx_net
+       volumes:
+         - "/data5/dashboard_data/redis_cm:/data"
+    redis_celery:
+       build:
+         context: .
+         dockerfile: ./dockerfiles/redis_celery_docker
+       volumes:
+         - "/data5/dashboard_data/celery:/data/"
+       networks:
+           - nginx_net
+    django_db:
+       image: "postgres"
+       volumes:
+         - "/home/hera/data/psql:/var/lib/postgresql/data"
+       ports:
+         - 5432:5432
+       env_file:
+         - .env
+       networks:
+         -  nginx_net
+    app:
+      build:
+        context: .
+        dockerfile: ./dockerfiles/docker_app
+      image: heranow_app:latest
+      volumes:
+        - /data5/dashboard_data/media:/app/media
+      env_file:
+         - .env
+      command: /app/dockerfiles/entrypoints/entrypoint.sh 
+      networks:
+        -  nginx_net
+      depends_on:
+        - redishost
+        - redis_celery
+        - django_db
+    celery:
+      image: heranow_app:latest
+      command: /app/dockerfiles/entrypoints/entrypoint_celery.sh
+      env_file:
+         - .env
+      volumes:
+        - /data5/dashboard_data/media:/app/media
+      networks:
+        - nginx_net
+      depends_on:
+        - redis_celery
+        - redishost
+        - django_db
+    celery-beat:
+      image: heranow_app:latest
+      command: /app/dockerfiles/entrypoints/entrypoint_beat.sh
+      env_file:
+         - .env
+      networks:
+        - nginx_net
+      depends_on:
+        - redis_celery
+        - redishost
+        - django_db
+    nginx:
+      image: nginx:1.13
+      env_file:
+         - .env
+      ports:
+        - 5000:443
+      volumes:
+        - ./dockerfiles/nginx:/etc/nginx/conf.d
+        - /home/locoadmin/webhost/:/webhost
+        - /data5/dashboard_data/media/:/app/media/
+      depends_on:
+        - app
+      networks:
+        - nginx_net
+networks:
+    nginx_net:
+        driver: bridge

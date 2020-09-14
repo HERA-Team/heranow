@@ -1,0 +1,11 @@
+FROM  continuumio/miniconda:latest
+
+RUN apt-get update
+RUN apt-get install -qq -y build-essential gfortran iproute2
+
+COPY ./environment.yaml environment.yaml
+
+# Build conda env
+RUN conda env update -f environment.yaml
+
+

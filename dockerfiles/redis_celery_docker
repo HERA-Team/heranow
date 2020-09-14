@@ -1,0 +1,3 @@
+FROM redis
+HEALTHCHECK --interval=1m --timeout=5s CMD redis-cli ping
+CMD [ "redis-server", "--port", "6380" ]

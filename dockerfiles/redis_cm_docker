@@ -1,0 +1,9 @@
+FROM redis
+
+COPY dockerfiles/redis/redis.conf /usr/local/etc/redis/redis.conf
+HEALTHCHECK --interval=1m --timeout=5s CMD redis-cli ping
+RUN apt-get update
+RUN apt-get install -yqq net-tools
+
+RUN DOCKER_HOST_IP=$(route -n | awk '/UG[ \t]/{print $2}'); sed -i 's/DOCKER_HOST_IP/'$DOCKER_HOST_IP'/g' /usr/local/etc/redis/redis.conf
+CMD [ "redis-server", "/usr/local/etc/redis/redis.conf" ]

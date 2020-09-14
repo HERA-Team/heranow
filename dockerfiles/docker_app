@@ -1,0 +1,17 @@
+FROM  conda_base:latest
+
+
+# The building directory is a subdir of the repo.
+# Copy one directory up to get the entire repo.
+COPY . /app
+WORKDIR /app
+
+# setup M&C config
+RUN mkdir /root/.hera_mc
+COPY .secrets/mc_config.json /root/.hera_mc/
+
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "heranow", "/bin/bash", "-c"]
+ENV PATH /opt/conda/envs/heranow/bin:$PATH
+
+
