@@ -128,6 +128,7 @@ dmypy.json
 static/
 
 # secret keys
+.secrets/
 .django_key
 *.pem
 .github_app_id
