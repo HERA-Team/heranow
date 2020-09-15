@@ -65,9 +65,6 @@ class AutoSpectra(models.Model):
                 fields=["antenna", "time"], name="One antpol auto per time"
             ),
         ]
-        indexes = [
-            models.Index(fields=["antenna", "time"]),
-        ]
 
     def clean(self):
         if len(self.frequencies) != len(self.spectra):
