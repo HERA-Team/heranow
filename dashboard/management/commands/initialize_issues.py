@@ -7,9 +7,10 @@ import numpy as np
 import pandas as pd
 from astropy.time import Time
 from dateutil import parser as dateparser
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 
 from heranow import settings
 from dashboard.models import CommissioningIssue
@@ -20,28 +21,10 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Read data from redis databse and update local django database."
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--key",
-            dest="key",
-            type=str,
-            default=settings.GITHUB_APP_KEY_FILE,
-            help="File where the app key is stored.",
-        )
-        parser.add_argument(
-            "--appid",
-            dest="appid",
-            type=str,
-            default=settings.GITHUB_APP_ID_FILE,
-            help="File container github app id.",
-        )
-
     def handle(self, *args, **options):
 
-        with open(options["key"], "r") as key_file:
-            key = key_file.read()
-        with open(options["appid"], "r") as id_file:
-            app_id = id_file.read()
+        key = settings.GITHUB_APP_KEY
+        app_id = settings.GITHUB_APP_ID
 
         gh = github3.github.GitHub()
         gh.login_as_app(key.encode(), app_id)
@@ -98,7 +81,7 @@ class Command(BaseCommand):
             )
             issue_list.append(iss)
 
-        CommissioningIssue.objects.bulk_create(issue_list)
+        CommissioningIssue.objects.bulk_create(issue_list, ignore_conflicts=True)
 
         jd_list = np.sort(jd_list).astype(int)
         full_jd_range = np.arange(jd_list.min(), int(np.floor(Time.now().jd)) + 1)
@@ -108,4 +91,4 @@ class Command(BaseCommand):
             iss = CommissioningIssue(julian_date=jd,)
             new_issues.append(iss)
 
-        CommissioningIssue.objects.bulk_create(new_issues)
+        CommissioningIssue.objects.bulk_create(new_issues, ignore_conflicts=True)
