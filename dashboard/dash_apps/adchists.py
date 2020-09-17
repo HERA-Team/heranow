@@ -83,8 +83,12 @@ def plot_df(df, nodes=None, apriori=None):
 def get_data(session_id, interval):
     df = []
 
-    for antenna in Antenna.objects.all():
-        stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
+    for antenna in Antenna.objects.all().iterator():
+        try:
+            stat = AntennaStatus.objects.filter(antenna=antenna).latest("time")
+        except AntennaStatus.DoesNotExist:
+            stat = None
+
         if stat is not None:
             node = "Unknown"
             match = re.search(r"heraNode(?P<node>\d+)Snap", stat.snap_hostname)
@@ -92,32 +96,32 @@ def get_data(session_id, interval):
                 node = int(match.group("node"))
 
             apriori = "Unknown"
-            apriori_stat = (
-                AprioriStatus.objects.filter(antenna=stat.antenna)
-                .order_by("time")
-                .last()
-            )
+            try:
+                apriori_stat = AprioriStatus.objects.filter(
+                    antenna=stat.antenna
+                ).latest("time")
+            except AprioriStatus.DoesNotExist:
+                apriori_stat = None
             if apriori_stat is not None:
                 apriori = apriori_stat.get_apriori_status_display()
             if stat.adc_hist is not None:
-                df.append(
-                    pd.DataFrame(
-                        {
-                            "bins": stat.adc_hist[0],
-                            "adchist": stat.adc_hist[1],
-                            "ant": stat.antenna.ant_number,
-                            "pol": f"{stat.antenna.polarization}",
-                            "node": node,
-                            "apriori": apriori,
-                            "time": stat.time,
-                        }
-                    )
+                df.extend(
+                    {
+                        "bins": b,
+                        "adchist": h,
+                        "ant": stat.antenna.ant_number,
+                        "pol": f"{stat.antenna.polarization}",
+                        "node": node,
+                        "apriori": apriori,
+                        "time": stat.time,
+                    }
+                    for b, h in zip(*stat.adc_hist)
                 )
 
-    df = pd.concat(df)
+    df = pd.DataFrame(df)
     # Sort according to increasing bins and antpols
     if not df.empty:
-        df.sort_values(["bins", "ant", "pol"], inplace=True)
+        df.sort_values(["ant", "pol"], inplace=True)
         df.reset_index(drop=True, inplace=True)
 
     return df
