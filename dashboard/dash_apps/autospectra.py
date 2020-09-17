@@ -18,7 +18,6 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
 
 import plotly.graph_objs as go
 
@@ -33,19 +32,15 @@ max_points = 4000
 def get_data(session_id, interval):
     df_full = []
     df_down = []
-
-    last_spectra = AutoSpectra.objects.last()
+    try:
+        last_spectra = AutoSpectra.objects.latest("time")
+    except AutoSpectra.DoesNotExist:
+        last_spectra = None
     if last_spectra is not None:
         auto_time = Time(last_spectra.time, format="datetime")
 
-        for stat in AutoSpectra.objects.filter(time=last_spectra.time).order_by(
-            "antenna"
-        ):
-            ant_stat = (
-                AntennaStatus.objects.filter(antenna=stat.antenna)
-                .order_by("time")
-                .last()
-            )
+        for stat in AutoSpectra.objects.filter(time=last_spectra.time).iterator():
+            ant_stat = AntennaStatus.objects.filter(antenna=stat.antenna).latest("time")
             node = "Unknown"
             fem_switch = "Unknown"
             if ant_stat is not None:
@@ -56,11 +51,13 @@ def get_data(session_id, interval):
                 fem_switch = ant_stat.get_fem_switch_display() or "Unknown"
 
             apriori = "Unknown"
-            apriori_stat = (
-                AprioriStatus.objects.filter(antenna=stat.antenna)
-                .order_by("time")
-                .last()
-            )
+            try:
+                apriori_stat = AprioriStatus.objects.filter(
+                    antenna=stat.antenna
+                ).latest("time")
+            except AprioriStatus.DoesNotExist:
+                apriori_stat = None
+
             if apriori_stat is not None:
                 apriori = apriori_stat.get_apriori_status_display()
 
@@ -112,8 +109,8 @@ def get_data(session_id, interval):
     df_down = pd.concat(df_down)
     if not df_full.empty:
         # Sort according to increasing frequencies and antpols
-        df_full.sort_values(["freqs", "ant", "pol"], inplace=True)
-        df_down.sort_values(["freqs", "ant", "pol"], inplace=True)
+        df_full.sort_values(["freqs", "ant", "pol"], inplace=True, ignore_index=True)
+        df_down.sort_values(["freqs", "ant", "pol"], inplace=True, ignore_index=True)
         df_full.reset_index(drop=True, inplace=True)
         df_down.reset_index(drop=True, inplace=True)
 
