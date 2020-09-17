@@ -91,8 +91,8 @@ def get_data(session_id, interval):
         if ant_stat is not None:
             mc_name = f"{ant_stat.antenna.ant_number}{ant_stat.antenna.polarization}"
         freqs = np.linspace(0, 250, spectra.size)
-        data.extend(
-            [
+        data.append(
+            pd.DataFrame(
                 {
                     "time": last_spectra.time,
                     "hostname": hostname,
@@ -100,14 +100,13 @@ def get_data(session_id, interval):
                     "node": node,
                     "snap": snap,
                     "mc_name": mc_name,
-                    "spectra": s,
-                    "freqs": f,
+                    "spectra": spectra,
+                    "freqs": freqs,
                 }
-                for f, s in zip(freqs, spectra)
-            ]
+            )
         )
 
-    df = pd.DataFrame(data)
+    df = pd.concat(data)
     if not df.empty:
         df.sort_values(
             ["node", "snap", "loc_num", "freqs"], ignore_index=True, inplace=True
