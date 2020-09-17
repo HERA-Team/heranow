@@ -28,7 +28,7 @@ from ..models import AutoSpectra, AntennaStatus, AprioriStatus
 max_points = 4000
 
 
-@lru_cache
+@lru_cache(maxsize=128)
 def get_data(session_id, interval):
     df_full = []
     df_down = []

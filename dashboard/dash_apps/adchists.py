@@ -79,7 +79,7 @@ def plot_df(df, nodes=None, apriori=None):
     return fig
 
 
-@lru_cache
+@lru_cache(maxsize=128)
 def get_data(session_id, interval):
     df = []
 

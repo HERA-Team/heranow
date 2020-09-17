@@ -18,7 +18,7 @@ from django_plotly_dash import DjangoDash
 from dashboard.models import HookupNotes, Antenna, AntennaStatus, AprioriStatus
 
 
-@lru_cache
+@lru_cache(maxsize=128)
 def get_data(session_id):
     data = []
     all_stats = (

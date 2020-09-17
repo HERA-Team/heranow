@@ -136,7 +136,7 @@ def plot_df(
     return fig
 
 
-@lru_cache
+@lru_cache(maxsize=128)
 def get_data(session_id, n_intervals):
     df = []
 
