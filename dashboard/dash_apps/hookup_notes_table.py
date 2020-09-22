@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 
 from functools import lru_cache
+from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta, timezone
 
 import dash
 import dash_table
@@ -16,6 +18,17 @@ import dash_html_components as html
 from django_plotly_dash import DjangoDash
 
 from dashboard.models import HookupNotes, Antenna, AntennaStatus, AprioriStatus
+
+
+def get_marks_from_start_end(start, end):
+    """Returns dict with one item per month keyed by unix timestamp."""
+    result = []
+    current = start
+    while current <= end:
+        result.append(current)
+        current += relativedelta(months=2)
+
+    return {int(m.timestamp()): str(m.strftime("%Y-%m")) for m in result}
 
 
 @lru_cache(maxsize=128)
@@ -44,21 +57,27 @@ def get_data(session_id):
             if apriori_stat is not None:
                 apriori = apriori_stat.get_apriori_status_display()
 
-        note_text = """"""
         for note in HookupNotes.objects.filter(ant_number=ant["ant_number"]):
-            note_text += f"""**{note.part}** ({note.time})  {note.note}  \n"""
 
-        data.append(
-            {
-                "Antenna": ant["ant_name"],
-                "node": node,
-                "apriori": apriori,
-                "ant_number": ant["ant_number"],
-                "Hookup Notes": note_text,
-            }
-        )
+            data.append(
+                {
+                    "Antenna": ant["ant_name"],
+                    "node": node,
+                    "part": note.part,
+                    "time": note.time,
+                    "apriori": apriori,
+                    "ant_number": ant["ant_number"],
+                    "Hookup Notes": f"""**{note.part}** ({note.time})  {note.note} """,
+                }
+            )
     df = pd.DataFrame(data)
-    df.sort_values("ant_number", inplace=True)
+    df.sort_values(
+        ["ant_number", "part", "time"],
+        ascending=[True, True, False],
+        ignore_index=True,
+        inplace=True,
+    )
+
     return df
 
 
@@ -122,11 +141,31 @@ def serve_layout():
                         justify="center",
                         align="center",
                     ),
+                    dbc.Row(
+                        dbc.Col(
+                            dcc.RangeSlider(
+                                id="datetime-slider",
+                                updatemode="mouseup",
+                                min=df.time.min().timestamp(),
+                                max=datetime.now(tz=timezone.utc).timestamp(),
+                                step=10000,
+                                value=[
+                                    df.time.min().timestamp(),
+                                    datetime.now(tz=timezone.utc).timestamp(),
+                                ],
+                                marks=get_marks_from_start_end(
+                                    df.time.min(), datetime.now(tz=timezone.utc)
+                                ),
+                            ),
+                        ),
+                    ),
                     dash_table.DataTable(
                         id="table",
                         columns=[
-                            {"name": i, "id": i, "presentation": "markdown"}
-                            for i in df.loc[:, ["Antenna", "Hookup Notes"]]
+                            {"name": i.title(), "id": i, "presentation": "markdown"}
+                            for i in df.loc[
+                                :, ["Antenna", "node", "apriori", "Hookup Notes"]
+                            ]
                         ],
                         data=df.to_dict("records"),
                         page_size=20,
@@ -188,9 +227,10 @@ def update_node_selection(session_id):
         Input("node-dropdown", "value"),
         Input("apriori-dropdown", "value"),
         Input("session-id", "children"),
+        Input("datetime-slider", "value"),
     ],
 )
-def reload_notes(nodes, apriori, session_id):
+def reload_notes(nodes, apriori, session_id, time_range):
     df = get_data(session_id)
     if nodes is None or len(nodes) == 0:
         nodes = df.node.unique()
@@ -199,5 +239,26 @@ def reload_notes(nodes, apriori, session_id):
         apriori = df.apriori.unique()
 
     df1 = df[(df.node.isin(nodes)) & (df.apriori.isin(apriori))]
+    df1 = (
+        df1[
+            (datetime.fromtimestamp(time_range[0], tz=timezone.utc) <= df1.time)
+            & (df1.time <= datetime.fromtimestamp(time_range[1], tz=timezone.utc))
+        ]
+        .groupby("Antenna")
+        .aggregate(
+            {
+                "ant_number": "first",
+                "node": "first",
+                "apriori": "first",
+                "Hookup Notes": " \n".join,
+            }
+        )
+    )
+    df2 = df1["Hookup Notes"].to_frame()
+    df2["apriori"] = df1["apriori"]
+    df2["ant_number"] = pd.to_numeric(df1["ant_number"], errors="ignore")
+    df2["node"] = pd.to_numeric(df1["node"], errors="ignore")
+    df2.reset_index(inplace=True)
+    df2.sort_values("ant_number", inplace=True)
 
-    return df1.to_dict("records"), 0
+    return df2.to_dict("records"), 0
