@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, timezone
 
 import dash
 import dash_table
+import dash_daq as daq
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
@@ -34,17 +35,20 @@ def get_marks_from_start_end(start, end):
 @lru_cache(maxsize=128)
 def get_data(session_id):
     data = []
-    all_stats = (
-        AntennaStatus.objects.filter(antenna__polarization="e")
-        .order_by("antenna__ant_number", "-time")
-        .distinct("antenna__ant_number")
-    )
+
     for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
-        stat = all_stats.filter(antenna__ant_number=ant["ant_number"]).last()
+        try:
+            stat = AntennaStatus.objects.filter(
+                antenna__polarization="e", antenna__ant_number=ant["ant_number"]
+            ).latest("time")
+        except AntennaStatus.DoesNotExist:
+            stat = None
 
         node = "Unknown"
         apriori = "Unknown"
         if stat is not None:
+            if ant["ant_number"] == 11:
+                print(stat.snap_hostname)
             match = re.search(r"heraNode(?P<node>\d+)Snap", stat.snap_hostname)
             if match is not None:
                 node = int(match.group("node"))
@@ -67,6 +71,7 @@ def get_data(session_id):
                     "time": note.time,
                     "apriori": apriori,
                     "ant_number": ant["ant_number"],
+                    "is_apriori": note.reference == "apa-infoupd",
                     "Hookup Notes": f"""**{note.part}** ({note.time})  {note.note} """,
                 }
             )
@@ -91,6 +96,15 @@ def serve_layout():
                 [
                     dbc.Row(
                         [
+                            dbc.Col(
+                                daq.BooleanSwitch(
+                                    id="apa-only",
+                                    on=False,
+                                    label="Apriori Notes Only",
+                                    labelPosition="top",
+                                ),
+                                width=1,
+                            ),
                             html.Label(
                                 [
                                     "Node(s):",
@@ -167,7 +181,14 @@ def serve_layout():
                                 :, ["Antenna", "node", "apriori", "Hookup Notes"]
                             ]
                         ],
-                        data=df.to_dict("records"),
+                        data=[
+                            {
+                                "Antenna": "Loading",
+                                "node": "Data",
+                                "apriori": "Please",
+                                "Hookup Notes": "Wait",
+                            }
+                        ],
                         page_size=20,
                         style_cell={
                             "textAlign": "left",
@@ -228,9 +249,10 @@ def update_node_selection(session_id):
         Input("apriori-dropdown", "value"),
         Input("session-id", "children"),
         Input("datetime-slider", "value"),
+        Input("apa-only", "on"),
     ],
 )
-def reload_notes(nodes, apriori, session_id, time_range):
+def reload_notes(nodes, apriori, session_id, time_range, apa_only):
     df = get_data(session_id)
     if nodes is None or len(nodes) == 0:
         nodes = df.node.unique()
@@ -239,6 +261,8 @@ def reload_notes(nodes, apriori, session_id, time_range):
         apriori = df.apriori.unique()
 
     df1 = df[(df.node.isin(nodes)) & (df.apriori.isin(apriori))]
+    if apa_only:
+        df1 = df1[df1.is_apriori]
     df1 = (
         df1[
             (datetime.fromtimestamp(time_range[0], tz=timezone.utc) <= df1.time)
