@@ -196,7 +196,9 @@ def update_hookup_notes():
             use_cache=False,
             hookup_type=None,
         )
-        hu_notes = hookup.get_notes(hookup_dict=hookup_dict, state="all")
+        hu_notes = hookup.get_notes(
+            hookup_dict=hookup_dict, state="all", return_dict=True
+        )
         notes = []
         for ant_key, ant_notes in hu_notes.items():
             ant_num = int(ant_key.split(":")[0][2:])
@@ -216,7 +218,8 @@ def update_hookup_notes():
                             time=timezone.make_aware(time),
                             ant_number=ant_num,
                             part=note_key,
-                            note=hu_notes[ant_key][note_key][gtime],
+                            note=hu_notes[ant_key][note_key][gtime]["note"],
+                            reference=hu_notes[ant_key][note_key][gtime]["ref"],
                         )
                     )
 

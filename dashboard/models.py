@@ -371,12 +371,15 @@ class HookupNotes(models.Model):
         The part identification string of the note
     note : Text Column
         The modification noted in M&C
+    reference : Text Column
+        The reference given in M&C database
     """
 
     time = models.DateTimeField()
     ant_number = models.IntegerField()
     part = models.CharField(max_length=200)
     note = models.TextField()
+    reference = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
         constraints = [
