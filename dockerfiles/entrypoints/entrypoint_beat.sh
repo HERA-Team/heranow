@@ -3,5 +3,4 @@
 export PATH=/opt/conda/envs/heranow/bin:$PATH
 source activate heranow
 
-celery -A heranow beat -l info
-
+celery -A heranow beat -l INFO

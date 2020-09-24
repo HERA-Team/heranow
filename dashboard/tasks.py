@@ -17,9 +17,7 @@ from astropy import coordinates
 
 from django.utils import timezone
 
-from celery.decorators import task
-from celery.schedules import crontab
-from celery.decorators import periodic_task
+from celery import shared_task
 from celery.utils.log import get_task_logger
 
 from sqlalchemy import func, and_, or_
@@ -47,9 +45,7 @@ from dashboard.models import (
 logger = get_task_logger(__name__)
 
 
-@periodic_task(
-    run_every=(crontab(minute="*/1")), name="get_autos_from_redis", ignore_result=True,
-)
+@shared_task
 def get_autospectra_from_redis():
     redis_pool = redis.ConnectionPool(host="redishost", port=6379)
     with redis.Redis(connection_pool=redis_pool) as rsession:
@@ -108,9 +104,7 @@ def get_autospectra_from_redis():
     return
 
 
-@periodic_task(
-    run_every=(crontab(minute="*/1")), name="get_snap_spectra", ignore_result=True,
-)
+@shared_task
 def get_snap_spectra_from_redis():
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     snap_spectra = corr_cm.get_snaprf_status()
@@ -137,9 +131,7 @@ def get_snap_spectra_from_redis():
     return
 
 
-@periodic_task(
-    run_every=(crontab(minute="*/1")), name="get_snap_status", ignore_result=True,
-)
+@shared_task
 def get_snap_status_from_redis():
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
 
@@ -179,9 +171,7 @@ def get_snap_status_from_redis():
     return
 
 
-@periodic_task(
-    run_every=(crontab(hour="*/6")), name="get_hookup_notes", ignore_result=True,
-)
+@shared_task
 def update_hookup_notes():
     db = mc.connect_to_mc_db(None)
 
@@ -227,9 +217,7 @@ def update_hookup_notes():
     return
 
 
-@periodic_task(
-    run_every=(crontab(minute="*/1")), name="get_ant_status", ignore_result=True,
-)
+@shared_task
 def get_antenna_status_from_redis():
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     ant_stats = corr_cm.get_ant_status()
@@ -301,11 +289,7 @@ def get_antenna_status_from_redis():
     return
 
 
-@periodic_task(
-    run_every=(crontab(hour="0", minute="0")),
-    name="update_constructed_antenna",
-    ignore_result=True,
-)
+@shared_task
 def update_constructed_antennas():
     db = mc.connect_to_mc_db(None)
     antpos = np.genfromtxt(
@@ -384,11 +368,7 @@ def get_mc_apriori(handling, antenna):
     return apa
 
 
-@periodic_task(
-    run_every=(crontab(hour="*/1", minute="0")),
-    name="update_apriori",
-    ignore_result=True,
-)
+@shared_task
 def update_apriori():
     db = mc.connect_to_mc_db(None)
 
@@ -429,11 +409,7 @@ def update_apriori():
     return
 
 
-@periodic_task(
-    run_every=(crontab(hour="*/6", minute="0")),
-    name="update_issue_log",
-    ignore_result=True,
-)
+@shared_task
 def update_issue_log():
     key = settings.GITHUB_APP_KEY
     app_id = settings.GITHUB_APP_ID
@@ -501,9 +477,7 @@ def update_issue_log():
     return
 
 
-@periodic_task(
-    run_every=(crontab(minute="*/1")), name="replot_radiosky", ignore_result=True,
-)
+@shared_task
 def replot_radiosky():
     radio_map = healpy.read_map(os.path.join(settings.BASE_DIR, "test4.fits"))
     hera_telescope = get_telescope("HERA")
@@ -596,11 +570,7 @@ def replot_radiosky():
     return
 
 
-@periodic_task(
-    run_every=(crontab(hour="*/12", minute="0")),
-    name="update_hookup",
-    ignore_result=True,
-)
+@shared_task
 def update_hookup():
     db = mc.connect_to_mc_db(None)
 
@@ -625,11 +595,7 @@ def update_hookup():
         )
 
 
-@periodic_task(
-    run_every=(crontab(minute="0", hour="*/1")),
-    name="update_xengs",
-    ignore_result=True,
-)
+@shared_task
 def update_xengs():
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     xeng_chan_mapping = corr_cm.r.hgetall("corr:xeng_chans")
@@ -643,11 +609,7 @@ def update_xengs():
     return
 
 
-@periodic_task(
-    run_every=(crontab(minute="0", hour="*/1")),
-    name="update_ant_to_snap",
-    ignore_result=True,
-)
+@shared_task
 def update_ant_to_snap():
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     corr_map = corr_cm.r.hgetall("corr:map")
@@ -676,11 +638,7 @@ def update_ant_to_snap():
     return
 
 
-@periodic_task(
-    run_every=(crontab(minute="0", hour="*/1")),
-    name="update_snap_to_ant",
-    ignore_result=True,
-)
+@shared_task
 def update_snap_to_ant():
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     corr_map = corr_cm.r.hgetall("corr:map")
