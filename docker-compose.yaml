@@ -8,6 +8,11 @@ services:
            - nginx_net
        volumes:
          - "/data5/dashboard_data/redis_cm:/data"
+       healthcheck:
+         test: redis-cli ping
+         interval: 1m30s
+         timeout: 10s
+         retries: 3
     redis_celery:
        build:
          context: .
@@ -16,16 +21,28 @@ services:
          - "/data5/dashboard_data/celery:/data/"
        networks:
            - nginx_net
+       healthcheck:
+         test: redis-cli ping
+         interval: 1m30s
+         timeout: 10s
+         retries: 3
     django_db:
        image: "postgres"
+       user: 999:999
        volumes:
-         - "/home/hera/data/psql:/var/lib/postgresql/data"
+         #- "/home/hera/data/psql:/var/lib/postgresql/data"
+         - /data5/dashboard_data/psql:/var/lib/postgresql/data
        ports:
          - 5432:5432
        env_file:
          - .env
        networks:
          -  nginx_net
+       healthcheck:
+         test: pg_isready
+         interval: 1m30s
+         timeout: 10s
+         retries: 3
     app:
       build:
         context: .
