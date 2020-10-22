@@ -1,3 +1,4 @@
+"""Definition of Database Classes used to build website."""
 import datetime
 
 from astropy.time import Time
@@ -8,10 +9,27 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
 from django.contrib.postgres.fields import ArrayField
 
-# Create your models here.
-
 
 class Antenna(models.Model):
+    """Definition of Antenna table.
+
+    Form the basis of all antenna related measurements.
+    Usually a unique identifier for antenna related measurements.
+    Each physical antenna has 2 Antenna instances, one for each antpol.
+
+    ant_number : Integer Field
+        The number assigned to the antenna.
+    ant_name : Character Field
+        The M&C name of the antenna. Usually the Hex type + ant number (e.g. HH0)
+    polarization : CharField
+        Length 1 field of the polarization for the antenna
+    antpos_enu : Array Field of Floats
+        The ENU antenna position
+    constructed : Boolean Field
+        Boolean to represent if the physical dish has been constructed.
+
+    """
+
     ant_number = models.IntegerField()
     ant_name = models.CharField(max_length=5)
     polarization = models.CharField(max_length=1)
@@ -19,6 +37,8 @@ class Antenna(models.Model):
     constructed = models.BooleanField(default=False)
 
     class Meta:
+        """Definition of unique constraints and psql indexes."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["ant_number", "polarization"], name="unique antpol"
@@ -33,6 +53,7 @@ class Antenna(models.Model):
         ]
 
     def __str__(self):
+        """Define String representation of class."""
         return f"{self.ant_name} pol:{self.polarization} built:{self.constructed}"
 
 
@@ -41,6 +62,29 @@ def _get_dummy_default():
 
 
 class AutoSpectra(models.Model):
+    """Definition of AutoSpectra table.
+
+    Used to store autocorrelations from the correlator.
+    Uniquely keyed on the Antenna and time.
+    Includes downsampled data using lttb method.
+
+    antenna : Antenna Instance
+        Unique antpol for each autocorrelation
+    spectra : Array Field of Floats
+        Full array of auto correlation data.
+    frequencies : Array of Floats
+        Full frequency array for corresponding spectra
+    time : DateTime Field
+        The time corresponding to the autocorrelation measurement
+    eq_coeffs : Array Field of Floats
+        The digital equalization coefficiants
+    frequencies_downsampled : Array Field of Float
+        Frequencies corresponding to the downsampled version of the spectrum
+    spectra_downsampled : Array of Float Field
+        The downsampled spectrum using the lttb algorithm
+
+    """
+
     antenna = models.ForeignKey(Antenna, on_delete=models.CASCADE)
     spectra = ArrayField(models.FloatField())
     frequencies = ArrayField(models.FloatField())
@@ -52,6 +96,7 @@ class AutoSpectra(models.Model):
     spectra_downsampled = ArrayField(models.FloatField(), default=_get_dummy_default)
 
     def is_recent(self):
+        """Define recent boolean check."""
         now = timezone.now()
         return now - datetime.TimeDelta(days=1) <= self.time <= now
 
@@ -60,6 +105,8 @@ class AutoSpectra(models.Model):
     is_recent.short_description = "Recent Spectra?"
 
     class Meta:
+        """Define constraints on unique measurements."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["antenna", "time"], name="One antpol auto per time"
@@ -67,6 +114,7 @@ class AutoSpectra(models.Model):
         ]
 
     def clean(self):
+        """Define cleaning constraints for the parameters."""
         if len(self.frequencies) != len(self.spectra):
             raise ValidationError(
                 "Input frequencies and spectra must be the same length."
@@ -78,6 +126,19 @@ class AutoSpectra(models.Model):
 
 
 class AprioriStatus(models.Model):
+    """Definition of The Apriori Status table.
+
+    Uniquely keyed on Antenna and time of status.
+
+    antenna : Antenna Instance
+        Unique antpol for each status
+    time : DateTime Field
+        The time of the status change
+    apriori_status : CharField
+        Abbreviation of apriori_status as defined by the AprioriStatusList class
+
+    """
+
     antenna = models.ForeignKey(Antenna, on_delete=models.CASCADE)
     time = models.DateTimeField("Status Time")
 
@@ -94,6 +155,8 @@ class AprioriStatus(models.Model):
     }
 
     class AprioriStatusList(models.TextChoices):
+        """Defintion of Apriori Status choices."""
+
         DISH_MAINTENANCE = "DhM", gettext_lazy("Dish Maintenance")
         DISH_OK = "DhO", gettext_lazy("Dish OK")
         RF_MAINTENANCE = "RFM", gettext_lazy("RF Maintenance")
@@ -107,6 +170,8 @@ class AprioriStatus(models.Model):
     apriori_status = models.CharField(max_length=3, choices=AprioriStatusList.choices)
 
     class Meta:
+        """Definition of unique constraints and indexes."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["antenna", "time"], name="One antpol apriori per time"
@@ -117,6 +182,7 @@ class AprioriStatus(models.Model):
         ]
 
     def observation_ready(self):
+        """Return True if status is at least Digital OK."""
         return self.apriori_status in {
             self.AprioriStatusList.DIGITAL_OK,
             self.AprioriStatusList.CALIBRATION_MAINTENANCE,
@@ -125,6 +191,7 @@ class AprioriStatus(models.Model):
         }
 
     def __str__(self):
+        """Define string representation of class."""
         return f"{self.antenna.ant_name} staus: {self.get_apriori_status_display()}"
 
 
@@ -220,6 +287,8 @@ class AntennaStatus(models.Model):
     }
 
     class FemSwitchStates(models.TextChoices):
+        """Choice of Fem switch states."""
+
         ANTENNA = "ANT", gettext_lazy("Antenna")
         LOAD = "LOAD", gettext_lazy("Load")
         NOISE = "NOISE", gettext_lazy("Noise")
@@ -229,6 +298,7 @@ class AntennaStatus(models.Model):
     )
 
     def status_is_recent(self):
+        """Definition of recent status check."""
         now = timezone.now()
         return now - datetime.TimeDelta(days=1) <= self.time <= now
 
@@ -237,6 +307,7 @@ class AntennaStatus(models.Model):
     status_is_recent.short_description = "Recent Status?"
 
     def clean(self):
+        """Definition of cleaning for inputs."""
         if (
             self.snap_channel_number is not None
             and not 0 <= self.snap_channel_number <= 7
@@ -244,6 +315,8 @@ class AntennaStatus(models.Model):
             raise ValidationError("snap_channel_number must be in the range [0,7].")
 
     class Meta:
+        """Definition of unique constraints and indexes on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["antenna", "time"], name="One antpol status per time"
@@ -298,6 +371,8 @@ class SnapStatus(models.Model):
     last_programmed_time = models.DateTimeField(null=True, blank=True)
 
     class Meta:
+        """Definition of unique constraints and indexes on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["hostname", "time"], name="one snap status per time"
@@ -309,6 +384,7 @@ class SnapStatus(models.Model):
         ]
 
     def __str__(self):
+        """Define string representation of class."""
         return f"{self.hostname} observed: {self.time}"
 
 
@@ -342,6 +418,8 @@ class SnapSpectra(models.Model):
     adc_hist = ArrayField(ArrayField(models.FloatField()), blank=True, null=True)
 
     class Meta:
+        """Definition of unique constraints and indexes on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["time", "hostname", "input_number"],
@@ -354,6 +432,7 @@ class SnapSpectra(models.Model):
         ]
 
     def __str__(self):
+        """Define string representation of class."""
         return f"{self.hostname} #{self.input_number} observed: {self.time}"
 
 
@@ -382,6 +461,8 @@ class HookupNotes(models.Model):
     reference = models.CharField(max_length=200, null=True, blank=True)
 
     class Meta:
+        """Definition of unique constraints and indexes on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["time", "ant_number", "part"], name="unique part note per time",
@@ -389,13 +470,13 @@ class HookupNotes(models.Model):
         ]
 
     def __str__(self):
+        """Define string representation of class."""
         return f"Antenna: {self.ant_number} Part: {self.part} Date: {self.time}"
 
 
 class CommissioningIssue(models.Model):
     """
     Description of the Commisioning issues table.
-
 
     Used to track nighlty notebooks and more.
 
@@ -420,13 +501,17 @@ class CommissioningIssue(models.Model):
     new_issues = models.IntegerField(null=True, blank=True)
 
     def nightly_notebook_date(self):
+        """Return the julian date of the status."""
         return self.julian_date
 
     def rfi_notebook_date(self):
+        """Return the date in iso format."""
         obs_date = Time(self.julian_date, format="jd")
         return obs_date.isot.split("T")[0].replace("-", "")
 
     class Meta:
+        """Definition of unique constraints on the table."""
+
         constraints = [
             models.UniqueConstraint(fields=["julian_date"], name="julian date"),
         ]
@@ -448,6 +533,8 @@ class XengChannels(models.Model):
     chans = ArrayField(models.IntegerField())
 
     class Meta:
+        """Definition of unique constraints on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["number", "chans"], name="xengs must have disjoint channels."
@@ -455,6 +542,7 @@ class XengChannels(models.Model):
         ]
 
     def __str__(self):
+        """Define string representation of class."""
         return f"xeng: {self.number} chans: {self.chans[0]}...{self.chans[-1]}"
 
 
@@ -479,6 +567,8 @@ class AntToSnap(models.Model):
     chan = models.IntegerField()
 
     class Meta:
+        """Definition of unique constraints and indexes on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["time", "antenna"], name="One ant to snap mapping per time"
@@ -486,6 +576,7 @@ class AntToSnap(models.Model):
         ]
 
     def __str__(self):
+        """Define string representation of class."""
         return f"{str(self.antenna.ant_number)}{str(self.antenna.polarization)} snap: {self.snap_hostname}:{self.chan}"
 
 
@@ -516,6 +607,8 @@ class SnapToAnt(models.Model):
     inds = ArrayField(models.IntegerField(), null=True, blank=True)
 
     class Meta:
+        """Definition of unique constraints and indexes on the table."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["time", "snap_hostname"],
@@ -525,6 +618,7 @@ class SnapToAnt(models.Model):
         ordering = ["node", "snap"]
 
     def __str__(self):
+        """Define string representation of class."""
         return f"host: {self.snap_hostname} ants: {self.ants} inds: {self.inds}"
 
 
