@@ -1,3 +1,4 @@
+"""Definition of tasks performed by celery to keep database up to date."""
 import os
 import re
 import json
@@ -47,6 +48,7 @@ logger = get_task_logger(__name__)
 
 @shared_task
 def get_autospectra_from_redis():
+    """Get autospectra from redis and add new correlations to database."""
     redis_pool = redis.ConnectionPool(host="redishost", port=6379)
     with redis.Redis(connection_pool=redis_pool) as rsession:
         for antenna in Antenna.objects.all():
@@ -106,6 +108,7 @@ def get_autospectra_from_redis():
 
 @shared_task
 def get_snap_spectra_from_redis():
+    """Get snap spectra from redis and add to database."""
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     snap_spectra = corr_cm.get_snaprf_status()
     spectra_list = []
@@ -133,6 +136,7 @@ def get_snap_spectra_from_redis():
 
 @shared_task
 def get_snap_status_from_redis():
+    """Get snap status from redis and add to database."""
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
 
     snap_status = corr_cm.get_f_status()
@@ -173,6 +177,7 @@ def get_snap_status_from_redis():
 
 @shared_task
 def update_hookup_notes():
+    """Read hookup notes from M&C and add new notes to database."""
     db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
@@ -219,6 +224,7 @@ def update_hookup_notes():
 
 @shared_task
 def get_antenna_status_from_redis():
+    """Get antenna status from redis and add new statuses to database."""
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     ant_stats = corr_cm.get_ant_status()
     bulk_add = []
@@ -291,6 +297,7 @@ def get_antenna_status_from_redis():
 
 @shared_task
 def update_constructed_antennas():
+    """Check antennas marked as constructed and update database."""
     db = mc.connect_to_mc_db(None)
     antpos = np.genfromtxt(
         os.path.join(mc.data_path, "HERA_350.txt"),
@@ -341,6 +348,16 @@ def update_constructed_antennas():
 
 
 def get_mc_apriori(handling, antenna):
+    """Query M&C database for apriori status.
+
+    Parameters
+    ----------
+    handling : M&C cm_sysutils Handling object
+        Object which performs query to M&C database
+    antenna : Antenna Object
+        Antenna to get status for.
+
+    """
     if isinstance(antenna, Antenna):
         ant = antenna.ant_name.upper()
     else:
@@ -370,6 +387,7 @@ def get_mc_apriori(handling, antenna):
 
 @shared_task
 def update_apriori():
+    """Get most recent Apriori status for each Antenna and update database."""
     db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as session:
@@ -411,6 +429,7 @@ def update_apriori():
 
 @shared_task
 def update_issue_log():
+    """Query Github for all Daily Log issues updated in the last 6 hours."""
     key = settings.GITHUB_APP_KEY
     app_id = settings.GITHUB_APP_ID
 
@@ -479,6 +498,7 @@ def update_issue_log():
 
 @shared_task
 def replot_radiosky():
+    """Calculate current sidereal time and plot sky over HERA."""
     radio_map = healpy.read_map(os.path.join(settings.BASE_DIR, "test4.fits"))
     hera_telescope = get_telescope("HERA")
     hera_loc = coordinates.EarthLocation.from_geocentric(
@@ -572,6 +592,7 @@ def replot_radiosky():
 
 @shared_task
 def update_hookup():
+    """Get most recent hookup notes from M&C."""
     db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
@@ -597,6 +618,7 @@ def update_hookup():
 
 @shared_task
 def update_xengs():
+    """Grab Xeng configuration from redis."""
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     xeng_chan_mapping = corr_cm.r.hgetall("corr:xeng_chans")
     bulk_objects = []
@@ -611,6 +633,7 @@ def update_xengs():
 
 @shared_task
 def update_ant_to_snap():
+    """Get ant to snap mapping from redis."""
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     corr_map = corr_cm.r.hgetall("corr:map")
 
@@ -640,6 +663,7 @@ def update_ant_to_snap():
 
 @shared_task
 def update_snap_to_ant():
+    """Get snap to ant mapping from redis."""
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     corr_map = corr_cm.r.hgetall("corr:map")
 
