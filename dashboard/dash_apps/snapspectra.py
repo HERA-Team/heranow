@@ -57,7 +57,7 @@ def plot_df(df, hostname):
     return fig
 
 
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=32)
 def get_data(session_id, interval):
     data = []
     for unique_hosts in (

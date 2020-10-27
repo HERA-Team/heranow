@@ -32,7 +32,7 @@ def get_marks_from_start_end(start, end):
     return {int(m.timestamp()): str(m.strftime("%Y-%m")) for m in result}
 
 
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=32)
 def get_data(session_id):
     data = []
 

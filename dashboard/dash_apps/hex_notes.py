@@ -37,7 +37,7 @@ def process_string(input_str, time_string_offset=37):
     return input_str
 
 
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=32)
 def get_data(session_id, interval):
     data = []
     all_stats = (
