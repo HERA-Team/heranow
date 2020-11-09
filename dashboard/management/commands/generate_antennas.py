@@ -1,3 +1,4 @@
+"""Initialize antenna objects."""
 import os
 import logging  # noqa
 import numpy as np
@@ -11,9 +12,12 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    """Command to create antennas in database."""
+
     help = "Read data from redis databse and update local django database."
 
     def add_arguments(self, parser):
+        """Add additional arguments to command line parser."""
         parser.add_argument(
             "--config",
             dest="mc_config_path",
@@ -29,6 +33,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """Perform necessary calculation and inser antennas in to DB."""
         mc_args = Namespace()
         mc_args.mc_db_name = options["mc_db_name"]
         mc_args.mc_config_path = options["mc_config_path"]

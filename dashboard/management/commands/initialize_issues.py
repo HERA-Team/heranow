@@ -1,3 +1,4 @@
+"""Initialize CommissioningIssues into database."""
 import re
 import os
 import copy
@@ -19,10 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    """Command to add issues to DB."""
+
     help = "Read data from redis databse and update local django database."
 
     def handle(self, *args, **options):
-
+        """Access github API and Initialize DB with all daily issues."""
         key = settings.GITHUB_APP_KEY
         app_id = settings.GITHUB_APP_ID
 
