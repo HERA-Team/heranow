@@ -1,3 +1,4 @@
+"""Definition of custom django tempalte tags."""
 from django import template
 from django.template.loader_tags import do_include
 from django.template.base import TemplateSyntaxError, Token
@@ -9,8 +10,7 @@ register = template.Library()
 
 @register.inclusion_tag("django_plotly_dash/plotly_direct.html", takes_context=True)
 def plotly_direct_app_name(context, name=None, slug=None, da=None):
-    "Direct insertion of a Dash app"
-
+    """Direct insertion of a Dash app using a names application."""
     da, app = plotly_dash._locate_daapp(context["app_name"], slug, da)
 
     view_func = app.locate_endpoint_function()

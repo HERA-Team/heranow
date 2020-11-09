@@ -1,3 +1,4 @@
+"""Defintion of custom HTML template filters."""
 from django.template import Library
 import json
 
@@ -20,6 +21,7 @@ def islist(data):
 
 @register.filter("snapsummary")
 def return_item(input):
+    """Return text version of first and last entry in a list or None."""
     try:
         return f"{input[0]}...{input[-1]}"
     except:  # noqa
