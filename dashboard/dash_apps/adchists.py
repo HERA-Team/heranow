@@ -24,6 +24,22 @@ from ..models import Antenna, AntennaStatus, AprioriStatus
 
 
 def plot_df(df, nodes=None, apriori=None):
+    """Plot input dataframe for adc histograms.
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+        data from hosting adc histogram data from get_data
+    nodes : List of int or int
+        Specific nodes to plot
+    apriori: List of str or str
+        Specific apriori statuses to plot.
+
+    Returns
+    -------
+    plotly Figure object
+
+    """
     hovertemplate = "(%{x:.1},\t%{y})<br>%{fullData.text}<extra>%{fullData.name}<br>Node: %{meta[0]}<br>Status: %{meta[1]}</extra>"
     if nodes is not None and isinstance(nodes, str):
         nodes = [nodes]
@@ -81,6 +97,20 @@ def plot_df(df, nodes=None, apriori=None):
 
 @lru_cache(maxsize=32)
 def get_data(session_id, interval):
+    """Query Database and prepare data as DataFrame.
+
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+    interval : int
+        update interval from counter used for updating data.
+
+    Returns
+    -------
+    pandas DataFrame of most recent ADC Histograms for each antpol.
+
+    """
     df = []
 
     for antenna in Antenna.objects.all().iterator():
@@ -128,6 +158,13 @@ def get_data(session_id, interval):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     session_id = str(uuid.uuid4())
 
     return html.Div(
@@ -215,6 +252,7 @@ dash_app.layout = serve_layout
     Output("interval-component", "disabled"), [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
+    """Track the reload status for data."""
     return not reload_box
 
 
@@ -223,6 +261,7 @@ def start_reload_counter(reload_box):
     [Input("session-id", "children"), Input("interval-component", "n_intervals")],
 )
 def update_node_selection(session_id, n_intervals):
+    """Update node selection button."""
     df = get_data(session_id, n_intervals)
     node_labels = [
         {"label": f"Node {node}", "value": node}
@@ -244,5 +283,6 @@ def update_node_selection(session_id, n_intervals):
 def draw_undecimated_data(
     selection, node_value, apriori_value, session_id, n_intervals
 ):
+    """Redraw data based on user input."""
     df = get_data(session_id, n_intervals)
     return plot_df(df, node_value, apriori_value)
