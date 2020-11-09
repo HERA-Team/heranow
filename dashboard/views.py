@@ -1,3 +1,4 @@
+"""Definition of each page's view."""
 import socket
 import logging
 
@@ -33,11 +34,13 @@ class ChildTab(BaseTab):
 
 
 class DashChildTab(ChildTab):
+    """Render class for Dash Apps which appear as dropdown children."""
 
     app_name = ""
     template_name = "plotly_direct.html"
 
     def get_context_data(self, **kwargs):
+        """Add data to page context."""
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
         context["app_name"] = self.app_name
@@ -51,6 +54,7 @@ class ExternalTab(BaseTab):
     url = ""
 
     def get(self, request):
+        """Return redirect when GETing the page."""
         return redirect(self.url)
 
 
@@ -61,6 +65,7 @@ class ExternalChildTab(ChildTab):
     url = ""
 
     def get(self, request):
+        """Return redirect when GETing the page."""
         return redirect(self.url)
 
 

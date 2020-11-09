@@ -1,3 +1,4 @@
+"""Admin page access to DB."""
 from django.contrib import admin
 
 from .models import AntennaStatus, Antenna

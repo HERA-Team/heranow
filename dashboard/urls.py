@@ -1,3 +1,4 @@
+"""Definition of URLs for the project."""
 from django.urls import path, include
 
 from . import views
