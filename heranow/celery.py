@@ -1,3 +1,4 @@
+"""Celery app construction and task scheduling."""
 import os
 
 from celery import Celery
