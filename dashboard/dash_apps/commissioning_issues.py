@@ -1,3 +1,4 @@
+"""A dash application to tabulate CommissioningIssues."""
 import re
 import os
 import copy
@@ -52,6 +53,18 @@ rfi_view = rfi_link.replace("github.com", "nbviewer.jupyter.org/github")
 
 
 def get_data(session_id):
+    """Query Database and prepare data as DataFrame.
+
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+
+    Returns
+    -------
+    pandas DataFrame of CommissioningIssues for each JD.
+
+    """
     data = []
     for issue in CommissioningIssue.objects.all():
         related = []
@@ -108,6 +121,13 @@ def get_data(session_id):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     session_id = str(uuid.uuid4())
     df = get_data(session_id)
     return html.Div(
@@ -206,4 +226,5 @@ dash_app.layout = serve_layout
     [State("table_com", "page_current")],
 )
 def refresh_data(session_id, n_intervals, page_number):
+    """Reload data at specified interval."""
     return get_data(session_id).to_dict("records"), page_number

@@ -1,4 +1,4 @@
-"""A dash application to plot autospectra."""
+"""A dash application to plot statistics versus node position."""
 import re
 
 import copy
@@ -25,6 +25,28 @@ from ..models import Antenna, AntennaStatus, AprioriStatus, AutoSpectra
 def plot_df(
     df, mode="spectra", cbar_title="dB", vmax=None, vmin=None, colorscale="viridis"
 ):
+    """Plot input dataframe for statistics vs node.
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+        data from hosting adc histogram data from get_data
+    mode : string
+        The column of the dataFrame to plot
+    cbar_title : string
+        Title used for colorbar
+    vmax : float
+        colorscale maximum
+    vmin : float
+        colorscale minimum
+    colorscale : string or list
+        String name of a built in plotly colorscale or list of [%, R, G, B] values for defining a coloscale
+
+    Returns
+    -------
+    plotly Figure object
+
+    """
     hovertemplate = "%{text}<extra></extra>"
 
     layout = {
@@ -113,7 +135,23 @@ def plot_df(
 
 @lru_cache(maxsize=32)
 def get_data(session_id, n_intervals):
+    """Query Database and prepare data as DataFrame.
 
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+    interval : int
+        update interval from counter used for updating data.
+
+    Returns
+    -------
+    df : pandas DataFrame
+        most recent statistics for each antpol.
+    auto_time : Astropy Time Object
+        Time stamps associated with autospectra statistics.
+
+    """
     df = []
 
     # a shorter variable to help with the text section
@@ -232,6 +270,13 @@ def get_data(session_id, n_intervals):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     session_id = str(uuid.uuid4())
     return html.Div(
         [
@@ -312,6 +357,7 @@ dash_app.layout = serve_layout
     Output("interval-component", "disabled"), [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
+    """Track the reload status for data."""
     return not reload_box
 
 
@@ -324,5 +370,6 @@ def start_reload_counter(reload_box):
     ],
 )
 def redraw_statistic(stat_value, session_id, n_intervals):
+    """Redraw data based on user input."""
     df = get_data(session_id, n_intervals)
     return plot_df(df, mode=stat_value)

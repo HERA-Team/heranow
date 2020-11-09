@@ -22,6 +22,20 @@ from dashboard.models import SnapSpectra, SnapStatus, AntennaStatus
 
 
 def plot_df(df, hostname):
+    """Plot input dataframe for Snap Spectra.
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+        data from hosting adc histogram data from get_data
+    hostname : String
+        HERA snap hostname to plot spectra
+
+    Returns
+    -------
+    plotly Figure object
+
+    """
     layout = {
         "xaxis": {
             "title": "Frequency [MHz]",
@@ -59,6 +73,23 @@ def plot_df(df, hostname):
 
 @lru_cache(maxsize=32)
 def get_data(session_id, interval):
+    """Query Database and prepare data as DataFrame.
+
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+    interval : int
+        update interval from counter used for updating data.
+
+    Returns
+    -------
+    df : pandas DataFrame
+        most recent statistics for each antpol.
+    dropdown_labels : Dict
+        Dictionary of list used as child divs for a Dash dropdown label. Keyed by label name.
+
+    """
     data = []
     for unique_hosts in (
         SnapSpectra.objects.values("hostname", "input_number").distinct().iterator()
@@ -149,9 +180,14 @@ def get_data(session_id, interval):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     session_id = str(uuid.uuid4())
-    # df, dropdown_labels = get_data(session_id, 0)
-    # hostlist = list(dropdown_labels.keys())
     return html.Div(
         [
             html.Div(session_id, id="session-id", style={"display": "none"}),
@@ -226,6 +262,7 @@ dash_app.layout = serve_layout
     Output("interval-component", "disabled"), [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
+    """Track the reload status for data."""
     return not reload_box
 
 
@@ -234,6 +271,7 @@ def start_reload_counter(reload_box):
     [Input("session-id", "children"), Input("interval-component", "n_intervals")],
 )
 def update_snap_selection(session_id, n_intervals):
+    """Re-compute snap dropdown options."""
     df, dropdown_labels = get_data(session_id, n_intervals)
     options = [{"label": host, "value": host} for host in dropdown_labels.keys()]
     return options
@@ -248,6 +286,7 @@ def update_snap_selection(session_id, n_intervals):
     ],
 )
 def redraw_statistic(hostname, session_id, n_intervals):
+    """Replot the spectra based on user input."""
     df, dropdown_labels = get_data(session_id, n_intervals)
     if hostname is None:
         hostname = list(dropdown_labels.keys())[0]

@@ -1,4 +1,4 @@
-"""A dash application to plot autospectra."""
+"""A dash application to plot adchistograms."""
 import re
 
 import copy

@@ -20,11 +20,25 @@ from django_plotly_dash import DjangoDash
 from dashboard.models import HookupNotes, Antenna, AntennaStatus, AprioriStatus
 
 
-def process_string(input_str, time_string_offset=37):
+def process_string(input_str, offset=37):
+    """Pretty Print stings too long for mouse-over.
+
+    Parameters
+    ----------
+    input_str : str
+        The sting to-reformat
+    offset : int
+        The number of characters used as spacing for a new line.
+
+    Returns
+    -------
+    string re-formatted to fit in specified length of box.
+
+    """
     # the header is already 37 characters long
     # take this offset into account but only on the first iteration
-    if len(input_str) > 80 - time_string_offset:
-        space_ind = 79 - time_string_offset
+    if len(input_str) > 80 - offset:
+        space_ind = 79 - offset
 
         if " " in input_str[space_ind:]:
             space_ind += input_str[space_ind:].index(" ")
@@ -32,13 +46,27 @@ def process_string(input_str, time_string_offset=37):
             input_str = (
                 input_str[:space_ind]
                 + "<br>\t\t\t\t\t\t\t\t"
-                + process_string(input_str[space_ind:], time_string_offset=8)
+                + process_string(input_str[space_ind:], offset=8)
             )
     return input_str
 
 
 @lru_cache(maxsize=32)
 def get_data(session_id, interval):
+    """Query Database and prepare data as DataFrame.
+
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+    interval : int
+        update interval from counter used for updating data.
+
+    Returns
+    -------
+    pandas DataFrame of most recent Hookup Notes for each antenna.
+
+    """
     data = []
     all_stats = (
         AntennaStatus.objects.filter(antenna__polarization="e")
@@ -100,6 +128,13 @@ def get_data(session_id, interval):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     session_id = str(uuid.uuid4())
     return html.Div(
         [
@@ -197,6 +232,7 @@ dash_app.layout = serve_layout
     [Input("session-id", "children"), Input("interval-component", "n_intervals")],
 )
 def update_node_selection(session_id, n_intervals):
+    """Update node selection button."""
     df = get_data(session_id, n_intervals)
     node_labels = [
         {"label": f"Node {node}", "value": node}
@@ -215,6 +251,7 @@ def update_node_selection(session_id, n_intervals):
     ],
 )
 def reload_notes(nodes, apriori, session_id, n_intervals):
+    """Reload HookupNotes after time interval has passed."""
     df = get_data(session_id, n_intervals)
 
     if nodes is None or len(nodes) == 0:

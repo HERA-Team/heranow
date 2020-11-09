@@ -30,6 +30,25 @@ max_points = 4000
 
 @lru_cache(maxsize=32)
 def get_data(session_id, interval):
+    """Query Database and prepare data as DataFrame.
+
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+    interval : int
+        update interval from counter used for updating data.
+
+    Returns
+    -------
+    df_full : DataFrame
+        most recent autospectra Histograms for each antpol.
+    df_down : DataFrame
+        Downsampled data for faster plotting
+    auto_time : Astropy Time Object
+        The timestamp associated with Autocorrelations.
+
+    """
     df_full = []
     df_down = []
     try:
@@ -118,7 +137,22 @@ def get_data(session_id, interval):
 
 
 def plot_df(df, nodes=None, apriori=None):
+    """Plot input dataframe for autospectra.
 
+    Parameters
+    ----------
+    df : Pandas DataFrame
+        A dataframe of autospectra from get_data
+    nodes : List of int or int
+        Specific nodes to plot
+    apriori: List of str or str
+        Specific apriori statuses to plot.
+
+    Returns
+    -------
+    plotly Figure object
+
+    """
     if nodes is not None and isinstance(nodes, str):
         nodes = [nodes]
     elif nodes is None or len(nodes) == 0:
@@ -179,6 +213,13 @@ def plot_df(df, nodes=None, apriori=None):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     timestamp = Time(0, format="jd")
     init_time_ago = (Time.now() - timestamp).to("min")
     init_time_color = "red"
@@ -309,6 +350,7 @@ dash_app.layout = serve_layout
     Output("interval-component", "disabled"), [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
+    """Track the reload status for data."""
     return not reload_box
 
 
@@ -321,6 +363,7 @@ def start_reload_counter(reload_box):
     ],
 )
 def update_time_data(session_id, n_intervals, n_intervals_time_display):
+    """Re-calculate and update data time on webpage."""
     df_full, df_down, auto_time = get_data(session_id, n_intervals)
 
     time_ago = (Time.now() - auto_time).to("s")
@@ -355,6 +398,7 @@ def update_time_data(session_id, n_intervals, n_intervals_time_display):
     [Input("session-id", "children"), Input("interval-component", "n_intervals")],
 )
 def update_node_selection(session_id, n_intervals):
+    """Update node selection button."""
     df_full, df_down, auto_time = get_data(session_id, n_intervals)
     node_labels = [
         {"label": f"Node {node}", "value": node}
@@ -378,6 +422,7 @@ def update_node_selection(session_id, n_intervals):
 def draw_undecimated_data(
     selection, nodes, apriori, session_id, n_intervals,
 ):
+    """Redraw data based on user input."""
     df_full, df_down, auto_time = get_data(session_id, n_intervals)
 
     df_ant = df_full[df_full.ant == df_full.ant.unique()[0]]

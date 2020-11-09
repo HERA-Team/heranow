@@ -22,7 +22,20 @@ from dashboard.models import HookupNotes, Antenna, AntennaStatus, AprioriStatus
 
 
 def get_marks_from_start_end(start, end):
-    """Returns dict with one item per month keyed by unix timestamp."""
+    """Generate the time selection points for webpage slider.
+
+    Parameters
+    ----------
+    start : Datetime Object
+        Earliest date to draw mark on slider
+    end : Datetime object
+        Latest date to draw mark on slider
+
+    Returns
+    -------
+    dict with one item per month keyed by unix timestamp
+
+    """
     result = []
     current = start
     while current <= end:
@@ -34,6 +47,18 @@ def get_marks_from_start_end(start, end):
 
 @lru_cache(maxsize=32)
 def get_data(session_id):
+    """Query Database and prepare data as DataFrame.
+
+    Parameters
+    ----------
+    session_id : str
+        unique session id hex used for caching.
+
+    Returns
+    -------
+    pandas DataFrame of hookup notes for each antenna.
+
+    """
     data = []
 
     for ant in Antenna.objects.values("ant_number", "ant_name").distinct():
@@ -87,6 +112,13 @@ def get_data(session_id):
 
 
 def serve_layout():
+    """Render layout of webpage.
+
+    Returns
+    -------
+    Div of application used in web rendering.
+
+    """
     session_id = str(uuid.uuid4())
     df = get_data(session_id)
     return html.Div(
@@ -231,6 +263,7 @@ dash_app.layout = serve_layout
     Output("node-dropdown", "options"), [Input("session-id", "children")],
 )
 def update_node_selection(session_id):
+    """Update node selection button."""
     df = get_data(session_id)
     node_labels = [
         {"label": f"Node {node}", "value": node}
@@ -253,6 +286,7 @@ def update_node_selection(session_id):
     ],
 )
 def reload_notes(nodes, apriori, session_id, time_range, apa_only):
+    """Reload notes for display based on user input."""
     df = get_data(session_id)
     if nodes is None or len(nodes) == 0:
         nodes = df.node.unique()
