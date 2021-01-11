@@ -7,5 +7,3 @@ COPY ./environment.yaml environment.yaml
 
 # Build conda env
 RUN conda env update -f environment.yaml
-
-

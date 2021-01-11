@@ -1,7 +1,7 @@
 version: '3'
 services:
     redishost:
-       build: 
+       build:
          context: .
          dockerfile: ./dockerfiles/redis_cm_docker
        networks:
@@ -52,7 +52,7 @@ services:
         - /data5/dashboard_data/media:/app/media
       env_file:
          - .env
-      command: /app/dockerfiles/entrypoints/entrypoint.sh 
+      command: /app/dockerfiles/entrypoints/entrypoint.sh
       networks:
         -  nginx_net
       depends_on:
