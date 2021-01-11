@@ -22,5 +22,5 @@ Database initialization can happen at the time of deployment by setting the key 
 
 ### Dash applications
 We use multiple dash apps to create the index landing page for heranow.
-The custom app injector can be found in [here](templatetags/plotly_custom.py).
+The custom app injector can be found in [here](dashboard/templatetags/plotly_custom.py).
 This custom injector allows us to filter the apps based on their name and have more than one on a page.
