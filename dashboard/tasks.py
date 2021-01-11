@@ -334,15 +334,14 @@ def update_constructed_antennas():
         for ind, name in enumerate(antnames):
             ant_number = int(name[2:])
             for pol in ["e", "n"]:
-                bulk_add.append(
-                    Antenna(
-                        ant_number=ant_number,
-                        ant_name=name,
-                        polarization=pol,
-                        antpos_enu=antpos[:, ind].tolist(),
-                        constructed=ant_number in stations,
-                    )
+                ant = Antenna.objects.get(
+                    ant_number=ant_number,
+                    ant_name=name,
+                    polarization=pol,
+                    antpos_enu=antpos[:, ind].tolist(),
                 )
+                ant.constructed = ant_number in stations
+                bulk_add.append(ant)
 
     Antenna.objects.bulk_update(bulk_add, ["constructed"])
 
