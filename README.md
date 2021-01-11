@@ -18,3 +18,9 @@ Two shell scripts have been provided to make the building simpler:
 
 ### Initialize the database
 Database initialization can happen at the time of deployment by setting the key `INITIALIZE` in the `.env` on the deploying machine. This does take an extended period of time.
+
+
+### Dash applications
+We use multiple dash apps to create the index landing page for heranow.
+The custom app injector can be found in [here](templatetags/plotly_custom.py).
+This custom injector allows us to filter the apps based on their name and have more than one on a page.
