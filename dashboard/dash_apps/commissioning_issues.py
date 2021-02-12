@@ -66,7 +66,7 @@ def get_data(session_id):
 
     """
     data = []
-    for issue in CommissioningIssue.objects.all():
+    for issue in CommissioningIssue.objects.iterator():
         related = []
         labels = []
 
@@ -109,7 +109,7 @@ def get_data(session_id):
                 "Issue Labels": labels,
                 "Nightly Notebook": notebook,
                 "RFI Notebook": rfi,
-                "New Issues Opened On This Day": issue.new_issues,
+                "# New Issues": issue.new_issues,
             }
         )
 
@@ -151,6 +151,7 @@ def serve_layout():
                                 style_cell={
                                     "textAlign": "center",
                                     "whiteSpace": "normal",
+                                    "font-family": "Helvetica Neue",
                                 },
                                 style_header={"fontWeight": "bold", "fontSize": 18,},
                                 style_data_conditional=[
@@ -182,9 +183,7 @@ def serve_layout():
                                         "width": "20%",
                                     },
                                     {
-                                        "if": {
-                                            "column_id": "New Issues Opened On This Day"
-                                        },
+                                        "if": {"column_id": "# New Issues"},
                                         "width": "10%",
                                     },
                                 ],
