@@ -164,9 +164,10 @@ def plot_df(df, nodes=None, apriori=None):
         apriori = df.apriori.unique()
 
     hovertemplate = (
-        "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]"
-        "<extra>%{fullData.name}<br>Node: %{meta[0]}"
-        "<br>Status: %{meta[1]}<br>Fem Switch: %{meta[2]}</extra>"
+        "%{fullData.name}<br>"
+        "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]<br>"
+        "Node: %{meta[0]}<br>"
+        "Status: %{meta[1]}<br>Fem Switch: %{meta[2]}<extra></extra>"
     )
 
     layout = {
