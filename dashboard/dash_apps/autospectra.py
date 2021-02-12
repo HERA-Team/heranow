@@ -267,6 +267,15 @@ def serve_layout():
                         ),
                         width=1,
                     ),
+                    dbc.Col(
+                        daq.BooleanSwitch(
+                            id="resolution-box",
+                            on=False,
+                            label="Full Resolution",
+                            labelPosition="top",
+                        ),
+                        width=1,
+                    ),
                     html.Label(
                         [
                             "Node(s):",
@@ -413,13 +422,16 @@ def update_node_selection(session_id, n_intervals):
         Input("apriori-dropdown", "value"),
         Input("session-id", "children"),
         Input("interval-component", "n_intervals"),
+        Input("resolution-box", "on"),
     ],
 )
 def draw_undecimated_data(
-    selection, nodes, apriori, session_id, n_intervals,
+    selection, nodes, apriori, session_id, n_intervals, resolution,
 ):
     """Redraw data based on user input."""
     df_full, df_down, auto_time = get_data(session_id, n_intervals)
+    if resolution:
+        df_down = df_full
 
     df_ant = df_full[df_full.ant == df_full.ant.unique()[0]]
     df_ant = df_ant[df_ant.pol == df_ant.pol.unique()[0]]
