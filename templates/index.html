@@ -2,7 +2,6 @@
 {% extends "home_base.html" %}
 {% load static %}
 {% load plotly_dash %}
-{% load render_table from django_tables2 %}
 
 {% block precontent %}
 <div class="d-none d-md-block row-sm-12">
@@ -66,6 +65,7 @@
       </div>
       {%plotly_direct name="dash_commissioning_issue"%}
     </div>
+  </div>
 
 {% endblock %}
 
