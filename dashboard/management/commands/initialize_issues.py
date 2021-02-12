@@ -54,7 +54,6 @@ class Command(BaseCommand):
                     jd = int(match.group())
                 else:
                     continue
-            jd_list.insert(0, jd)
 
             obs_date = Time(jd, format="jd")
             try:
@@ -62,6 +61,7 @@ class Command(BaseCommand):
             except ValueError:
                 # theres's a weirdly names issue that breaks this
                 continue
+            jd_list.insert(0, jd)
             obs_end = obs_date + timedelta(days=1)
 
             num_opened = len(
