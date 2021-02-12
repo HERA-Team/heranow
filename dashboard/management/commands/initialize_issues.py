@@ -57,8 +57,11 @@ class Command(BaseCommand):
             jd_list.insert(0, jd)
 
             obs_date = Time(jd, format="jd")
-
-            obs_date = timezone.make_aware(obs_date.datetime)
+            try:
+                obs_date = timezone.make_aware(obs_date.datetime)
+            except ValueError:
+                # theres's a weirdly names issue that breaks this
+                continue
             obs_end = obs_date + timedelta(days=1)
 
             num_opened = len(
