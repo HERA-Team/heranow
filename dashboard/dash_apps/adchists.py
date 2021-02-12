@@ -54,12 +54,7 @@ def plot_df(df, nodes=None, apriori=None):
     layout = {
         "xaxis": {"title": "ADC value"},
         "yaxis": {"title": "Occurance", "type": "linear"},
-        "title": {
-            "text": "ADC Histograms",
-            "xref": "paper",
-            "x": 0.5,
-            "font": {"size": 24,},
-        },
+        "title": {"text": "", "xref": "paper", "x": 0.5, "font": {"size": 24,},},
         "margin": {"l": 40, "b": 30, "r": 40, "t": 70},
         "hovermode": "closest",
         "autosize": True,

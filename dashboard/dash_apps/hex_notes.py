@@ -269,7 +269,7 @@ def reload_notes(nodes, apriori, session_id, n_intervals):
             "scaleanchor": "x",
             "scaleratio": 1,
         },
-        "title": {"text": "Per Antpol Stats vs Hex position", "font": {"size": 24},},
+        "title": {"text": "", "font": {"size": 24},},
         "hoverlabel": {"align": "left"},
         "margin": {"t": 40},
         "autosize": True,

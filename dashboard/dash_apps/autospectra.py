@@ -172,12 +172,7 @@ def plot_df(df, nodes=None, apriori=None):
     layout = {
         "xaxis": {"title": "Frequency [MHz]"},
         "yaxis": {"title": "Power [dB]"},
-        "title": {
-            "text": "Autocorrelations",
-            "xref": "paper",
-            "x": 0.5,
-            "font": {"size": 24},
-        },
+        "title": {"text": "", "xref": "paper", "x": 0.5, "font": {"size": 24},},
         "autosize": True,
         "showlegend": True,
         "legend": {"x": 1, "y": 1},

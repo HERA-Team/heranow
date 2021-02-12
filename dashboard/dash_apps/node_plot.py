@@ -57,7 +57,7 @@ def plot_df(
             "zeroline": False,
         },
         "yaxis": {"showticklabels": False, "showgrid": False, "zeroline": False},
-        "title": {"text": "Per Antpol Stats vs Node", "font": {"size": 24}},
+        "title": {"text": "", "font": {"size": 24}},
         "hoverlabel": {"align": "left"},
         "margin": {"t": 40},
         "autosize": True,
