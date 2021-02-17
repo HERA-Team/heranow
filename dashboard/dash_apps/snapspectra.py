@@ -199,6 +199,7 @@ def serve_layout():
                             on=False,
                             label="Reload Data",
                             labelPosition="top",
+                            style={"text-align": "center"},
                         ),
                         width=1,
                     ),

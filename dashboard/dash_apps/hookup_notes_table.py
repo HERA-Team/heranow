@@ -134,6 +134,7 @@ def serve_layout():
                                     on=False,
                                     label="Apriori Notes Only",
                                     labelPosition="top",
+                                    style={"text-align": "center"},
                                 ),
                                 width=1,
                             ),
