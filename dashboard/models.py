@@ -620,23 +620,3 @@ class SnapToAnt(models.Model):
     def __str__(self):
         """Define string representation of class."""
         return f"host: {self.snap_hostname} ants: {self.ants} inds: {self.inds}"
-
-
-# class MCSummary(models.Model):
-#     """A front page summary table from M&C.
-#
-#     last_obs : DateTime Column
-#         The date of the last recorded observation
-#     n_files : Integer Column
-#         The Number of files recorded.
-#     node_pings : Array of Char Columns
-#         List of Nodes and number of pings "Node#:Ping_Count"
-#     is_recording : BooleanField
-#         Boolean Flag if correlator state is set to recording.
-#
-#     """
-#
-#     last_obs = models.DateTimeField()
-#     n_files = models.IntegerField()
-#     node_pings = ArrayField(models.CharField(max_length=100))
-#     is_recording = models.BooleanField()
