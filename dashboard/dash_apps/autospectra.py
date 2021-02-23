@@ -80,9 +80,17 @@ def get_data(session_id, interval):
             if apriori_stat is not None:
                 apriori = apriori_stat.get_apriori_status_display()
 
-            _spectra = stat.spectra
-            if stat.eq_coeffs is not None:
-                _spectra /= np.median(stat.eq_coeffs) ** 2
+            # divide by 4 because of uhm something for now
+            _spectra = np.asarray(stat.spectra) / 4
+            # the 4 bit RMS is defined as rms = sqrt(re**2 + im**2 / ( 2 * N)) / 16
+            # the auto correlations out of redis already have N divided out
+            # ARP doesn't really care about the 16 because that deals with the
+            # fixed vs floating point in the FPGA-land but we're beyond that now
+            _rms = np.sqrt(_spectra / 2)  # / 16
+
+            # need to add this back as an option
+            # if stat.eq_coeffs is not None:
+            #     _spectra /= np.median(stat.eq_coeffs) ** 2
 
             _freqs = np.asarray(stat.frequencies) / 1e6
             _spectra = (10 * np.log10(np.ma.masked_invalid(_spectra))).filled(-100)
@@ -97,13 +105,16 @@ def get_data(session_id, interval):
                         "node": node,
                         "apriori": apriori,
                         "fem_switch": fem_switch,
+                        "rms": _rms,
                     }
                 )
             )
 
-            _d_spectra = stat.spectra_downsampled
-            if stat.eq_coeffs is not None:
-                _d_spectra /= np.median(stat.eq_coeffs) ** 2
+            _d_spectra = np.asarray(stat.spectra_downsampled) / 4
+            _d_rms = np.sqrt(_d_spectra / 2)  # / 16
+
+            # if stat.eq_coeffs is not None:
+            #     _d_spectra /= np.median(stat.eq_coeffs) ** 2
 
             _d_freqs = np.asarray(stat.frequencies_downsampled) / 1e6
             _d_spectra = (10 * np.log10(np.ma.masked_invalid(_d_spectra))).filled(-100)
@@ -118,6 +129,7 @@ def get_data(session_id, interval):
                         "node": node,
                         "apriori": apriori,
                         "fem_switch": fem_switch,
+                        "rms": _d_rms,
                     }
                 )
             )
@@ -136,7 +148,7 @@ def get_data(session_id, interval):
     return df_full, df_down, auto_time
 
 
-def plot_df(df, nodes=None, apriori=None):
+def plot_df(df, nodes=None, apriori=None, rms=False):
     """Plot input dataframe for autospectra.
 
     Parameters
@@ -162,13 +174,20 @@ def plot_df(df, nodes=None, apriori=None):
         apriori = [apriori]
     elif apriori is None or len(apriori) == 0:
         apriori = df.apriori.unique()
-
-    hovertemplate = (
-        "%{fullData.name}<br>"
-        "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]<br>"
-        "Node: %{meta[0]}<br>"
-        "Status: %{meta[1]}<br>Fem Switch: %{meta[2]}<extra></extra>"
-    )
+    if rms:
+        hovertemplate = (
+            "%{fullData.name}<br>"
+            "%{x:.1f}\tMHz<br>%{y:.3e}\t<br>"
+            "Node: %{meta[0]}<br>"
+            "Status: %{meta[1]}<br>Fem Switch: %{meta[2]}<extra></extra>"
+        )
+    else:
+        hovertemplate = (
+            "%{fullData.name}<br>"
+            "%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]<br>"
+            "Node: %{meta[0]}<br>"
+            "Status: %{meta[1]}<br>Fem Switch: %{meta[2]}<extra></extra>"
+        )
 
     layout = {
         "xaxis": {"title": "Frequency [MHz]"},
@@ -180,6 +199,8 @@ def plot_df(df, nodes=None, apriori=None):
         "margin": {"l": 40, "b": 30, "r": 40, "t": 46},
         "hovermode": "closest",
     }
+    if rms:
+        layout["yaxis"]["title"] = "4-Bit RMS"
 
     fig = go.Figure()
 
@@ -196,9 +217,13 @@ def plot_df(df, nodes=None, apriori=None):
             _df1 = _df_ant[_df_ant.pol == pol]
             if _df1.node.iloc[0] not in nodes or _df1.apriori.iloc[0] not in apriori:
                 continue
+            if rms:
+                _y = _df1.rms
+            else:
+                _y = _df1.spectra
             trace = go.Scatter(
                 x=_df1.freqs,
-                y=_df1.spectra,
+                y=_y,
                 name=antpol,
                 mode="lines",
                 meta=[_df1.node.iloc[0], _df1.apriori.iloc[0], _df1.fem_switch.iloc[0]],
@@ -273,6 +298,16 @@ def serve_layout():
                             id="resolution-box",
                             on=False,
                             label="Full Resolution",
+                            labelPosition="top",
+                            style={"text-align": "center"},
+                        ),
+                        width=1,
+                    ),
+                    dbc.Col(
+                        daq.BooleanSwitch(
+                            id="rms-box",
+                            on=False,
+                            label="4-Bit RMS",
                             labelPosition="top",
                             style={"text-align": "center"},
                         ),
@@ -425,10 +460,11 @@ def update_node_selection(session_id, n_intervals):
         Input("session-id", "children"),
         Input("interval-component", "n_intervals"),
         Input("resolution-box", "on"),
+        Input("rms-box", "on"),
     ],
 )
 def draw_undecimated_data(
-    selection, nodes, apriori, session_id, n_intervals, resolution,
+    selection, nodes, apriori, session_id, n_intervals, resolution, rms,
 ):
     """Redraw data based on user input."""
     df_full, df_down, auto_time = get_data(session_id, n_intervals)
@@ -456,7 +492,7 @@ def draw_undecimated_data(
     else:
         dropdown = "dropdown" in ctx.triggered[0]["prop_id"].split(".")[0]
     if dropdown:
-        return plot_df(df_down, nodes, apriori)
+        return plot_df(df_down, nodes, apriori, rms)
     elif (
         selection is not None
         and "xaxis.range[0]" in selection
@@ -469,6 +505,6 @@ def draw_undecimated_data(
         )
         < max_points
     ):
-        return plot_df(df_full, nodes, apriori)
+        return plot_df(df_full, nodes, apriori, rms)
     else:
-        return plot_df(df_down, nodes, apriori)
+        return plot_df(df_down, nodes, apriori, rms)
