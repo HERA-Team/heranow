@@ -88,7 +88,7 @@ services:
       env_file:
          - .env
       ports:
-        - 5000:443
+        - $PORT:443
       volumes:
         - ./dockerfiles/nginx:/etc/nginx/conf.d
         - /home/locoadmin/webhost/:/webhost
