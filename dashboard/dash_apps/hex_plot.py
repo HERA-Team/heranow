@@ -125,23 +125,23 @@ def plot_df(
     )
 
     fig["layout"] = layout
-    df1 = df[df.node.isin(nodes)]
     trace = go.Scatter(
-        x=df1[~df1.constructed].antpos_x,
-        y=df1[~df1.constructed].antpos_y,
+        x=df[~df.constructed].antpos_x,
+        y=df[~df.constructed].antpos_y,
         mode="markers",
         marker={
-            "color": df1[~df1.constructed].color,
+            "color": df[~df.constructed].color,
             "size": 14,
             "symbol": "hexagon",
             "coloraxis": "coloraxis2",
-            "opacity": df1[~df1.constructed].opacity,
+            "opacity": df[~df.constructed].opacity,
         },
-        text=df1[~df1.constructed].text,
+        text=df[~df.constructed].text,
         hovertemplate=hovertemplate,
     )
     fig.add_trace(trace)
 
+    df1 = df[df.node.isin(nodes)]
     trace = go.Scatter(
         x=df1[df1.constructed].antpos_x,
         y=df1[df1.constructed].antpos_y,
@@ -157,6 +157,24 @@ def plot_df(
         hovertemplate=hovertemplate,
     )
     fig.add_trace(trace)
+
+    df2 = df[~df.node.isin(nodes)]
+    trace = go.Scatter(
+        x=df2[df2.constructed].antpos_x,
+        y=df2[df2.constructed].antpos_y,
+        mode="markers",
+        marker={
+            "color": "grey",
+            "size": 14,
+            "coloraxis": "coloraxis",
+            "symbol": "hexagon",
+            "opacity": 0.5,
+        },
+        text=df2[df2.constructed].text,
+        hovertemplate=hovertemplate,
+    )
+    fig.add_trace(trace)
+
     return fig
 
 

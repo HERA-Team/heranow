@@ -36,18 +36,24 @@
 <body>
 {% analytical_body_top %}
 <header>
-  <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark" role="navigation">
-    <div class="container-fluid" style="vertical-align: midde;">
+  <nav class="navbar navbar-expand-xl fixed-top navbar-dark bg-dark" role="navigation">
+    <!-- <div class="container-fluid" style="vertical-align: midde;"> -->
    	    <div class="navbar-header">
    	      <a class="navbar-brand" href="/">HERA Dashboard</a>
    	    </div>
-       <div class="collapse navbar-collapse">
+
+        <!-- Toggler/collapsibe Button -->
+       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+         <span class="navbar-toggler-icon"></span>
+       </button>
+
+       <div class="collapse navbar-collapse" id="collapsibleNavbar">
          <ul class="navbar-nav mr-auto">
            {% for tab in tabs %}
               {% if tab.top %}
                   {% if tab.my_children %}
                       <li class="nav-item dropdown">
-                          <a href="#" class="nav-link dropdown-toggle"
+                          <a href="#" class="nav-link dropdown-toggle text-nowrap"
                              data-toggle="dropdown" id="dropdown-{{ tab.tab_label }}"
                              aria-haspopup="true" aria-expanded="false" style="font-size: medium;">
                              <small>
@@ -58,7 +64,7 @@
                               {% for alltabs in tabs %}
                                   {% if alltabs.tab_id in tab.my_children %}
                                   {% if alltabs.external %}
-                                      <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %}"
+                                      <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %} text-nowrap"
                                          target="_blank"
                                          href="{{ alltabs.tab_id }}" style="font-size: medium;">
                                          <small>
@@ -66,7 +72,7 @@
                                          </small>
                                       </a>
                                   {% else %}
-                                      <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %}"
+                                      <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %} text-nowrap"
                                         href="{{ alltabs.tab_id }}"style="font-size: medium;">
                                          <small>{{ alltabs.tab_label }}</small>
                                       </a>
@@ -81,7 +87,7 @@
                   {% if not tab.my_children %}
                       {% if tab.external %}
                       <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
-                          <a class='nav-link' target="_blank" href="{{ tab.tab_id }}" style="font-size: medium;">
+                          <a class='nav-link text-nowrap' target="_blank" href="{{ tab.tab_id }}" style="font-size: medium;">
                             <small>
                               {{ tab.tab_label }}
                             </small>
@@ -89,7 +95,7 @@
                       </li>
                       {% else %}
                       <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
-                          <a class='nav-link' href="{{ tab.tab_id }}" style="font-size: medium;">
+                          <a class='nav-link text-nowrap' href="{{ tab.tab_id }}" style="font-size: medium;">
                             <small>
                               {{ tab.tab_label }}
                             </small>
@@ -102,20 +108,17 @@
           {% endfor %}
 
          </ul>
-
-
-         <div class="d-none d-xl-block librarian-time-bar">
-           <span class="navbar-text  pull-right">
-           Local Time: <span class="date" data-timezone="Africa/Johannesburg">Jan 1</span>
-           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-           JD: <span id="julian_date">000</span>
-           &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-           LST: <span class="clock_sidereal" data-timezone="Africa/Johannesburg">00:00:00</span>
-           </span>
-        </div>
-
        </div>
-     </div>
+       <div class="d-none d-block librarian-time-bar">
+         <span class="navbar-text  pull-right text-nowrap">
+         Local Time: <span class="date" data-timezone="Africa/Johannesburg">Jan 1</span>
+         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+         JD: <span id="julian_date">000</span>
+         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+         LST: <span class="clock_sidereal" data-timezone="Africa/Johannesburg">00:00:00</span>
+         </span>
+      </div>
+     <!-- </div> -->
    </nav>
 
  </header>

@@ -297,4 +297,20 @@ def reload_notes(nodes, apriori, session_id, n_intervals):
     )
     fig.add_trace(trace)
 
+    df2 = df[(~df.node.isin(nodes)) | (~df.apriori.isin(apriori))]
+    trace = go.Scatter(
+        x=df2.antpos_x,
+        y=df2.antpos_y,
+        mode="markers",
+        marker={
+            "color": [c if c in ["red", "black"] else "black" for c in df2.color],
+            "size": 14,
+            "symbol": "hexagon",
+            "opacity": 0.2,
+        },
+        text=df2.text,
+        hovertemplate=hovertemplate,
+    )
+    fig.add_trace(trace)
+
     return fig
