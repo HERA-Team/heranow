@@ -78,3 +78,5 @@ transform: translateX(50%) !important ;
 right: 0% !important;
 left: auto !important;
 }
+
+.row:before, .row:after {display: none !important;}
