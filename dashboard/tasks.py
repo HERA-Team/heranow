@@ -7,6 +7,7 @@ import redis
 import healpy
 import github3
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from argparse import Namespace
@@ -698,4 +699,105 @@ def update_snap_to_ant():
         )
 
     SnapToAnt.objects.bulk_create(bulk_objects, ignore_conflicts=True)
+    return
+
+
+@shared_task
+def antenna_stats_to_csv():
+    """Turn antenna stats to csv for hera lights board."""
+    df = []
+
+    # a shorter variable to help with the text section
+    last_spectra = AutoSpectra.objects.last()
+    if last_spectra is not None:
+        all_spectra = AutoSpectra.objects.filter(time=last_spectra.time)
+    else:
+        all_spectra = None
+
+    for antenna in Antenna.objects.all():
+        data = {
+            "ant": antenna.ant_number,
+            "pol": f"{antenna.polarization}",
+            "constructed": antenna.constructed,
+            "node": "Unknown",
+            "fem_switch": "Unknown",
+            "apriori": "Unknown",
+        }
+        stat = AntennaStatus.objects.filter(antenna=antenna).order_by("time").last()
+        if stat is None:
+            if antenna.constructed:
+                # They are actually constructed but with no status they are OFFLINE
+                # a little hacky way to get it to display properly out of the DataFrame
+                data["constructed"] = False
+
+        else:
+            node = "Unknown"
+            match = re.search(r"heraNode(?P<node>\d+)Snap", stat.snap_hostname)
+            if match is not None:
+                node = int(match.group("node"))
+
+            apriori = "Unknown"
+            apriori_stat = (
+                AprioriStatus.objects.filter(antenna=stat.antenna)
+                .order_by("time")
+                .last()
+            )
+            if apriori_stat is not None:
+                apriori = apriori_stat.get_apriori_status_display()
+            if all_spectra is not None:
+                try:
+                    auto = all_spectra.get(antenna=antenna)
+                except AutoSpectra.DoesNotExist:
+                    auto = None
+                if auto is not None:
+
+                    if auto.eq_coeffs is not None:
+                        spectra = (
+                            np.array(auto.spectra) / np.median(auto.eq_coeffs) ** 2
+                        )
+                    else:
+                        spectra = auto.spectra
+                    spectra = (
+                        (10 * np.log10(np.ma.masked_invalid(spectra)))
+                        .filled(-100)
+                        .mean()
+                    )
+                else:
+                    spectra = None
+            else:
+                spectra = None
+
+            adc_power = (
+                10 * np.log10(stat.adc_power) if stat.adc_power is not None else None
+            )
+            data.update(
+                {
+                    "spectra": spectra,
+                    "node": node,
+                    "apriori": apriori,
+                    "pam_power": stat.pam_power,
+                    "adc_power": adc_power,
+                    "adc_rms": stat.adc_rms,
+                    "fem_imu_theta": stat.fem_imu[0],
+                    "fem_imu_phi": stat.fem_imu[1],
+                    "eq_coeffs": np.median(stat.eq_coeffs)
+                    if stat.eq_coeffs is not None
+                    else None,
+                    "fem_switch": stat.get_fem_switch_display(),
+                }
+            )
+
+        df.append(data)
+
+    df = pd.DataFrame(df)
+
+    # Sort according to increasing antpols
+    if not df.empty:
+        df.sort_values(["ant", "pol"], inplace=True)
+        df.reset_index(inplace=True, drop=True)
+
+    filename = settings.MEDIA_ROOT / "ant_stats.csv"
+    with open(filename, "w") as outfile:
+        df.write_csv(outfile, index=False)
+
     return
