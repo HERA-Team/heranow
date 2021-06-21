@@ -86,7 +86,7 @@ app.conf.beat_schedule = {
     },
     "update_ant_csv": {
         "task": "dashboard.tasks.antenna_stats_to_csv",
-        "schedule": crontab(minute=0),
+        "schedule": crontab(minute="*/5"),
         "args": (),
     },
 }
