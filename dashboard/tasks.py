@@ -798,6 +798,6 @@ def antenna_stats_to_csv():
 
     filename = settings.MEDIA_ROOT / "ant_stats.csv"
     with open(filename, "w") as outfile:
-        df.write_csv(outfile, index=False)
+        df.to_csv(outfile, index=False)
 
     return
