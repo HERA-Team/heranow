@@ -79,4 +79,7 @@ right: 0% !important;
 left: auto !important;
 }
 
-.row:before, .row:after {display: none !important;}
+div.row.row-0 {
+  display: none;
+}
+/* .row:before, .row:after {display: none !important;} */
