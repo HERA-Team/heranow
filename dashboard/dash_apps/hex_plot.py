@@ -125,7 +125,7 @@ def plot_df(
     )
 
     fig["layout"] = layout
-    trace = go.Scatter(
+    trace = go.Scattergl(
         x=df[~df.constructed].antpos_x,
         y=df[~df.constructed].antpos_y,
         mode="markers",
@@ -142,7 +142,7 @@ def plot_df(
     fig.add_trace(trace)
 
     df1 = df[df.node.isin(nodes)]
-    trace = go.Scatter(
+    trace = go.Scattergl(
         x=df1[df1.constructed].antpos_x,
         y=df1[df1.constructed].antpos_y,
         mode="markers",
@@ -159,7 +159,7 @@ def plot_df(
     fig.add_trace(trace)
 
     df2 = df[~df.node.isin(nodes)]
-    trace = go.Scatter(
+    trace = go.Scattergl(
         x=df2[df2.constructed].antpos_x,
         y=df2[df2.constructed].antpos_y,
         mode="markers",

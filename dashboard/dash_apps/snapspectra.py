@@ -59,7 +59,7 @@ def plot_df(df, hostname):
     df1 = df[df.hostname == hostname]
     for loc_num in sorted(df1.loc_num.unique()):
         df2 = df1[df1.loc_num == loc_num]
-        trace = go.Scatter(
+        trace = go.Scattergl(
             x=df2.freqs,
             y=df2.spectra,
             name=f"{loc_num}: {df2.mc_name.iloc[0]}",

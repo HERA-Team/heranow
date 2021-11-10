@@ -77,7 +77,7 @@ def plot_df(df, nodes=None, apriori=None):
             if _df1.node.iloc[0] not in nodes or _df1.apriori.iloc[0] not in apriori:
                 continue
             timestamp = Time(_df1.time.iloc[0], format="datetime")
-            trace = go.Scatter(
+            trace = go.Scattergl(
                 x=_df1.bins,
                 y=_df1.adchist,
                 name=antpol,

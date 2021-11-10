@@ -116,7 +116,7 @@ def plot_df(
         df1 = df[df.node == node]
         df1.reset_index(inplace=True)
 
-        trace = go.Scatter(
+        trace = go.Scattergl(
             x=df1.node,
             y=df1.index,
             mode="markers",
