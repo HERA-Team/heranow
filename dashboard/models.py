@@ -284,6 +284,8 @@ class AntennaStatus(models.Model):
         "antenna": "ANT",
         "load": "LOAD",
         "noise": "NOISE",
+        "UNKNOWN": "UNKNOWN",
+        "unknown": "UNKNOWN",
     }
 
     class FemSwitchStates(models.TextChoices):
@@ -292,9 +294,10 @@ class AntennaStatus(models.Model):
         ANTENNA = "ANT", gettext_lazy("Antenna")
         LOAD = "LOAD", gettext_lazy("Load")
         NOISE = "NOISE", gettext_lazy("Noise")
+        UNKNOWN = "UNKNOWN", gettext_lazy("Unknown")
 
     fem_switch = models.CharField(
-        max_length=5, choices=FemSwitchStates.choices, null=True
+        max_length=7, choices=FemSwitchStates.choices, null=True
     )
 
     def status_is_recent(self):
