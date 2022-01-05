@@ -286,6 +286,8 @@ class AntennaStatus(models.Model):
         "noise": "NOISE",
         "UNKNOWN": "UNKNOWN",
         "unknown": "UNKNOWN",
+        "failed": "FAILED",
+        "FAILED": "FAILED",
     }
 
     class FemSwitchStates(models.TextChoices):
@@ -295,6 +297,7 @@ class AntennaStatus(models.Model):
         LOAD = "LOAD", gettext_lazy("Load")
         NOISE = "NOISE", gettext_lazy("Noise")
         UNKNOWN = "UNKNOWN", gettext_lazy("Unknown")
+        FAILED = "FAILED", gettext_lazy("Failed")
 
     fem_switch = models.CharField(
         max_length=7, choices=FemSwitchStates.choices, null=True
