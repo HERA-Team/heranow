@@ -110,6 +110,7 @@ def get_autospectra_from_redis():
 @shared_task
 def get_snap_spectra_from_redis():
     """Get snap spectra from redis and add to database."""
+    bins = np.arange(-128, 127)
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     snap_spectra = corr_cm.get_snaprf_status()
     spectra_list = []
@@ -118,17 +119,25 @@ def get_snap_spectra_from_redis():
             if stats[key] == "None":
                 stats[key] = None
             if key == "histogram" and stats[key] is not None:
-                if len(stats[key][0]) != len(stats[key][1]):
+                if np.size(stats[key]) == 255:
+                    stats[key] = np.asarray([bins, stats["histogram"]]).tolist()
+                elif np.shape(stats[key]) == 2 and len(stats[key][0]) != len(
+                    stats[key][1]
+                ):
                     stats[key] = None
         hostname, input_number = snap_key.split(":")
-        spectra = SnapSpectra(
-            hostname=hostname,
-            input_number=input_number,
-            time=timezone.make_aware(stats["timestamp"]),
-            spectra=stats["autocorrelation"],
-            eq_coeffs=stats["eq_coeffs"],
-            adc_hist=stats["histogram"],
-        )
+        try:
+            spectra = SnapSpectra(
+                hostname=hostname,
+                input_number=input_number,
+                time=timezone.make_aware(stats["timestamp"]),
+                spectra=stats["autocorrelation"],
+                eq_coeffs=stats["eq_coeffs"],
+                adc_hist=stats["histogram"],
+            )
+        except:  # noqa
+            print(f"Error processing Snap {snap_key}")
+            continue
         spectra_list.append(spectra)
 
     SnapSpectra.objects.bulk_create(spectra_list, ignore_conflicts=True)
@@ -226,6 +235,7 @@ def update_hookup_notes():
 @shared_task
 def get_antenna_status_from_redis():
     """Get antenna status from redis and add new statuses to database."""
+    bins = np.arange(-128, 127)
     corr_cm = HeraCorrCM(redishost="redishost", logger=logger)
     ant_stats = corr_cm.get_ant_status()
     bulk_add = []
@@ -240,7 +250,11 @@ def get_antenna_status_from_redis():
             if stats[key] == "None":
                 stats[key] = None
             if key == "histogram" and stats[key] is not None:
-                if len(stats[key][0]) != len(stats[key][1]):
+                if np.size(stats[key]) == 255:
+                    stats[key] = np.asarray([bins, stats["histogram"]]).tolist()
+                elif np.shape(stats[key]) == 2 and len(stats[key][0]) != len(
+                    stats[key][1]
+                ):
                     stats[key] = None
             if key == "fem_switch" and (
                 stats[key] == "null" or stats[key] == "Unknown mode"
@@ -265,31 +279,34 @@ def get_antenna_status_from_redis():
             fem_lna_power = stats["fem_n_lna_power"]
         elif antenna.polarization == "e":
             fem_lna_power = stats["fem_e_lna_power"]
-
-        antenna_status = AntennaStatus(
-            antenna=antenna,
-            time=timezone.make_aware(stats["timestamp"]),
-            snap_hostname=stats["f_host"],
-            snap_channel_number=stats["host_ant_id"],
-            adc_mean=stats["adc_mean"],
-            adc_rms=stats["adc_rms"],
-            adc_power=stats["adc_power"],
-            pam_atten=stats["pam_atten"],
-            pam_power=stats["pam_power"],
-            pam_voltage=stats["pam_voltage"],
-            pam_current=stats["pam_current"],
-            pam_id=pam_id,
-            fem_voltage=stats["fem_voltage"],
-            fem_current=stats["fem_current"],
-            fem_id=fem_id,
-            fem_imu=[stats["fem_imu_theta"], stats["fem_imu_phi"]],
-            fem_temp=stats["fem_temp"],
-            fem_lna_power=fem_lna_power,
-            fem_switch=fem_switch,
-            fft_overflow=stats["fft_of"],
-            eq_coeffs=stats["eq_coeffs"],
-            adc_hist=stats["histogram"],
-        )
+        try:
+            antenna_status = AntennaStatus(
+                antenna=antenna,
+                time=timezone.make_aware(stats["timestamp"]),
+                snap_hostname=stats["f_host"],
+                snap_channel_number=stats["host_ant_id"],
+                adc_mean=stats["adc_mean"],
+                adc_rms=stats["adc_rms"],
+                adc_power=stats["adc_power"],
+                pam_atten=stats["pam_atten"],
+                pam_power=stats["pam_power"],
+                pam_voltage=stats["pam_voltage"],
+                pam_current=stats["pam_current"],
+                pam_id=pam_id,
+                fem_voltage=stats["fem_voltage"],
+                fem_current=stats["fem_current"],
+                fem_id=fem_id,
+                fem_imu=[stats["fem_imu_theta"], stats["fem_imu_phi"]],
+                fem_temp=stats["fem_temp"],
+                fem_lna_power=fem_lna_power,
+                fem_switch=fem_switch,
+                fft_overflow=stats["fft_of"],
+                eq_coeffs=stats["eq_coeffs"],
+                adc_hist=stats["histogram"],
+            )
+        except:  # noqa
+            print(f"Error processing Antenna {antpol}")
+            continue
         bulk_add.append(antenna_status)
 
     AntennaStatus.objects.bulk_create(bulk_add, ignore_conflicts=True)
@@ -801,3 +818,12 @@ def antenna_stats_to_csv():
         df.to_csv(outfile, index=False)
 
     return
+
+
+@shared_task
+def delete_old_data():
+    """Remove data from bigger models older than a month."""
+    for model in [AutoSpectra, AntennaStatus, SnapStatus, SnapSpectra]:
+        # get everything older than the timeframe,
+        # don't delete if it is the latest one though
+        pass
