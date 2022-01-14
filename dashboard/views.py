@@ -192,7 +192,7 @@ class Notebooks(ExternalTab):
 
     tab_label = "Daily Notebooks"
     tab_id = "Notebooks"
-    url = "https://github.com/HERA-Team/H4C_Notebooks"
+    url = "https://github.com/HERA-Team/H5C_Notebooks"
 
 
 class DailyLog(ExternalChildTab):
