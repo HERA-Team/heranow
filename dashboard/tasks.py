@@ -23,7 +23,7 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 
 from sqlalchemy import func, and_, or_
-from hera_mc.correlator import _pam_fem_serial_list_to_string
+from hera_mc.correlator import _pam_fem_id_to_string
 from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
 
 from hera_corr_cm import HeraCorrCM
@@ -262,7 +262,7 @@ def get_antenna_status_from_redis():
                 stats[key] = None
 
         if stats["fem_id"] is not None and stats["fem_id"] != -1:
-            fem_id = _pam_fem_serial_list_to_string(stats["fem_id"])
+            fem_id = _pam_fem_id_to_string(stats["fem_id"])
         else:
             fem_id = None
 
@@ -272,7 +272,7 @@ def get_antenna_status_from_redis():
             fem_switch = AntennaStatus._fem_mapping[stats["fem_switch"]]
 
         if stats["pam_id"] is not None and stats["pam_id"] != -1:
-            pam_id = _pam_fem_serial_list_to_string(stats["pam_id"])
+            pam_id = _pam_fem_id_to_string(stats["pam_id"])
         else:
             pam_id = None
         if antenna.polarization == "n":
