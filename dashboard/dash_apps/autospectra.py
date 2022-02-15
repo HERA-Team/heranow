@@ -51,6 +51,8 @@ def get_data(session_id, interval):
     """
     df_full = []
     df_down = []
+    ant_stats = AntennaStatus.objects.order_by("-time").distinct("antenna", "time")
+    apriori_stats = AprioriStatus.objects.order_by("-time").distinct("antenna", "time")
     try:
         last_spectra = AutoSpectra.objects.latest("time")
     except AutoSpectra.DoesNotExist:
@@ -59,7 +61,7 @@ def get_data(session_id, interval):
         auto_time = Time(last_spectra.time, format="datetime")
 
         for stat in AutoSpectra.objects.filter(time=last_spectra.time).iterator():
-            ant_stat = AntennaStatus.objects.filter(antenna=stat.antenna).latest("time")
+            ant_stat = ant_stats.filter(antenna=stat.antenna).latest("time")
             node = "Unknown"
             fem_switch = "Unknown"
             if ant_stat is not None:
@@ -70,12 +72,7 @@ def get_data(session_id, interval):
                 fem_switch = ant_stat.get_fem_switch_display() or "Unknown"
 
             apriori = "Unknown"
-            try:
-                apriori_stat = AprioriStatus.objects.filter(
-                    antenna=stat.antenna
-                ).latest("time")
-            except AprioriStatus.DoesNotExist:
-                apriori_stat = None
+            apriori_stat = apriori_stats.filter(antenna=stat.antenna).latest("time")
 
             if apriori_stat is not None:
                 apriori = apriori_stat.get_apriori_status_display()
@@ -96,18 +93,16 @@ def get_data(session_id, interval):
             _spectra = (10 * np.log10(np.ma.masked_invalid(_spectra))).filled(-100)
 
             df_full.append(
-                pd.DataFrame(
-                    {
-                        "freqs": _freqs,
-                        "spectra": _spectra,
-                        "ant": stat.antenna.ant_number,
-                        "pol": f"{stat.antenna.polarization}",
-                        "node": node,
-                        "apriori": apriori,
-                        "fem_switch": fem_switch,
-                        "rms": _rms,
-                    }
-                )
+                {
+                    "freqs": _freqs,
+                    "spectra": _spectra,
+                    "ant": stat.antenna.ant_number,
+                    "pol": f"{stat.antenna.polarization}",
+                    "node": node,
+                    "apriori": apriori,
+                    "fem_switch": fem_switch,
+                    "rms": _rms,
+                }
             )
 
             _d_spectra = np.asarray(stat.spectra_downsampled) / 4
@@ -120,28 +115,26 @@ def get_data(session_id, interval):
             _d_spectra = (10 * np.log10(np.ma.masked_invalid(_d_spectra))).filled(-100)
 
             df_down.append(
-                pd.DataFrame(
-                    {
-                        "freqs": _d_freqs,
-                        "spectra": _d_spectra,
-                        "ant": stat.antenna.ant_number,
-                        "pol": f"{stat.antenna.polarization}",
-                        "node": node,
-                        "apriori": apriori,
-                        "fem_switch": fem_switch,
-                        "rms": _d_rms,
-                    }
-                )
+                {
+                    "freqs": _d_freqs,
+                    "spectra": _d_spectra,
+                    "ant": stat.antenna.ant_number,
+                    "pol": f"{stat.antenna.polarization}",
+                    "node": node,
+                    "apriori": apriori,
+                    "fem_switch": fem_switch,
+                    "rms": _d_rms,
+                }
             )
 
     else:
         auto_time = Time(0, format="jd")
-    df_full = pd.concat(df_full)
-    df_down = pd.concat(df_down)
+    df_full = pd.DataFrame.from_records(df_full)
+    df_down = pd.DataFrame.from_records(df_down)
     if not df_full.empty:
         # Sort according to increasing frequencies and antpols
-        df_full.sort_values(["freqs", "ant", "pol"], inplace=True, ignore_index=True)
-        df_down.sort_values(["freqs", "ant", "pol"], inplace=True, ignore_index=True)
+        df_full.sort_values(["ant", "pol"], inplace=True, ignore_index=True)
+        df_down.sort_values(["ant", "pol"], inplace=True, ignore_index=True)
         df_full.reset_index(drop=True, inplace=True)
         df_down.reset_index(drop=True, inplace=True)
 
@@ -220,9 +213,9 @@ def plot_df(df, nodes=None, apriori=None, rms=False):
             if rms:
                 _y = _df1.rms
             else:
-                _y = _df1.spectra
+                _y = _df1.spectra.values[0]
             trace = go.Scattergl(
-                x=_df1.freqs,
+                x=_df1.freqs.values[0],
                 y=_y,
                 name=antpol,
                 mode="lines",
