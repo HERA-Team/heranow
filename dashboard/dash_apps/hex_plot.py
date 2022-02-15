@@ -317,7 +317,7 @@ def get_data(session_id, n_intervals):
             )
         df.append(data)
 
-    df = pd.DataFrame(df)
+    df = pd.DataFrame.from_records(df)
 
     # Sort according to increasing bins and antpols
     if not df.empty:
