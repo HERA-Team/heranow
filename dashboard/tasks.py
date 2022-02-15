@@ -275,10 +275,7 @@ def get_antenna_status_from_redis():
             pam_id = _pam_fem_id_to_string(stats["pam_id"])
         else:
             pam_id = None
-        if antenna.polarization == "n":
-            fem_lna_power = stats["fem_n_lna_power"]
-        elif antenna.polarization == "e":
-            fem_lna_power = stats["fem_e_lna_power"]
+
         try:
             antenna_status = AntennaStatus(
                 antenna=antenna,
@@ -298,7 +295,7 @@ def get_antenna_status_from_redis():
                 fem_id=fem_id,
                 fem_imu=[stats["fem_imu_theta"], stats["fem_imu_phi"]],
                 fem_temp=stats["fem_temp"],
-                fem_lna_power=fem_lna_power,
+                fem_lna_power=stats["fem_lna_power"],
                 fem_switch=fem_switch,
                 fft_overflow=stats["fft_of"],
                 eq_coeffs=stats["eq_coeffs"],
