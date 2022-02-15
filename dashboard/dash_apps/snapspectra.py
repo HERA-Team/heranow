@@ -60,8 +60,8 @@ def plot_df(df, hostname):
     for loc_num in sorted(df1.loc_num.unique()):
         df2 = df1[df1.loc_num == loc_num]
         trace = go.Scattergl(
-            x=df2.freqs,
-            y=df2.spectra,
+            x=df2.freqs.values[0],
+            y=df2.spectra.values[0],
             name=f"{loc_num}: {df2.mc_name.iloc[0]}",
             hovertemplate="%{x:.1f}\tMHz<br>%{y:.3f}\t[dB]",
             mode="lines",
@@ -91,66 +91,76 @@ def get_data(session_id, interval):
 
     """
     data = []
-    for unique_hosts in (
-        SnapSpectra.objects.values("hostname", "input_number").distinct().iterator()
+    latest_ant_statuses = (
+        AntennaStatus.objects.order_by("-time")
+        .distinct("snap_hostname", "snap_channel_number", "time")
+        .values_list(
+            "snap_hostname",
+            "snap_channel_number",
+            "antenna__ant_number",
+            "antenna__polarization",
+        )
+    )
+    for unique_spectra in SnapSpectra.objects.order_by("-time").distinct(
+        "hostname", "input_number", "time"
     ):
-        hostname = unique_hosts["hostname"]
-        loc_num = unique_hosts["input_number"]
+        hostname = unique_spectra.hostname
+        loc_num = unique_spectra.input_number
         match = re.search(r"heraNode(?P<node>\d+)Snap(?P<snap>\d+)", hostname)
         node = int(match.group("node"))
         snap = int(match.group("snap"))
 
-        last_spectra = SnapSpectra.objects.filter(
-            hostname=hostname, input_number=loc_num
-        ).latest("time")
         spectra = np.atleast_1d(
             np.ma.masked_invalid(
                 10
                 * np.log10(
-                    np.asarray(last_spectra.spectra, dtype=np.float64)
-                    / np.asarray(last_spectra.eq_coeffs, dtype=np.float64) ** 2
+                    np.asarray(unique_spectra.spectra, dtype=np.float64)
+                    / np.asarray(unique_spectra.eq_coeffs, dtype=np.float64) ** 2
                 )
             ).filled(-100)
         )
-        mc_name = "Unknown"
-        try:
-            ant_stat = AntennaStatus.objects.filter(
-                snap_hostname=hostname, snap_channel_number=loc_num
-            ).latest("time")
-        except AntennaStatus.DoesNotExist:
-            ant_stat = None
+        ant_stat = [
+            stat
+            for stat in latest_ant_statuses
+            if (
+                stat[0] == unique_spectra.hostname
+                and stat[1] == unique_spectra.input_number
+            )
+        ] or None
         if ant_stat is not None:
-            mc_name = f"{ant_stat.antenna.ant_number}{ant_stat.antenna.polarization}"
+            mc_name = f"{ant_stat[0][2]}{ant_stat[0][3]}"
+        else:
+            mc_name = "Unknown"
+
         freqs = np.linspace(0, 250, spectra.size)
         data.append(
-            pd.DataFrame(
-                {
-                    "time": last_spectra.time,
-                    "hostname": hostname,
-                    "loc_num": loc_num,
-                    "node": node,
-                    "snap": snap,
-                    "mc_name": mc_name,
-                    "spectra": spectra,
-                    "freqs": freqs,
-                }
-            )
+            {
+                "time": unique_spectra.time,
+                "hostname": hostname,
+                "loc_num": loc_num,
+                "node": node,
+                "snap": snap,
+                "mc_name": mc_name,
+                "spectra": spectra,
+                "freqs": freqs,
+            }
         )
 
-    df = pd.concat(data)
+    df = pd.DataFrame.from_records(data)
     if not df.empty:
-        df.sort_values(
-            ["node", "snap", "loc_num", "freqs"], ignore_index=True, inplace=True
-        )
+        df.sort_values(["node", "snap", "loc_num"], ignore_index=True, inplace=True)
 
     dropdown_labels = {}
     hostlist = df.hostname.unique()
+    snap_stats = (
+        SnapStatus.objects.filter(hostname__in=hostlist)
+        .order_by("time")
+        .distinct("hostname", "time")
+    )
     for hostname in hostlist:
-        try:
-            stat = SnapStatus.objects.filter(hostname=hostname).latest("time")
-        except SnapStatus.DoesNotExist:
-            stat = None
+        stat = [s for s in snap_stats if s.hostname == hostname] or None
         if stat is not None:
+            stat = stat[0]
             label = [
                 dcc.Markdown(
                     f"""
