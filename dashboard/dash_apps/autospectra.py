@@ -211,7 +211,7 @@ def plot_df(df, nodes=None, apriori=None, rms=False):
             if _df1.node.iloc[0] not in nodes or _df1.apriori.iloc[0] not in apriori:
                 continue
             if rms:
-                _y = _df1.rms
+                _y = _df1.rms.values[0]
             else:
                 _y = _df1.spectra.values[0]
             trace = go.Scattergl(
