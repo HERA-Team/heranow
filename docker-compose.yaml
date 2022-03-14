@@ -7,7 +7,7 @@ services:
        networks:
            - nginx_net
        volumes:
-         - "/data5/dashboard_data/redis_cm:/data"
+         - "/storage/dashboard_data/redis_cm:/data"
        healthcheck:
          test: redis-cli ping
          interval: 1m30s
@@ -19,7 +19,7 @@ services:
          context: .
          dockerfile: ./dockerfiles/redis_celery_docker
        volumes:
-         - "/data5/dashboard_data/celery:/data/"
+         - "/storage/dashboard_data/celery:/data/"
        networks:
            - nginx_net
        healthcheck:
@@ -32,8 +32,7 @@ services:
        image: "postgres"
        user: 999:999
        volumes:
-         #- "/home/hera/data/psql:/var/lib/postgresql/data"
-         - /data5/dashboard_data/psql:/var/lib/postgresql/data
+         - /storage/dashboard_data/psql:/var/lib/postgresql/data
        ports:
          - 5432:5432
        env_file:
@@ -52,7 +51,7 @@ services:
         dockerfile: ./dockerfiles/docker_app
       image: heranow_app:latest
       volumes:
-        - /data5/dashboard_data/media:/app/media
+        - /storage/dashboard_data/media:/app/media
       env_file:
          - .env
       command: /app/dockerfiles/entrypoints/entrypoint.sh
@@ -69,7 +68,7 @@ services:
       env_file:
          - .env
       volumes:
-        - /data5/dashboard_data/media:/app/media
+        - /storage/dashboard_data/media:/app/media
       networks:
         - nginx_net
       depends_on:
@@ -98,7 +97,7 @@ services:
       volumes:
         - ./dockerfiles/nginx:/etc/nginx/conf.d
         - /home/locoadmin/webhost/:/webhost
-        - /data5/dashboard_data/media/:/app/media/
+        - /storage/dashboard_data/media/:/app/media/
       depends_on:
         - app
       networks:

@@ -1,9 +1,10 @@
-FROM  continuumio/miniconda:latest
-
+#FROM  continuumio/miniconda3:latest
+FROM  mambaorg/micromamba:latest
+USER root
 RUN apt-get update
-RUN apt-get install -qq -y build-essential gfortran iproute2
+RUN apt-get install -qq -y build-essential gfortran iproute2 git
 
 COPY ./environment.yaml environment.yaml
 
 # Build conda env
-RUN conda env update -f environment.yaml
+RUN micromamba create -y -f environment.yaml
