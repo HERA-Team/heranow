@@ -13,6 +13,7 @@ services:
          interval: 1m30s
          timeout: 10s
          retries: 3
+       restart: always
     redis_celery:
        build:
          context: .
@@ -26,6 +27,7 @@ services:
          interval: 1m30s
          timeout: 10s
          retries: 3
+       restart: always
     django_db:
        image: "postgres"
        user: 999:999
@@ -43,6 +45,7 @@ services:
          interval: 1m30s
          timeout: 10s
          retries: 3
+       restart: always
     app:
       build:
         context: .
@@ -59,6 +62,7 @@ services:
         - redishost
         - redis_celery
         - django_db
+      restart: always
     celery:
       image: heranow_app:latest
       command: /app/dockerfiles/entrypoints/entrypoint_celery.sh
@@ -72,6 +76,7 @@ services:
         - redis_celery
         - redishost
         - django_db
+      restart: always
     celery-beat:
       image: heranow_app:latest
       command: /app/dockerfiles/entrypoints/entrypoint_beat.sh
@@ -83,6 +88,7 @@ services:
         - redis_celery
         - redishost
         - django_db
+      restart: always
     nginx:
       image: nginx:1.13
       env_file:
@@ -97,6 +103,7 @@ services:
         - app
       networks:
         - nginx_net
+      restart: always
 networks:
     nginx_net:
         driver: bridge
