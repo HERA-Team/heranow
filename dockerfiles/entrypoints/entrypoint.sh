@@ -15,5 +15,6 @@ fi
 if [ "$DJANGO_DEBUG" -eq  "1" ]; then
     uvicorn heranow.asgi:application --port ${PORT} --reload
 else
-    gunicorn -k uvicorn.workers.UvicornWorker -w 20 --threads 40 heranow.asgi:application -b :${PORT}  --timeout 300
+    gunicorn -k uvicorn.workers.UvicornWorker -w 14 --threads 24 heranow.asgi:application -b :${PORT} --timeout 300
+    #--max-requests 100000 --max-requests-jitter 10000
 fi
