@@ -72,6 +72,7 @@ def get_autospectra_from_redis():
         timestamp = np.frombuffer(rsession["auto:timestamp"], dtype=np.float64)[0]
         timestamp = Time(timestamp, format="jd")
         timestamp = timezone.make_aware(timestamp.datetime)
+        print(f"AUTOSPECTRA last timestamp: {timestamp}")
 
         spectra = []
         for antenna in Antenna.objects.all():
@@ -168,18 +169,23 @@ def get_snap_status_from_redis():
                 node, loc_num = mc_session._get_node_snap_from_serial(stat["serial"])
             else:
                 node, loc_num = None, None
-            snap = SnapStatus(
-                time=timezone.make_aware(stat["timestamp"]),
-                hostname=key,
-                node=node,
-                snap_loc_num=loc_num,
-                serial_number=stat["serial"],
-                psu_alert=stat["pmb_alert"],
-                pps_count=stat["pps_count"],
-                fpga_temp=stat["temp"],
-                uptime_cycles=stat["uptime"],
-                last_programmed_time=timezone.make_aware(stat["last_programmed"]),
-            )
+            try:
+
+                snap = SnapStatus(
+                    time=timezone.make_aware(stat["timestamp"]),
+                    hostname=key,
+                    node=node,
+                    snap_loc_num=loc_num,
+                    serial_number=stat["serial"],
+                    psu_alert=stat["pmb_alert"],
+                    pps_count=stat["pps_count"],
+                    fpga_temp=stat["temp"],
+                    uptime_cycles=stat["uptime"],
+                    last_programmed_time=timezone.make_aware(stat["last_programmed"]),
+                )
+            except Exception as err:
+                raise ValueError(f"Error with snap {key}") from err
+                
             snaps.append(snap)
         SnapStatus.objects.bulk_create(snaps, ignore_conflicts=True)
     return
