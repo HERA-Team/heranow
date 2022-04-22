@@ -275,7 +275,7 @@ def get_antenna_status_from_redis():
         if stats["fem_switch"] is None:
             fem_switch = None
         else:
-            fem_switch = AntennaStatus._fem_mapping[stats["fem_switch"]]
+            fem_switch = AntennaStatus._fem_mapping[stats["fem_switch"].lower()]
 
         if stats["pam_id"] is not None and stats["pam_id"] != -1:
             pam_id = _pam_fem_id_to_string(stats["pam_id"])
