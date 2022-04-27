@@ -11,5 +11,5 @@ RUN mkdir /root/.hera_mc
 COPY .secrets/mc_config.json /root/.hera_mc/
 
 # Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "heranow", "/bin/bash", "-c"]
+SHELL ["micromamba", "run", "-n", "heranow", "/bin/bash", "-c"]
 ENV PATH /opt/conda/envs/heranow/bin:$PATH
