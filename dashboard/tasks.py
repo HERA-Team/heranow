@@ -158,18 +158,21 @@ def get_snap_status_from_redis():
 
         snaps = []
         for key, stat in snap_status.items():
-            for _key in stat:
-                if stat[_key] == "None":
-                    stat[_key] = None
 
-            if stat["timestamp"] is None:
-                continue
-
-            if stat["serial"] is not None:
-                node, loc_num = mc_session._get_node_snap_from_serial(stat["serial"])
-            else:
-                node, loc_num = None, None
             try:
+                for _key in stat:
+                    if stat[_key] == "None":
+                        stat[_key] = None
+
+                if stat["timestamp"] is None:
+                    continue
+
+                if stat["serial"] is not None:
+                    node, loc_num = mc_session._get_node_snap_from_serial(
+                        stat["serial"]
+                    )
+                else:
+                    node, loc_num = None, None
 
                 snap = SnapStatus(
                     time=timezone.make_aware(stat["timestamp"]),
@@ -184,8 +187,9 @@ def get_snap_status_from_redis():
                     last_programmed_time=timezone.make_aware(stat["last_programmed"]),
                 )
             except Exception as err:
-                raise ValueError(f"Error with snap {key}") from err
-                
+                print(f"Error with snap {key}. {err}")
+                continue
+
             snaps.append(snap)
         SnapStatus.objects.bulk_create(snaps, ignore_conflicts=True)
     return
@@ -252,37 +256,37 @@ def get_antenna_status_from_redis():
             )
         except Antenna.DoesNotExist:
             continue
-        for key in stats:
-            if stats[key] == "None":
-                stats[key] = None
-            if key == "histogram" and stats[key] is not None:
-                if np.size(stats[key]) == 255:
-                    stats[key] = np.asarray([bins, stats["histogram"]]).tolist()
-                elif np.shape(stats[key]) == 2 and len(stats[key][0]) != len(
-                    stats[key][1]
+        try:
+            for key in stats:
+                if stats[key] == "None":
+                    stats[key] = None
+                if key == "histogram" and stats[key] is not None:
+                    if np.size(stats[key]) == 255:
+                        stats[key] = np.asarray([bins, stats["histogram"]]).tolist()
+                    elif np.shape(stats[key]) == 2 and len(stats[key][0]) != len(
+                        stats[key][1]
+                    ):
+                        stats[key] = None
+                if key == "fem_switch" and (
+                    stats[key] == "null" or stats[key] == "Unknown mode"
                 ):
                     stats[key] = None
-            if key == "fem_switch" and (
-                stats[key] == "null" or stats[key] == "Unknown mode"
-            ):
-                stats[key] = None
 
-        if stats["fem_id"] is not None and stats["fem_id"] != -1:
-            fem_id = _pam_fem_id_to_string(stats["fem_id"])
-        else:
-            fem_id = None
+            if stats["fem_id"] is not None and stats["fem_id"] != -1:
+                fem_id = _pam_fem_id_to_string(stats["fem_id"])
+            else:
+                fem_id = None
 
-        if stats["fem_switch"] is None:
-            fem_switch = None
-        else:
-            fem_switch = AntennaStatus._fem_mapping[stats["fem_switch"].lower()]
+            if stats["fem_switch"] is None:
+                fem_switch = None
+            else:
+                fem_switch = AntennaStatus._fem_mapping[stats["fem_switch"].lower()]
 
-        if stats["pam_id"] is not None and stats["pam_id"] != -1:
-            pam_id = _pam_fem_id_to_string(stats["pam_id"])
-        else:
-            pam_id = None
+            if stats["pam_id"] is not None and stats["pam_id"] != -1:
+                pam_id = _pam_fem_id_to_string(stats["pam_id"])
+            else:
+                pam_id = None
 
-        try:
             antenna_status = AntennaStatus(
                 antenna=antenna,
                 time=timezone.make_aware(stats["timestamp"]),
@@ -307,8 +311,8 @@ def get_antenna_status_from_redis():
                 eq_coeffs=stats["eq_coeffs"],
                 adc_hist=stats["histogram"],
             )
-        except:  # noqa
-            print(f"Error processing Antenna {antpol}")
+        except Exception as e:  # noqa
+            print(f"Error processing Antenna {antpol}. {e}")
             continue
         bulk_add.append(antenna_status)
 
