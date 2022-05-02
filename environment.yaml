@@ -45,6 +45,7 @@ dependencies:
     - django-tables2
     - github3.py
     - lttb
+    - Werkzeug==2.0.0
     - whitenoise
     - git+https://github.com/HERA-Team/hera_mc.git
-    - git+https://github.com/HERA-Team/hera_corr_cm.git
+    - git+https://github.com/HERA-Team/hera_corr_cm.git@snap2bytes
