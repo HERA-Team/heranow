@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from astropy.time import Time
 from astropy import coordinates
 
-from django.utils import timezone
+from django.utils import timezone, dateparse
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -129,11 +129,18 @@ def get_snap_spectra_from_redis():
                 ):
                     stats[key] = None
         hostname, input_number = snap_key.split(":")
+
+        timestamp = stats["timestamp"]
+        if isinstance(timestamp, datetime):
+            timestamp = timezone.make_aware(timestamp)
+        else:
+            timestamp = dateparse.parse_datetime(timestamp + "Z")
+
         try:
             spectra = SnapSpectra(
                 hostname=hostname,
                 input_number=input_number,
-                time=timezone.make_aware(stats["timestamp"]),
+                time=timestamp,
                 spectra=stats["autocorrelation"],
                 eq_coeffs=stats["eq_coeffs"],
                 adc_hist=stats["histogram"],
@@ -176,8 +183,14 @@ def get_snap_status_from_redis():
                 else:
                     node, loc_num = None, None
 
+                timestamp = stat["timestamp"]
+                if isinstance(timestamp, datetime):
+                    timestamp = timezone.make_aware(timestamp)
+                else:
+                    timestamp = dateparse.parse_datetime(timestamp + "Z")
+
                 snap = SnapStatus(
-                    time=timezone.make_aware(stat["timestamp"]),
+                    time=timestamp,
                     hostname=key,
                     node=node,
                     snap_loc_num=loc_num,
@@ -293,9 +306,15 @@ def get_antenna_status_from_redis():
             else:
                 pam_id = None
 
+            timestamp = stats["timestamp"]
+            if isinstance(timestamp, datetime):
+                timestamp = timezone.make_aware(timestamp)
+            else:
+                timestamp = dateparse.parse_datetime(timestamp + "Z")
+
             antenna_status = AntennaStatus(
                 antenna=antenna,
-                time=timezone.make_aware(stats["timestamp"]),
+                time=timestamp,
                 snap_hostname=stats["f_host"],
                 snap_channel_number=stats["host_ant_id"],
                 adc_mean=stats["adc_mean"],
