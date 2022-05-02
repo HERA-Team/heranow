@@ -117,6 +117,8 @@ def get_snap_spectra_from_redis():
     spectra_list = []
     for snap_key, stats in snap_spectra.items():
         for key in stats:
+            if isinstance(stats[key], np.ndarray):
+                stats[key] = stats[key].tolist()
             if stats[key] == "None":
                 stats[key] = None
             if key == "histogram" and stats[key] is not None:
@@ -258,8 +260,12 @@ def get_antenna_status_from_redis():
             continue
         try:
             for key in stats:
+                if isinstance(stats[key], str) and stats[key].startswith("Exception:"):
+                    stats[key] = None
                 if stats[key] == "None":
                     stats[key] = None
+                if isinstance(stats[key], np.ndarray):
+                    stats[key] = stats[key].tolist()
                 if key == "histogram" and stats[key] is not None:
                     if np.size(stats[key]) == 255:
                         stats[key] = np.asarray([bins, stats["histogram"]]).tolist()
