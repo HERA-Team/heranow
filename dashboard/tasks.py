@@ -189,6 +189,12 @@ def get_snap_status_from_redis():
                 else:
                     timestamp = dateparse.parse_datetime(timestamp + "Z")
 
+                last_p = stat["last_programmed"]
+                if isinstance(last_p, datetime):
+                    last_p = timezone.make_aware(last_p)
+                else:
+                    last_p = dateparse.parse_datetime(last_p + "Z")
+
                 snap = SnapStatus(
                     time=timestamp,
                     hostname=key,
@@ -199,7 +205,7 @@ def get_snap_status_from_redis():
                     pps_count=stat["pps_count"],
                     fpga_temp=stat["temp"],
                     uptime_cycles=stat["uptime"],
-                    last_programmed_time=timezone.make_aware(stat["last_programmed"]),
+                    last_programmed_time=last_p,
                 )
             except Exception as err:
                 print(f"Error with snap {key}. {err}")
