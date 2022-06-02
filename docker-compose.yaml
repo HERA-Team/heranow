@@ -1,50 +1,50 @@
 version: '3'
 services:
     redishost:
-       build:
-         context: .
-         dockerfile: ./dockerfiles/redis_cm_docker
-       networks:
-           - nginx_net
-       volumes:
-         - "/storage/dashboard_data/redis_cm:/data"
-       healthcheck:
-         test: redis-cli ping
-         interval: 1m30s
-         timeout: 10s
-         retries: 3
-       restart: always
+      build:
+        context: .
+        dockerfile: ./dockerfiles/redis_cm_docker
+      networks:
+          - nginx_net
+      volumes:
+        - "/storage/dashboard_data/redis_cm:/data"
+      healthcheck:
+        test: redis-cli ping
+        interval: 1m30s
+        timeout: 10s
+        retries: 3
+      restart: always
     redis_celery:
-       build:
-         context: .
-         dockerfile: ./dockerfiles/redis_celery_docker
-       volumes:
-         - "/storage/dashboard_data/celery:/data/"
-       networks:
-           - nginx_net
-       healthcheck:
-         test: redis-cli ping
-         interval: 1m30s
-         timeout: 10s
-         retries: 3
-       restart: always
+      build:
+        context: .
+        dockerfile: ./dockerfiles/redis_celery_docker
+      volumes:
+        - "/storage/dashboard_data/celery:/data/"
+      networks:
+          - nginx_net
+      healthcheck:
+        test: redis-cli ping
+        interval: 1m30s
+        timeout: 10s
+        retries: 3
+      restart: always
     django_db:
-       image: "postgres"
-       user: 999:999
-       volumes:
-         - /storage/dashboard_data/psql:/var/lib/postgresql/data
-       ports:
-         - 5432:5432
-       env_file:
-         - .env
-       networks:
-         -  nginx_net
-       healthcheck:
-         test: pg_isready
-         interval: 1m30s
-         timeout: 10s
-         retries: 3
-       restart: always
+      image: "postgres"
+      user: 999:999
+      volumes:
+        - /storage/dashboard_data/psql:/var/lib/postgresql/data
+      ports:
+        - 5432:5432
+      env_file:
+        - .env
+      networks:
+        -  nginx_net
+      healthcheck:
+        test: pg_isready
+        interval: 1m30s
+        timeout: 10s
+        retries: 3
+      restart: always
     app:
       build:
         context: .
