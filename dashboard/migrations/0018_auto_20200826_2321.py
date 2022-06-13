@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
-            model_name="snapspectra", name="unique snap input per time",
+            model_name="snapspectra",
+            name="unique snap input per time",
         ),
         migrations.AddConstraint(
             model_name="snapspectra",

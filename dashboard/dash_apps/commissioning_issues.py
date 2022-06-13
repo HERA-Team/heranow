@@ -136,7 +136,10 @@ def serve_layout():
             html.Div(
                 [
                     dbc.Row(
-                        [], justify="center", align="center", style={"height": "10%"},
+                        [],
+                        justify="center",
+                        align="center",
+                        style={"height": "10%"},
                     ),
                     dbc.Row(
                         dbc.Col(
@@ -153,14 +156,20 @@ def serve_layout():
                                     "whiteSpace": "normal",
                                     "font-family": "Helvetica Neue",
                                 },
-                                style_header={"fontWeight": "bold", "fontSize": 18,},
+                                style_header={
+                                    "fontWeight": "bold",
+                                    "fontSize": 18,
+                                },
                                 style_data_conditional=[
                                     {
                                         "if": {"row_index": "odd"},
                                         "backgroundColor": "rgb(248, 248, 248)",
                                     }
                                 ],
-                                style_table={"height": "90%", "width": "100%",},
+                                style_table={
+                                    "height": "90%",
+                                    "width": "100%",
+                                },
                                 style_cell_conditional=[
                                     {
                                         "if": {"column_id": "Julian Date"},
@@ -220,8 +229,14 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    [Output("table_com", "data"), Output("table_com", "page_current"),],
-    [Input("session-id", "children"), Input("interval-component", "n_intervals"),],
+    [
+        Output("table_com", "data"),
+        Output("table_com", "page_current"),
+    ],
+    [
+        Input("session-id", "children"),
+        Input("interval-component", "n_intervals"),
+    ],
     [State("table_com", "page_current")],
 )
 def refresh_data(session_id, n_intervals, page_number):

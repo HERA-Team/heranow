@@ -54,7 +54,14 @@ def plot_df(df, nodes=None, apriori=None):
     layout = {
         "xaxis": {"title": "ADC value"},
         "yaxis": {"title": "Occurance", "type": "linear"},
-        "title": {"text": "", "xref": "paper", "x": 0.5, "font": {"size": 24,},},
+        "title": {
+            "text": "",
+            "xref": "paper",
+            "x": 0.5,
+            "font": {
+                "size": 24,
+            },
+        },
         "margin": {"l": 40, "b": 30, "r": 40, "t": 70},
         "hovermode": "closest",
         "autosize": True,
@@ -245,7 +252,8 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("interval-component", "disabled"), [Input("reload-box", "on")],
+    Output("interval-component", "disabled"),
+    [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
     """Track the reload status for data."""

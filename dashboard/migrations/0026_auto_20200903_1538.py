@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name="snaptoant", options={"ordering": ["node", "snap"]},
+            name="snaptoant",
+            options={"ordering": ["node", "snap"]},
         ),
         migrations.AlterField(
             model_name="snaptoant",

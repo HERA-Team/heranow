@@ -471,7 +471,8 @@ class HookupNotes(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["time", "ant_number", "part"], name="unique part note per time",
+                fields=["time", "ant_number", "part"],
+                name="unique part note per time",
             ),
         ]
 

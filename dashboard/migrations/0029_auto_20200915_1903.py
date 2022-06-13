@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveIndex(
-            model_name="autospectra", name="dashboard_a_antenna_40adf6_idx",
+            model_name="autospectra",
+            name="dashboard_a_antenna_40adf6_idx",
         ),
     ]

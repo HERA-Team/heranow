@@ -12,9 +12,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="antennastatus", name="apriori_status",),
-        migrations.RemoveField(model_name="antennastatus", name="frequencies",),
-        migrations.RemoveField(model_name="antennastatus", name="spectra",),
+        migrations.RemoveField(
+            model_name="antennastatus",
+            name="apriori_status",
+        ),
+        migrations.RemoveField(
+            model_name="antennastatus",
+            name="frequencies",
+        ),
+        migrations.RemoveField(
+            model_name="antennastatus",
+            name="spectra",
+        ),
         migrations.CreateModel(
             name="AutoSpectra",
             fields=[

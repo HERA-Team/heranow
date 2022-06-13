@@ -94,7 +94,9 @@ class Command(BaseCommand):
 
         new_issues = []
         for jd in np.setdiff1d(full_jd_range, jd_list):
-            iss = CommissioningIssue(julian_date=jd,)
+            iss = CommissioningIssue(
+                julian_date=jd,
+            )
             new_issues.append(iss)
 
         CommissioningIssue.objects.bulk_create(new_issues, ignore_conflicts=True)
