@@ -4,6 +4,7 @@ import logging  # noqa
 import numpy as np
 from argparse import Namespace
 from hera_mc import mc, cm_sysutils
+from hera_mc.data import DATA_PATH as mc_data_path
 
 from django.core.management.base import BaseCommand, CommandError
 from dashboard.models import Antenna
@@ -39,7 +40,7 @@ class Command(BaseCommand):
         mc_args.mc_config_path = options["mc_config_path"]
         db = mc.connect_to_mc_db(args=mc_args)
         antpos = np.genfromtxt(
-            os.path.join(mc.data_path, "HERA_350.txt"),
+            os.path.join(mc_data_path, "HERA_350.txt"),
             usecols=(0, 1, 2, 3),
             dtype={
                 "names": ("ANTNAME", "EAST", "NORTH", "UP"),

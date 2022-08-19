@@ -25,6 +25,7 @@ from celery.utils.log import get_task_logger
 from sqlalchemy import func, and_, or_
 from hera_mc.correlator import _pam_fem_id_to_string
 from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
+from hera_mc.data import DATA_PATH as mc_data_path
 
 from hera_corr_cm import HeraCorrCM
 
@@ -356,7 +357,7 @@ def update_constructed_antennas():
     """Check antennas marked as constructed and update database."""
     db = mc.connect_to_mc_db(None)
     antpos = np.genfromtxt(
-        os.path.join(mc.data_path, "HERA_350.txt"),
+        os.path.join(mc_data_path, "HERA_350.txt"),
         usecols=(0, 1, 2, 3),
         dtype={
             "names": ("ANTNAME", "EAST", "NORTH", "UP"),
