@@ -12,9 +12,11 @@ To deploy bring the docker-compose stack up `docker-compose up -d`.
 
 Two shell scripts have been provided to make the building simpler:
 
- - build.sh: invokes the docker build and docker-compose build steps.
- - deploy.sh: invokes the docker-compose up -d step
+ - `build.sh`: invokes the docker build and docker-compose build steps.
+ - `deploy.sh`: invokes the docker-compose up -d step
 
+### Stopping the docker images
+Docker images can be stopped by executing `docker-compose down` or restarted with `docker-compose restart`.
 
 ### Initialize the database
 Database initialization can happen at the time of deployment by setting the key `INITIALIZE` in the `.env` on the deploying machine. This does take an extended period of time.
