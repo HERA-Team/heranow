@@ -18,6 +18,13 @@ Two shell scripts have been provided to make the building simpler:
 ### Stopping the docker images
 Docker images can be stopped by executing `docker-compose down` or restarted with `docker-compose restart`.
 
+### Updating M&C Schema
+When the M&C schema changes on site, a forced rebuild of the base docker
+conatiner is necessary. This can be accomplished with the command
+`docker build -f dockerfiles/docker_conda -t conda_base:latest . --no-cache`
+
+After rebuilding the base docker image, `build.sh` and `deploy.sh` as usual.
+
 ### Initialize the database
 Database initialization can happen at the time of deployment by setting the key `INITIALIZE` in the `.env` on the deploying machine. This does take an extended period of time.
 
