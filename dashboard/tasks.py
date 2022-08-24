@@ -81,9 +81,19 @@ def get_autospectra_from_redis():
             if d is not None:
                 auto = np.frombuffer(d, dtype=np.float32)[0:NCHANS].copy()
 
-                downsampled = lttb.downsample(np.stack([freqs, auto,], axis=1), 350,)
+                downsampled = lttb.downsample(
+                    np.stack(
+                        [
+                            freqs,
+                            auto,
+                        ],
+                        axis=1,
+                    ),
+                    350,
+                )
                 eq_coeffs = rsession.hget(
-                    f"eq:ant:{antenna.ant_number:d}:{antenna.polarization:s}", "values",
+                    f"eq:ant:{antenna.ant_number:d}:{antenna.polarization:s}",
+                    "values",
                 )
                 if eq_coeffs is not None:
                     eq_coeffs = np.fromstring(
@@ -274,7 +284,8 @@ def get_antenna_status_from_redis():
     for antpol, stats in ant_stats.items():
         try:
             antenna = Antenna.objects.get(
-                ant_number=int(antpol.split(":")[0]), polarization=antpol.split(":")[1],
+                ant_number=int(antpol.split(":")[0]),
+                polarization=antpol.split(":")[1],
             )
         except Antenna.DoesNotExist:
             continue
@@ -558,7 +569,8 @@ def replot_radiosky():
     radio_map = healpy.read_map(os.path.join(settings.BASE_DIR, "test4.fits"))
     hera_telescope = get_telescope("HERA")
     hera_loc = coordinates.EarthLocation.from_geocentric(
-        *hera_telescope.telescope_location, unit="m",
+        *hera_telescope.telescope_location,
+        unit="m",
     )
     hera_time = Time.now()
     hera_time.location = hera_loc
@@ -579,9 +591,17 @@ def replot_radiosky():
     lmc = coordinates.SkyCoord(ra="05h 40m 05s", dec="-69d 45m 51s")
     smc = coordinates.SkyCoord(ra="00h 52m 44.8s", dec="-72d 49m 43s")
     cenA = coordinates.SkyCoord(ra="13h 25m 27.6s", dec="-43d 01m 09s")
-    callibrator1 = coordinates.SkyCoord(ra=109.32351, dec=-25.0817, unit="deg",)
+    callibrator1 = coordinates.SkyCoord(
+        ra=109.32351,
+        dec=-25.0817,
+        unit="deg",
+    )
     callibrator2 = coordinates.SkyCoord(ra=30.05044, dec=-30.89106, unit="deg")
-    callibrator3 = coordinates.SkyCoord(ra=6.45484, dec=-26.0363, unit="deg",)
+    callibrator3 = coordinates.SkyCoord(
+        ra=6.45484,
+        dec=-26.0363,
+        unit="deg",
+    )
 
     source_list = [
         {"source": sun, "name": "sun", "color": "y", "size": 1000},
@@ -641,7 +661,9 @@ def replot_radiosky():
 
     filename = settings.MEDIA_ROOT / "radiosky.png"
     plt.savefig(
-        filename, bbox_inches="tight", pad_inches=0.2,
+        filename,
+        bbox_inches="tight",
+        pad_inches=0.2,
     )
     return
 
@@ -658,7 +680,11 @@ def update_hookup():
         output_file = settings.BASE_DIR / "templates" / "sys_conn_tmp.html"
 
         hookup_dict = H.get_hookup(
-            hpn=hlist, pol="all", at_date="now", exact_match=False, hookup_type=None,
+            hpn=hlist,
+            pol="all",
+            at_date="now",
+            exact_match=False,
+            hookup_type=None,
         )
         H.show_hookup(
             hookup_dict=hookup_dict,
@@ -682,7 +708,13 @@ def update_xengs():
     for xeng, chans in xeng_chan_mapping.items():
         xeng = int(xeng)
         chans = json.loads(chans)
-        bulk_objects.append(XengChannels(time=xeng_time, number=xeng, chans=chans,))
+        bulk_objects.append(
+            XengChannels(
+                time=xeng_time,
+                number=xeng,
+                chans=chans,
+            )
+        )
     XengChannels.objects.bulk_create(bulk_objects, ignore_conflicts=True)
     return
 

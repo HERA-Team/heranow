@@ -11,12 +11,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveConstraint(
-            model_name="autospectra", name="One antpol per time",
+            model_name="autospectra",
+            name="One antpol per time",
         ),
         migrations.RemoveConstraint(
-            model_name="snapspectra", name="unique snap input",
+            model_name="snapspectra",
+            name="unique snap input",
         ),
-        migrations.RemoveConstraint(model_name="snapstatus", name="unique hostname",),
+        migrations.RemoveConstraint(
+            model_name="snapstatus",
+            name="unique hostname",
+        ),
         migrations.AddConstraint(
             model_name="antennastatus",
             constraint=models.UniqueConstraint(

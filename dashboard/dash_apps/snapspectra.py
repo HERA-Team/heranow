@@ -43,7 +43,10 @@ def plot_df(df, hostname):
             "tick0": 0,
             "dtick": 10,
         },
-        "yaxis": {"title": "Power [dB]", "showticklabels": True,},
+        "yaxis": {
+            "title": "Power [dB]",
+            "showticklabels": True,
+        },
         "hoverlabel": {"align": "left"},
         "margin": {"l": 40, "b": 30, "r": 40, "t": 30},
         "autosize": True,
@@ -270,7 +273,8 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("interval-component", "disabled"), [Input("reload-box", "on")],
+    Output("interval-component", "disabled"),
+    [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
     """Track the reload status for data."""
@@ -289,7 +293,10 @@ def update_snap_selection(session_id, n_intervals):
 
 
 @dash_app.callback(
-    [Output("dash_app", "figure"), Output("snap-stats", "children"),],
+    [
+        Output("dash_app", "figure"),
+        Output("snap-stats", "children"),
+    ],
     [
         Input("hostname-dropdown", "value"),
         Input("session-id", "children"),

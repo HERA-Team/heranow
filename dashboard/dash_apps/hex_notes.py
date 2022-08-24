@@ -264,13 +264,19 @@ def reload_notes(nodes, apriori, session_id, n_intervals):
     hovertemplate = "%{text}<extra></extra>"
 
     layout = {
-        "xaxis": {"title": "East-West Position [m]", "constrain": "domain",},
+        "xaxis": {
+            "title": "East-West Position [m]",
+            "constrain": "domain",
+        },
         "yaxis": {
             "title": "North-South Position [m]",
             "scaleanchor": "x",
             "scaleratio": 1,
         },
-        "title": {"text": "", "font": {"size": 24},},
+        "title": {
+            "text": "",
+            "font": {"size": 24},
+        },
         "hoverlabel": {"align": "left"},
         "margin": {"t": 40},
         "autosize": True,

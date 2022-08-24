@@ -228,7 +228,10 @@ def serve_layout():
                             "whiteSpace": "normal",
                             "height": "auto",
                         },
-                        style_header={"fontWeight": "bold", "fontSize": 18,},
+                        style_header={
+                            "fontWeight": "bold",
+                            "fontSize": 18,
+                        },
                         style_data_conditional=[
                             {
                                 "if": {"row_index": "odd"},
@@ -261,7 +264,8 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("node-dropdown", "options"), [Input("session-id", "children")],
+    Output("node-dropdown", "options"),
+    [Input("session-id", "children")],
 )
 def update_node_selection(session_id):
     """Update node selection button."""

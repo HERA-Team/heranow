@@ -185,7 +185,12 @@ def plot_df(df, nodes=None, apriori=None, rms=False):
     layout = {
         "xaxis": {"title": "Frequency [MHz]"},
         "yaxis": {"title": "Power [dB]"},
-        "title": {"text": "", "xref": "paper", "x": 0.5, "font": {"size": 24},},
+        "title": {
+            "text": "",
+            "xref": "paper",
+            "x": 0.5,
+            "font": {"size": 24},
+        },
         "autosize": True,
         "showlegend": True,
         "legend": {"x": 1, "y": 1},
@@ -382,7 +387,8 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("interval-component", "disabled"), [Input("reload-box", "on")],
+    Output("interval-component", "disabled"),
+    [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
     """Track the reload status for data."""
@@ -419,10 +425,14 @@ def update_time_data(session_id, n_intervals, n_intervals_time_display):
         html.Span("Autocorrelations from ", style={"font-weight": "bold"}),
         html.Span(
             f"{time_ago.value:.0f} {time_ago.unit.long_names[0]}s ago ",
-            style={"font-weight": "bold", "color": time_color,},
+            style={
+                "font-weight": "bold",
+                "color": time_color,
+            },
         ),
         html.Span(
-            f"({auto_time.iso} JD:{auto_time.jd:.3f})", style={"font-weight": "bold"},
+            f"({auto_time.iso} JD:{auto_time.jd:.3f})",
+            style={"font-weight": "bold"},
         ),
     ]
     return time_data
@@ -457,7 +467,13 @@ def update_node_selection(session_id, n_intervals):
     ],
 )
 def draw_undecimated_data(
-    selection, nodes, apriori, session_id, n_intervals, resolution, rms,
+    selection,
+    nodes,
+    apriori,
+    session_id,
+    n_intervals,
+    resolution,
+    rms,
 ):
     """Redraw data based on user input."""
     df_full, df_down, auto_time = get_data(session_id, n_intervals)

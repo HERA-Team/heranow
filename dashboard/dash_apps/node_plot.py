@@ -105,7 +105,10 @@ def plot_df(
                 "cmin": vmin,
                 "cmax": vmax,
                 "colorscale": colorscale,
-                "colorbar": {"title": cbar_titles[mode], "thickness": 20,},
+                "colorbar": {
+                    "title": cbar_titles[mode],
+                    "thickness": 20,
+                },
             }
         }
     )
@@ -355,7 +358,8 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("interval-component", "disabled"), [Input("reload-box", "on")],
+    Output("interval-component", "disabled"),
+    [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
     """Track the reload status for data."""

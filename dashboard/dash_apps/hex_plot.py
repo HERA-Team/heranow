@@ -63,13 +63,19 @@ def plot_df(
     hovertemplate = "%{text}<extra></extra>"
 
     layout = {
-        "xaxis": {"title": "East-West Position [m]", "constrain": "domain",},
+        "xaxis": {
+            "title": "East-West Position [m]",
+            "constrain": "domain",
+        },
         "yaxis": {
             "title": "North-South Position [m]",
             "scaleanchor": "x",
             "scaleratio": 1,
         },
-        "title": {"text": "", "font": {"size": 24},},
+        "title": {
+            "text": "",
+            "font": {"size": 24},
+        },
         "hoverlabel": {"align": "left"},
         "margin": {"t": 40},
         "autosize": True,
@@ -118,9 +124,16 @@ def plot_df(
                 "cmin": vmin,
                 "cmax": vmax,
                 "colorscale": colorscale,
-                "colorbar": {"title": cbar_titles[mode], "thickness": 20,},
+                "colorbar": {
+                    "title": cbar_titles[mode],
+                    "thickness": 20,
+                },
             },
-            "coloraxis2": {"cmin": 0, "cmax": 1, "colorscale": colorscale,},
+            "coloraxis2": {
+                "cmin": 0,
+                "cmax": 1,
+                "colorscale": colorscale,
+            },
         }
     )
 
@@ -468,7 +481,8 @@ dash_app.layout = serve_layout
 
 
 @dash_app.callback(
-    Output("interval-component", "disabled"), [Input("reload-box", "on")],
+    Output("interval-component", "disabled"),
+    [Input("reload-box", "on")],
 )
 def start_reload_counter(reload_box):
     """Track the reload status for data."""
@@ -505,10 +519,14 @@ def update_time_data(session_id, n_intervals, n_intervals_time_display):
         html.Span("Autocorrelations from ", style={"font-weight": "bold"}),
         html.Span(
             f"{time_ago.value:.0f} {time_ago.unit.long_names[0]}s ago ",
-            style={"font-weight": "bold", "color": time_color,},
+            style={
+                "font-weight": "bold",
+                "color": time_color,
+            },
         ),
         html.Span(
-            f"({auto_time.iso} JD:{auto_time.jd:.3f})", style={"font-weight": "bold"},
+            f"({auto_time.iso} JD:{auto_time.jd:.3f})",
+            style={"font-weight": "bold"},
         ),
     ]
     return time_data
