@@ -126,6 +126,7 @@ services:
         - ./dockerfiles/nginx:/etc/nginx/conf.d
         - /home/locoadmin/webhost/:/webhost
         - /storage/dashboard_data/media/:/app/media/
+        - /storage/dashboard_data/crontabs/:/app/crontabs/
       depends_on:
         - app
       networks:
