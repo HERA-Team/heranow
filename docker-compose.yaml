@@ -38,6 +38,12 @@ services:
       restart: always
     django_db:
       image: "postgres"
+      command:
+        - "postgres"
+        - "-c"
+        - "max_connections=1000"
+        - "-c"
+        - "shared_buffers=3GB"
       user: 999:999
       logging:
         driver: "json-file"
@@ -50,7 +56,8 @@ services:
       env_file:
         - .env
       networks:
-        -  nginx_net
+        nginx_net:
+            ipv4_address: "172.21.0.6"
       healthcheck:
         test: pg_isready
         interval: 1m30s
@@ -133,5 +140,8 @@ services:
         - nginx_net
       restart: always
 networks:
-    nginx_net:
-        driver: bridge
+  nginx_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.21.0.0/24"
