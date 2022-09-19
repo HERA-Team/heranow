@@ -25,27 +25,27 @@ dependencies:
   - tabulate
   - uvicorn
   - pip
+  - django-analytical
+  - django-bootstrap4
+  - django-extensions
+  - django-environ
+  - django-tables2
+  - celery>=5.0
+  - dash==1.16.1
+  - dash-bootstrap-components==0.10.6
+  - dash-core-components==1.12.1
+  - dash-daq==0.5.0
+  - dash-html-components==1.1.1
+  - dash-renderer==1.8.1
+  - dash-table==4.10.1
+  - github3.py
+  - Werkzeug==2.0.0
+  - whitenoise
   - pip:
-    - celery>=5.0
-    - dash==1.16.1
-    - dash-bootstrap-components==0.10.6
-    - dash-core-components==1.12.1
-    - dash-daq==0.5.0
-    - dash-html-components==1.1.1
-    - dash-renderer==1.8.1
-    - dash-table==4.10.1
-    - dpd-components
-    - dpd-static-support
-    - django-analytical
-    - django-bootstrap4
-    - django-extensions
-    - django-environ
+    - lttb
     - django-plotly-dash==1.4.2
     - django-tabination
-    - django-tables2
-    - github3.py
-    - lttb
-    - Werkzeug==2.0.0
-    - whitenoise
+    - dpd-components
+    - dpd-static-support
     - git+https://github.com/HERA-Team/hera_mc.git
     - git+https://github.com/HERA-Team/hera_corr_cm.git
