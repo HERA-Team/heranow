@@ -144,8 +144,11 @@ def get_snap_spectra_from_redis():
         timestamp = stats["timestamp"]
         if isinstance(timestamp, datetime):
             timestamp = timezone.make_aware(timestamp)
-        else:
+        elif isinstance(timestamp, str):
             timestamp = dateparse.parse_datetime(timestamp + "Z")
+        else:
+            # Probably a None, maybe should just check for none?
+            continue
 
         try:
             spectra = SnapSpectra(
@@ -203,8 +206,10 @@ def get_snap_status_from_redis():
                 last_p = stat["last_programmed"]
                 if isinstance(last_p, datetime):
                     last_p = timezone.make_aware(last_p)
-                else:
+                elif isinstance(last_p, str):
                     last_p = dateparse.parse_datetime(last_p + "Z")
+                else:
+                    continue 
 
                 snap = SnapStatus(
                     time=timestamp,
@@ -293,7 +298,7 @@ def get_antenna_status_from_redis():
             for key in stats:
                 if isinstance(stats[key], str) and stats[key].startswith("Exception:"):
                     stats[key] = None
-                if stats[key] == "None":
+                if isinstance(stats[key], str) and stats[key] == "None":
                     stats[key] = None
                 if isinstance(stats[key], np.ndarray):
                     stats[key] = stats[key].tolist()
