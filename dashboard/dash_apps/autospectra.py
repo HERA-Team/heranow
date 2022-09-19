@@ -220,7 +220,7 @@ def plot_df(df, nodes=None, apriori=None, rms=False):
             else:
                 _y = _df1.spectra.values[0]
             trace = go.Scattergl(
-                x=_df1.freqs.values[0],
+                x=_df1.freqs.values,
                 y=_y,
                 name=antpol,
                 mode="lines",
