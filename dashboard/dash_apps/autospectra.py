@@ -72,7 +72,10 @@ def get_data(session_id, interval):
                 fem_switch = ant_stat.get_fem_switch_display() or "Unknown"
 
             apriori = "Unknown"
-            apriori_stat = apriori_stats.filter(antenna=stat.antenna).latest("time")
+            try:    
+                apriori_stat = apriori_stats.filter(antenna=stat.antenna).latest("time")
+            except AprioriStatus.DoesNotExist:
+                apriori_stat = None
 
             if apriori_stat is not None:
                 apriori = apriori_stat.get_apriori_status_display()
@@ -216,11 +219,11 @@ def plot_df(df, nodes=None, apriori=None, rms=False):
             if _df1.node.iloc[0] not in nodes or _df1.apriori.iloc[0] not in apriori:
                 continue
             if rms:
-                _y = _df1.rms.values
+                _y = _df1.rms.values[0]
             else:
-                _y = _df1.spectra.values
+                _y = _df1.spectra.values[0]
             trace = go.Scattergl(
-                x=_df1.freqs.values,
+                x=_df1.freqs.values[0],
                 y=_y,
                 name=antpol,
                 mode="lines",
@@ -495,7 +498,7 @@ def draw_undecimated_data(
 
     # use context to tell if selection was made
     ctx = dash.callback_context
-
+    
     if not ctx.triggered:
         dropdown = False
     else:
@@ -506,14 +509,19 @@ def draw_undecimated_data(
         selection is not None
         and "xaxis.range[0]" in selection
         and "xaxis.range[1]" in selection
-        and len(
-            df_ant[
-                (df_ant.freqs >= selection["xaxis.range[0]"])
-                & (df_ant.freqs <= selection["xaxis.range[1]"])
-            ]
-        )
-        < max_points
     ):
-        return plot_df(df_full, nodes, apriori, rms)
+        try:
+            if np.sum(
+                np.logical_and(
+                    df_ant.freqs.values[0] >= selection["xaxis.range[0]"], 
+                    df_ant.freqs.values[0] <= selection["xaxis.range[1]"]
+                )
+            ) < max_points:
+                return plot_df(df_full, nodes, apriori, rms)
+            else:
+                return plot_df(df_down, nodes, apriori, rms)
+        except:
+            print(df_ant.freqs, selection)
+            raise
     else:
         return plot_df(df_down, nodes, apriori, rms)
