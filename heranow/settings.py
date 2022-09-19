@@ -104,8 +104,9 @@ WSGI_APPLICATION = "heranow.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {"default": env.db_url("DJANGO_DB")}
+database = env.db_url("DJANGO_DB")
+database['CONN_MAX_AGE'] = 60
+DATABASES = {"default": database}
 
 
 # Password validation
@@ -181,7 +182,13 @@ PLOTLY_COMPONENTS = [
     "dash_bootstrap_components",
 ]
 
-
+NOTEBOOK_ARGUMENTS = [
+    # exposes IP and port
+    '--ip=0.0.0.0',
+    '--port=8882',
+    # disables the browser
+    '--no-browser',
+]
 # CELERY Configuration
 CELERY_BROKER_URL = env.str("CELERY_REDIS_URL")
 CELERY_RESULT_BACKEND = env.str("CELERY_REDIS_URL")
