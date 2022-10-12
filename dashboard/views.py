@@ -191,7 +191,7 @@ class Notebooks(BaseTab):
     """A detailed list of pages in heranow."""
 
     tab_label = "Notebook listings"
-    my_children = ["notebooks", "Github Notebooks"]
+    my_children = ["notebooks", "GithubNotebooks"]
 
 
 class NotebooksSelf(ChildTab):
@@ -206,7 +206,7 @@ class NotebooksGit(ExternalChildTab):
     """Link to daily Notebooks."""
 
     tab_label = "Github Notebooks"
-    tab_id = "Github Notebooks"
+    tab_id = "GithubNotebooks"
     url = "https://github.com/HERA-Team/H6C_Notebooks"
 
 
