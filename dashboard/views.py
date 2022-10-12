@@ -187,12 +187,27 @@ class TimeDomain(BaseTab):
     my_children = ["Grafana", "Chronograf"]
 
 
-class Notebooks(ExternalTab):
+class Notebooks(BaseTab):
+    """A detailed list of pages in heranow."""
+
+    tab_label = "Notebook listings"
+    my_children = ["notebooks", "Github Notebooks"]
+
+
+class NotebooksSelf(ChildTab):
+    """Link to self Notebooks hoster."""
+
+    tab_label = "Self-Hosted"
+    tab_id = "notebooks"
+    url = "https://enterprise.sese.asu.edu:8484"
+
+
+class NotebooksGit(ExternalChildTab):
     """Link to daily Notebooks."""
 
-    tab_label = "Daily Notebooks"
-    tab_id = "Notebooks"
-    url = "https://github.com/HERA-Team/H5C_Notebooks"
+    tab_label = "Github Notebooks"
+    tab_id = "Github Notebooks"
+    url = "https://github.com/HERA-Team/H6C_Notebooks"
 
 
 class DailyLog(ExternalChildTab):
