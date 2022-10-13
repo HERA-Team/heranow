@@ -211,15 +211,11 @@ class NotebooksGit(ExternalChildTab):
 
 
 class DailyLog(ExternalChildTab):
-    """Link to new Daily Log Commissioning Issues."""
+    """Link to new Daily Log Commissioning Report."""
 
-    tab_label = "New Daily Log"
+    tab_label = "H6C Obs Report"
     tab_id = "DailyLog"
-    url = (
-        "https://github.com/HERA-Team/HERA_Commissioning/issues/"
-        "new?assignees=&labels=Daily&template=daily-log.md&"
-        "title=Observing+report+2458XXX"
-    )
+    url = "https://docs.google.com/forms/d/e/1FAIpQLScWHCiy5j6x5Lkwqoe5YOPhCyFpulVrUDfCHG90Jyvygal7zA/viewform"
 
 
 class NewIssue(ExternalChildTab):
