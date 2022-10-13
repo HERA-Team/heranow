@@ -5,183 +5,189 @@
 
 
 <html lang="en" style="width: 100%;">
-  <head>
-    {% analytical_head_top %}
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first -->
 
-    <title>{% block title %}HERA Dashboard{% endblock%}</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/css/bootstrap.min.css"
-      integrity="sha384-VCmXjywReHh4PwowAiWNagnWcLhlEJLA5buUprzK8rxFgeH0kww/aWY76TfkUoSX"
-      crossorigin="anonymous">
-    <link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.min.css"
-      integrity="sha512-f8mUMCRNrJxPBDzPJx3n+Y5TC5xp6SmStstEfgsDXZJTcxBakoB5hvPLhAfJKa9rCvH+n3xpJ2vQByxLk4WP2g=="
-      crossorigin="anonymous" />
-    <link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
-      integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
-      crossorigin="anonymous" />
-    <link rel="icon" type="image/png" href="{% static "favicon-32x32.png" %}" sizes="32x32" />
-    <link rel="icon" type="image/png" href="{% static "favicon-16x16.png" %}" sizes="16x16" />
+<head>
+  {% analytical_head_top %}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first -->
 
-    {% analytical_head_bottom %}
-    {% block headcontent %}{% endblock %}
-    {% plotly_header %}
+  <title>{% block title %}HERA Dashboard{% endblock%}</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/css/bootstrap.min.css"
+    integrity="sha384-VCmXjywReHh4PwowAiWNagnWcLhlEJLA5buUprzK8rxFgeH0kww/aWY76TfkUoSX" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.min.css"
+    integrity="sha512-f8mUMCRNrJxPBDzPJx3n+Y5TC5xp6SmStstEfgsDXZJTcxBakoB5hvPLhAfJKa9rCvH+n3xpJ2vQByxLk4WP2g=="
+    crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+    crossorigin="anonymous" />
+  <link rel="icon" type="image/png" href="{% static 'favicon-32x32.png' %}" sizes="32x32" />
+  <link rel="icon" type="image/png" href="{% static 'favicon-16x16.png' %}" sizes="16x16" />
+
+  {% analytical_head_bottom %}
+  {% block headcontent %}{% endblock %}
+  {% plotly_header %}
 </head>
+
 <body>
-{% analytical_body_top %}
-<header>
-  <nav class="navbar navbar-expand-xl fixed-top navbar-dark bg-dark" role="navigation">
-    <!-- <div class="container-fluid" style="vertical-align: midde;"> -->
-   	    <div class="navbar-header">
-   	      <a class="navbar-brand" href="/">HERA Dashboard</a>
-   	    </div>
+  {% analytical_body_top %}
+  <header>
+    <nav class="navbar navbar-expand-xl fixed-top navbar-dark bg-dark" role="navigation">
+      <!-- <div class="container-fluid" style="vertical-align: midde;"> -->
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">HERA Dashboard</a>
+      </div>
 
-        <!-- Toggler/collapsibe Button -->
-       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-         <span class="navbar-toggler-icon"></span>
-       </button>
+      <!-- Toggler/collapsibe Button -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-       <div class="collapse navbar-collapse" id="collapsibleNavbar">
-         <ul class="navbar-nav mr-auto">
-           {% for tab in tabs %}
-              {% if tab.top %}
-                  {% if tab.my_children %}
-                      <li class="nav-item dropdown">
-                          <a href="#" class="nav-link dropdown-toggle text-nowrap"
-                             data-toggle="dropdown" id="dropdown-{{ tab.tab_label }}"
-                             aria-haspopup="true" aria-expanded="false" style="font-size: medium;">
-                             <small>
-                              {{ tab.tab_label }}
-                            </small>
-                          </a>
-                          <div class="dropdown-menu" aria-labelledby="dropdown-{{ tab.tab_label }}">
-                              {% for alltabs in tabs %}
-                                  {% if alltabs.tab_id in tab.my_children %}
-                                  {% if alltabs.external %}
-                                      <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %} text-nowrap"
-                                         target="_blank"
-                                         href="{{ alltabs.tab_id }}" style="font-size: medium;">
-                                         <small>
-                                          {{ alltabs.tab_label }}
-                                         </small>
-                                      </a>
-                                  {% else %}
-                                      <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %} text-nowrap"
-                                        href="{{ alltabs.tab_id }}"style="font-size: medium;">
-                                         <small>{{ alltabs.tab_label }}</small>
-                                      </a>
-                                  {% endif %}
-                                  {% endif %}
-                              {% endfor %}
-                          </div>
-                      </li>
-
-                  {% endif %}
-
-                  {% if not tab.my_children %}
-                      {% if tab.external %}
-                      <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
-                          <a class='nav-link text-nowrap' target="_blank" href="{{ tab.tab_id }}" style="font-size: medium;">
-                            <small>
-                              {{ tab.tab_label }}
-                            </small>
-                          </a>
-                      </li>
-                      {% else %}
-                      <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
-                          <a class='nav-link text-nowrap' href="{{ tab.tab_id }}" style="font-size: medium;">
-                            <small>
-                              {{ tab.tab_label }}
-                            </small>
-                          </a>
-                      </li>
-                      {% endif %}
-
-                  {% endif %}
+      <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav mr-auto">
+          {% for tab in tabs %}
+          {% if tab.top %}
+          {% if tab.my_children %}
+          <li class="nav-item dropdown">
+            <a href="#" class="nav-link dropdown-toggle text-nowrap" data-toggle="dropdown"
+              id="dropdown-{{ tab.tab_label }}" aria-haspopup="true" aria-expanded="false" style="font-size: medium;">
+              <small>
+                {{ tab.tab_label }}
+              </small>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdown-{{ tab.tab_label }}">
+              {% for alltabs in tabs %}
+              {% if alltabs.tab_id in tab.my_children %}
+              {% if alltabs.external %}
+              <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %} text-nowrap"
+                target="_blank" href="{{ alltabs.tab_id }}" style="font-size: medium;">
+                <small>
+                  {{ alltabs.tab_label }}
+                </small>
+              </a>
+              {% else %}
+              <a class="dropdown-item{% if alltabs.tab_id == current_tab_id %} active{% endif %} text-nowrap"
+                href="{{ alltabs.tab_id }}" style="font-size: medium;">
+                <small>{{ alltabs.tab_label }}</small>
+              </a>
               {% endif %}
+              {% endif %}
+              {% endfor %}
+            </div>
+          </li>
+
+          {% endif %}
+
+          {% if not tab.my_children %}
+          {% if tab.external %}
+          <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
+            <a class='nav-link text-nowrap' target="_blank" href="{{ tab.tab_id }}" style="font-size: medium;">
+              <small>
+                {{ tab.tab_label }}
+              </small>
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item {% if tab.tab_id == current_tab_id %} active{% endif %}">
+            <a class='nav-link text-nowrap' href="{{ tab.tab_id }}" style="font-size: medium;">
+              <small>
+                {{ tab.tab_label }}
+              </small>
+            </a>
+          </li>
+          {% endif %}
+
+          {% endif %}
+          {% endif %}
           {% endfor %}
 
-         </ul>
-       </div>
-       <div class="d-none d-block librarian-time-bar">
-         <span class="navbar-text  pull-right text-nowrap">
-         Local Time: <span class="date" data-timezone="Africa/Johannesburg">Jan 1</span>
-         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-         JD: <span id="julian_date">000</span>
-         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-         LST: <span class="clock_sidereal" data-timezone="Africa/Johannesburg">00:00:00</span>
-         </span>
+        </ul>
       </div>
-     <!-- </div> -->
-   </nav>
+      <div class="d-none d-block librarian-time-bar">
+        <span class="navbar-text  pull-right text-nowrap">
+          UTC: <span class="date" data-timezone="UTC">Jan 1</span>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+          Local Time: <span class="date" data-timezone="Africa/Johannesburg">Jan 1</span>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+          JD: <span id="julian_date">000</span>
+          &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+          LST: <span class="clock_sidereal" data-timezone="Africa/Johannesburg">00:00:00</span>
+        </span>
+      </div>
+      <!-- </div> -->
+    </nav>
 
- </header>
- <main class="flex-shrink-0 mb-12 bg-light min-vh-100" role="main">
-   <div class="container-fluid justify-content-center">
-       {% block precontent %}{% endblock %}
-     <div class="row-sm-12" style="padding-top: 1em;">
+  </header>
+  <main class="flex-shrink-0 mb-12 bg-light min-vh-100" role="main">
+    <div class="container-fluid justify-content-center">
+      {% block precontent %}{% endblock %}
+      <div class="row-sm-12" style="padding-top: 1em;">
         {% block allcontent %} {% endblock %}
       </div>
     </div>
-</main>
+  </main>
 
-<footer class="footer navbar navbar-dark navbar-expand-md fixed-bottom navbar-fixed-bottom bg-dark justify-content-between">
-  <div class="container-fluid">
-    <div class="navbar-collapse collapse dual-nav order-1 order-md-0">
-      <ul class="navbar-nav">
-        {% block footer %}{% endblock %}
-      </ul>
-    </div>
+  <footer
+    class="footer navbar navbar-dark navbar-expand-md fixed-bottom navbar-fixed-bottom bg-dark justify-content-between">
+    <div class="container-fluid">
+      <div class="navbar-collapse collapse dual-nav order-1 order-md-0">
+        <ul class="navbar-nav">
+          {% block footer %}{% endblock %}
+        </ul>
+      </div>
 
-    <span class="text-centered text-muted"> &copy; HERA Collaboration 2020 </span>
+      <span class="text-centered text-muted"> &copy; HERA Collaboration 2020 </span>
 
-    <div class="navbar-collapse collapse order-2">
-      <div class="navbar-nav ml-auto navbar-text text-muted">
-            <a class="btn btn-block btn-sm btn-github" target="_blank" href="https://github.com/HERA-Team/heranow">
-              <i class="fab fa-github"></i> Source code
-            </a>
+      <div class="navbar-collapse collapse order-2">
+        <div class="navbar-nav ml-auto navbar-text text-muted">
+          <a class="btn btn-block btn-sm btn-github" target="_blank" href="https://github.com/HERA-Team/heranow">
+            <i class="fab fa-github"></i> Source code
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
-<!-- JavaScript -->
-<!-- Latest compiled and minified CSS -->
+  <!-- JavaScript -->
+  <!-- Latest compiled and minified CSS -->
 
-<script src="{% static "dashboard/js/sidereal.js" %}" type="text/javascript"></script>
-<script src="{% static "dashboard/js/update_clocks.js" %}" type="text/javascript"></script>
-<script>
-  !function(d,s,id){
-    var js,fjs=d.getElementsByTagName(s)[0];
-    if(!d.getElementById(id)){
-      js=d.createElement(s);
-      js.id=id;
-      js.src='https://weatherwidget.io/js/widget.min.js';
-      fjs.parentNode.insertBefore(js,fjs);
-    }
-  }(document,'script','weatherwidget-io-js');
-</script>
-
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" type="text/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/js/bootstrap.min.js" integrity="sha384-XEerZL0cuoUbHE4nZReLT7nx9gQrQreJekYhJD9WNWhH8nEW+0c5qq7aIo2Wl30J" crossorigin="anonymous"></script>
-{% block extra_scripts%}{% endblock %}
+  <script src="{% static 'dashboard/js/sidereal.js' %}" type="text/javascript"></script>
+  <script src="{% static 'dashboard/js/update_clocks.js' %}" type="text/javascript"></script>
+  <script>
+    !function (d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (!d.getElementById(id)) {
+        js = d.createElement(s);
+        js.id = id;
+        js.src = 'https://weatherwidget.io/js/widget.min.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }
+    }(document, 'script', 'weatherwidget-io-js');
+  </script>
 
 
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.1/js/bootstrap.min.js"
+    integrity="sha384-XEerZL0cuoUbHE4nZReLT7nx9gQrQreJekYhJD9WNWhH8nEW+0c5qq7aIo2Wl30J"
+    crossorigin="anonymous"></script>
+  {% block extra_scripts%}{% endblock %}
 
-<!-- Optional theme -->
 
-<link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}">
 
-{% analytical_body_bottom %}
+  <!-- Optional theme -->
+
+  <link rel="stylesheet" type="text/css" href="{% static 'dashboard/style.css' %}">
+
+  {% analytical_body_bottom %}
 </body>
 {% plotly_footer %}
+
 </html>

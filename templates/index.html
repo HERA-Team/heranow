@@ -6,68 +6,77 @@
 {% block precontent %}
 <div class="d-none d-md-block row-sm-12">
   <div class="col-sm-12">
-    <a class="weatherwidget-io" href="https://forecast7.com/en/n30d9622d15/carnarvon/" data-label_1="HERA" data-label_2="WEATHER" data-theme="original" >HERA WEATHER</a>
+    <a class="weatherwidget-io" href="https://forecast7.com/en/n30d9622d15/carnarvon/" data-label_1="HERA"
+      data-label_2="WEATHER" data-theme="original">HERA WEATHER</a>
   </div>
 </div>
 {% endblock %}
 
 {% block allcontent %}
-  <div class="row justify-content-center no-gutters" style="min-height:75em">
-    <div class="col-12">
-      <div class="row no-gutters" style="height: 60%">
-        <div class="col-4" style="height: 100%;">
-          <div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new tab)</a></div>
-            <iframe width=100% height=100% scrolling="no" src="/django_plotly_dash/app/dash_autospectra/" frameborder="0"></iframe>
-        </div>
+<div class="row justify-content-center no-gutters" style="min-height:75em">
+  <div class="col-12">
+    <div class="row no-gutters" style="height: 60%">
+      <div class="col-4" style="height: 100%;">
+        <div class="dashboard-inset-titlebar">Autocorrelations -- <a target="_blank" href="/spectra">(open in new
+            tab)</a></div>
+        <iframe width=100% height=100% scrolling="no" src="/django_plotly_dash/app/dash_autospectra/"
+          frameborder="0"></iframe>
+      </div>
 
 
-        <div class="col-4" style="height: 100%;">
-          <div class="dashboard-inset-titlebar">System Summary</div>
-          <div class="row no-gutters" style="height: 100%;">
-            <div class="col-6 no-gutters" style="height: 100%;">
-              <iframe scrolling="no"
-                src="https://enterprise.sese.asu.edu:8484/d/npoUop5nz/corr-start-stats?orgId=4&refresh=1m&theme=light&kiosk"
-                width=100% height=100% frameborder="0">
-              </iframe>
-            </div>
-            <div class="col-6 no-gutters" style="height: 100%;">
-              <iframe scrolling="no" width=100% height=100% frameborder="0"
-                src="https://enterprise.sese.asu.edu:8484/d/NZjnorvGz/node-pings?orgId=4&refresh=1m&theme=light&kiosk">
-              </iframe>
-            </div>
+      <div class="col-4" style="height: 100%;">
+        <div class="dashboard-inset-titlebar">System Summary</div>
+        <div class="row no-gutters" style="height: 100%;">
+          <div class="col-6 no-gutters" style="height: 100%;">
+            <iframe scrolling="no"
+              src="https://enterprise.sese.asu.edu:8484/d/npoUop5nz/corr-start-stats?orgId=4&refresh=1m&theme=light&kiosk"
+              width=100% height=100% frameborder="0">
+            </iframe>
+          </div>
+          <div class="col-6 no-gutters" style="height: 100%;">
+            <iframe scrolling="no" width=100% height=100% frameborder="0"
+              src="https://enterprise.sese.asu.edu:8484/d/NZjnorvGz/node-pings?orgId=4&refresh=1m&theme=light&kiosk">
+            </iframe>
           </div>
         </div>
-
-
-        <div class="col-4" style="height: 100%;">
-          <div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="/hex_stats">(open in new tab)</a></div>
-          <iframe scrolling="no" src="/django_plotly_dash/app/dash_hexplot/" width=100%, height=100% frameborder="0"></iframe>
-        </div>
-
       </div>
 
-      <div class="row no-gutters" style="height: 40%">
-        <div class="col-4" style="height: 100%;">
-          <div class="dashboard-inset-titlebar">Power by Node -- <a target="_blank" href="/node_stats">(open in new tab)</a></div>
-          <iframe scrolling="no" src="/django_plotly_dash/app/dash_nodeplot/" width=100%, height=100% frameborder="0"></iframe>
-        </div>
 
-        <div class="col-4" style="height: 100%;">
-            <img align="middle" id="radiosky" src="{{ MEDIA_URL }}radiosky.png"></img>
-        </div>
-        <div class="col-4" style="height: 100%;">
-          <iframe width=100% height="100%" src="https://embed.windy.com/embed2.html?lat=-30.411&lon=21&zoom=5&level=surface&overlay=wind&menu=&message=&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=-31.421&detailLon=21&metricWind=default&metricTemp=%C2%B0C&radarRange=-1" frameborder="0">
-          </iframe>
-        </div>
-
+      <div class="col-4" style="height: 100%;">
+        <div class="dashboard-inset-titlebar">Power by Antenna -- <a target="_blank" href="/hex_stats">(open in new
+            tab)</a></div>
+        <iframe scrolling="no" src="/django_plotly_dash/app/dash_hexplot/" width=100%, height=100%
+          frameborder="0"></iframe>
       </div>
-
 
     </div>
+
+    <div class="row no-gutters" style="height: 40%">
+      <div class="col-4" style="height: 100%;">
+        <div class="dashboard-inset-titlebar">Power by Node -- <a target="_blank" href="/node_stats">(open in new
+            tab)</a></div>
+        <iframe scrolling="no" src="/django_plotly_dash/app/dash_nodeplot/" width=100%, height=100%
+          frameborder="0"></iframe>
+      </div>
+
+      <div class="col-4" style="height: 100%;">
+        <img align="middle" id="radiosky" src="{{ MEDIA_URL }}radiosky.png"></img>
+      </div>
+      <div class="col-4" style="height: 100%;">
+        <iframe width=100% height="100%"
+          src="https://embed.windy.com/embed2.html?lat=-30.411&lon=21&zoom=5&level=surface&overlay=wind&menu=&message=&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=-31.421&detailLon=21&metricWind=default&metricTemp=%C2%B0C&radarRange=-1"
+          frameborder="0">
+        </iframe>
+      </div>
+
+    </div>
+
+
   </div>
+</div>
 
 {% endblock %}
 
 {% block extra_scripts%}
-<script src="{% static "dashboard/js/reload_radiosky.js" %}" type="text/javascript"></script>
+<script src="{% static 'dashboard/js/reload_radiosky.js' %}" type="text/javascript"></script>
 {% endblock %}
