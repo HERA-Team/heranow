@@ -304,7 +304,7 @@ class Crons(BaseTab):
     """Cron job dumps."""
 
     tab_label = "Cronjobs"
-    tab_id = "cronjobs"
+    tab_id = "crontabs"
 
 
 class IssueLog(DashChildTab):
