@@ -199,7 +199,6 @@ class NotebooksSelf(ChildTab):
 
     tab_label = "Self-Hosted"
     tab_id = "notebooks"
-    url = "https://enterprise.sese.asu.edu:8484"
 
 
 class NotebooksGit(ExternalChildTab):
@@ -299,6 +298,13 @@ class Hookups(BaseTab):
         "hookup_notes_table",
         "snaphookup",
     ]
+
+
+class Crons(BaseTab):
+    """Cron job dumps."""
+
+    tab_label = "Cronjobs"
+    tab_id = "cronjobs"
 
 
 class IssueLog(DashChildTab):
