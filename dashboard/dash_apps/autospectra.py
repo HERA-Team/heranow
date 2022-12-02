@@ -61,7 +61,11 @@ def get_data(session_id, interval):
         auto_time = Time(last_spectra.time, format="datetime")
 
         for stat in AutoSpectra.objects.filter(time=last_spectra.time).iterator():
-            ant_stat = ant_stats.filter(antenna=stat.antenna).latest("time")
+            try:
+                ant_stat = ant_stats.filter(antenna=stat.antenna).latest("time")
+            except AntennaStatus.DoesNotExist:
+                print(stat.antenna)
+                ant_stat = None
             node = "Unknown"
             fem_switch = "Unknown"
             if ant_stat is not None:
@@ -72,7 +76,7 @@ def get_data(session_id, interval):
                 fem_switch = ant_stat.get_fem_switch_display() or "Unknown"
 
             apriori = "Unknown"
-            try:    
+            try:
                 apriori_stat = apriori_stats.filter(antenna=stat.antenna).latest("time")
             except AprioriStatus.DoesNotExist:
                 apriori_stat = None
@@ -498,7 +502,7 @@ def draw_undecimated_data(
 
     # use context to tell if selection was made
     ctx = dash.callback_context
-    
+
     if not ctx.triggered:
         dropdown = False
     else:
@@ -511,16 +515,19 @@ def draw_undecimated_data(
         and "xaxis.range[1]" in selection
     ):
         try:
-            if np.sum(
-                np.logical_and(
-                    df_ant.freqs.values[0] >= selection["xaxis.range[0]"], 
-                    df_ant.freqs.values[0] <= selection["xaxis.range[1]"]
+            if (
+                np.sum(
+                    np.logical_and(
+                        df_ant.freqs.values[0] >= selection["xaxis.range[0]"],
+                        df_ant.freqs.values[0] <= selection["xaxis.range[1]"],
+                    )
                 )
-            ) < max_points:
+                < max_points
+            ):
                 return plot_df(df_full, nodes, apriori, rms)
             else:
                 return plot_df(df_down, nodes, apriori, rms)
-        except:
+        except:  # noqa
             print(df_ant.freqs, selection)
             raise
     else:
