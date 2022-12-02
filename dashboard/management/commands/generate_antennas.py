@@ -73,6 +73,8 @@ class Command(BaseCommand):
             bulk_add = []
             for ind, name in enumerate(antnames):
                 ant_number = int(name[2:])
+                if ant_number > 350:
+                    continue
                 for pol in ["e", "n"]:
                     bulk_add.append(
                         Antenna(
