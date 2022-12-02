@@ -64,7 +64,6 @@ def get_data(session_id, interval):
             try:
                 ant_stat = ant_stats.filter(antenna=stat.antenna).latest("time")
             except AntennaStatus.DoesNotExist:
-                print(stat.antenna)
                 ant_stat = None
             node = "Unknown"
             fem_switch = "Unknown"
