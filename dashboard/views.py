@@ -197,7 +197,7 @@ class Notebooks(BaseTab):
 class NotebooksSelf(ChildTab):
     """Link to self Notebooks hoster."""
 
-    tab_label = "Self-Hosted"
+    tab_label = "Self-Hosted (recommended)"
     tab_id = "notebooks"
 
 
@@ -206,7 +206,7 @@ class NotebooksGit(ExternalChildTab):
 
     tab_label = "Github Notebooks"
     tab_id = "GithubNotebooks"
-    url = "https://github.com/HERA-Team/H6C_Notebooks"
+    url = "https://github.com/HERA-Team/H6C_Notebooks_2"
 
 
 class DailyLog(ExternalChildTab):
