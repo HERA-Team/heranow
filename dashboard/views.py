@@ -123,6 +123,12 @@ class LibrarianTracker(ChildTab):
     tab_id = "librariancheck"
 
 
+class LibarianTransfer(ChildTab):
+    """Librarian Transfer Completeness."""
+
+    tab_label = "Librarian Transfer Completeness"
+    tab_id = "media/librarian_completeness.png"
+
 class CompterLoads(ExternalChildTab):
     """Link to Computer Loads."""
 
@@ -153,6 +159,7 @@ class DetailedPages(BaseTab):
     tab_label = "Detailed HERA now pages"
     my_children = [
         "librarian",
+        "media/librarian_completeness.png",
         "librariancheck",
         "hex_stats",
         "node_stats",
