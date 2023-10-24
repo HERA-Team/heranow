@@ -116,13 +116,6 @@ class LibrarianLogs(ExternalChildTab):
     url = "https://enterprise.sese.asu.edu:8484/d/w6B2klSMk/librarian"
 
 
-class LibrarianTracker(ChildTab):
-    """Link to Librarian File Tracker."""
-
-    tab_label = "Librarian File Tracker"
-    tab_id = "librariancheck"
-
-
 class LibarianTransfer(ChildTab):
     """Librarian Transfer Completeness."""
 
@@ -160,7 +153,6 @@ class DetailedPages(BaseTab):
     my_children = [
         "librarian",
         "media/librarian_completeness.png",
-        "librariancheck",
         "hex_stats",
         "node_stats",
         "spectra",
@@ -169,15 +161,6 @@ class DetailedPages(BaseTab):
         "qm",
         "snapspectra",
     ]
-
-
-class Chronograf(ExternalChildTab):
-    """Link to external Chronograf."""
-
-    tab_label = "Chronograf"
-    tab_id = "Chronograf"
-    url = "https://galileo.sese.asu.edu:8888/"
-
 
 class Grafana(ExternalChildTab):
     """Link to external Grafana."""
@@ -191,30 +174,14 @@ class TimeDomain(BaseTab):
     """Link to time-domain data."""
 
     tab_label = "Time Domain Data"
-    my_children = ["Grafana", "Chronograf"]
+    my_children = ["Grafana"]
 
 
 class Notebooks(BaseTab):
     """A detailed list of pages in heranow."""
 
-    tab_label = "Notebook listings"
-    my_children = ["notebooks", "GithubNotebooks"]
-
-
-class NotebooksSelf(ChildTab):
-    """Link to self Notebooks hoster."""
-
-    tab_label = "Self-Hosted (recommended)"
+    tab_label = "Daily Notebooks"
     tab_id = "notebooks"
-
-
-class NotebooksGit(ExternalChildTab):
-    """Link to daily Notebooks."""
-
-    tab_label = "Github Notebooks"
-    tab_id = "GithubNotebooks"
-    url = "https://github.com/HERA-Team/H6C_Notebooks_2"
-
 
 class DailyLog(ExternalChildTab):
     """Link to new Daily Log Commissioning Report."""
