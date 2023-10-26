@@ -120,7 +120,28 @@ class LibarianTransfer(ChildTab):
     """Librarian Transfer Completeness."""
 
     tab_label = "Librarian Transfer Completeness"
-    tab_id = "media/librarian_completeness.png"
+    tab_id = "librarian_completeness"
+    template_name = "included_image.html"
+
+    def get_context_data(self, **kwargs):
+        """Add executing hostname to context."""
+        context = super().get_context_data(**kwargs)
+        context["image"] = "/media/librarian_completeness.png"
+        return context
+
+class ListHookup(ChildTab):
+    """Link cable hookups."""
+
+    tab_label = "Cable Hookup Listings"
+    tab_id = "hookup"
+    template_name = "included_page.html"
+
+    def get_context_data(self, **kwargs):
+        """Add executing hostname to context."""
+        context = super().get_context_data(**kwargs)
+        context["sub_page"] = "sys_conn_tmp.html"
+        return context
+
 
 class CompterLoads(ExternalChildTab):
     """Link to Computer Loads."""
@@ -152,7 +173,7 @@ class DetailedPages(BaseTab):
     tab_label = "Detailed HERA now pages"
     my_children = [
         "librarian",
-        "media/librarian_completeness.png",
+        "librarian_completeness",
         "hex_stats",
         "node_stats",
         "spectra",
