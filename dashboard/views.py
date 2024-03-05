@@ -188,7 +188,7 @@ class Grafana(ExternalChildTab):
 
     tab_label = "Grafana"
     tab_id = "Grafana"
-    url = "https://enterprise.sese.asu.edu:8484"
+    url = "https://enterprise.sese.asu.edu/grafana"
 
 
 class TimeDomain(BaseTab):
