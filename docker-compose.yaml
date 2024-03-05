@@ -4,12 +4,14 @@ services:
       build:
         context: .
         dockerfile: ./dockerfiles/redis_cm_docker
+      user: 999:999
       logging:
         driver: "json-file"
         options:
             max-size: "100m"
       networks:
-          - nginx_net
+          nginx_net:
+            ipv4_address: "172.21.0.3"
       volumes:
         - "/storage/dashboard_data/redis_cm:/data"
       healthcheck:
@@ -29,7 +31,8 @@ services:
       volumes:
         - "/storage/dashboard_data/celery:/data/"
       networks:
-          - nginx_net
+          nginx_net:
+            ipv4_address: "172.21.0.4"
       healthcheck:
         test: redis-cli ping
         interval: 1m30s
@@ -43,7 +46,7 @@ services:
         - "-c"
         - "max_connections=1000"
         - "-c"
-        - "shared_buffers=3GB"
+        - "shared_buffers=30GB"
       user: 999:999
       logging:
         driver: "json-file"
@@ -79,7 +82,8 @@ services:
          - .env
       command: /app/dockerfiles/entrypoints/entrypoint.sh
       networks:
-        -  nginx_net
+        nginx_net:
+            ipv4_address: "172.21.0.2"
       depends_on:
         - redishost
         - redis_celery
@@ -96,13 +100,14 @@ services:
          - .env
       volumes:
         - /storage/dashboard_data/media:/app/media
-      networks:
-        - nginx_net
       depends_on:
         - redis_celery
         - redishost
         - django_db
       restart: always
+      networks:
+        nginx_net:
+            ipv4_address: "172.21.0.5"
     celery-beat:
       image: heranow_app:latest
       logging:
@@ -112,13 +117,14 @@ services:
       command: /app/dockerfiles/entrypoints/entrypoint_beat.sh
       env_file:
          - .env
-      networks:
-        - nginx_net
       depends_on:
         - redis_celery
         - redishost
         - django_db
       restart: always
+      networks:
+        nginx_net:
+            ipv4_address: "172.21.0.7"
     nginx:
       image: nginx:1.13
       logging:
@@ -134,11 +140,14 @@ services:
         - /home/locoadmin/webhost/:/webhost
         - /storage/dashboard_data/media/:/app/media/
         - /storage/dashboard_data/crontabs/:/app/crontabs/
+        - /storage/dashboard_data/notebooks/:/app/notebooks/
+        - /storage/dashboard_data/nightly_movies:/app/nightly_movies/
       depends_on:
         - app
-      networks:
-        - nginx_net
       restart: always
+      networks:
+        nginx_net:
+            ipv4_address: "172.21.0.8"
 networks:
   nginx_net:
     driver: bridge
