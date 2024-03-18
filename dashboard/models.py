@@ -1,13 +1,13 @@
 """Definition of Database Classes used to build website."""
+
 import datetime
 
 from astropy.time import Time
-
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy
-from django.contrib.postgres.fields import ArrayField
 
 
 class Antenna(models.Model):
@@ -98,7 +98,7 @@ class AutoSpectra(models.Model):
     def is_recent(self):
         """Define recent boolean check."""
         now = timezone.now()
-        return now - datetime.TimeDelta(days=1) <= self.time <= now
+        return now - datetime.timedelta(days=1) <= self.time <= now
 
     is_recent.admin_order_field = "time"
     is_recent.boolean = True
@@ -306,7 +306,7 @@ class AntennaStatus(models.Model):
     def status_is_recent(self):
         """Definition of recent status check."""
         now = timezone.now()
-        return now - datetime.TimeDelta(days=1) <= self.time <= now
+        return now - datetime.timedelta(days=1) <= self.time <= now
 
     status_is_recent.admin_order_field = "time"
     status_is_recent.boolean = True
