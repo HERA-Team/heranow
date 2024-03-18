@@ -1,35 +1,29 @@
 """Definition of tasks performed by celery to keep database up to date."""
+
+import json
 import os
 import re
-import json
-import lttb
-import redis
-import healpy
-import github3
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
 from argparse import Namespace
-from pyuvdata import get_telescope
 from datetime import datetime, timedelta
 
-from astropy.time import Time
+import github3
+import healpy
+import lttb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import redis
 from astropy import coordinates
-
-from django.utils import timezone, dateparse
-
+from astropy.time import Time
 from celery import shared_task
 from celery.utils.log import get_task_logger
-
-from sqlalchemy import func, and_, or_
-from hera_mc.correlator import _pam_fem_id_to_string
-from hera_mc import mc, cm_sysutils, cm_utils, cm_sysdef, cm_hookup, cm_partconnect
-from hera_mc.data import DATA_PATH as mc_data_path
-
+from django.utils import dateparse, timezone
 from hera_corr_cm import HeraCorrCM
-
-from heranow import settings
+from hera_mc import cm_hookup, cm_partconnect, cm_sysdef, cm_sysutils, cm_utils, mc
+from hera_mc.correlator import _pam_fem_id_to_string
+from hera_mc.data import DATA_PATH as mc_data_path
+from pyuvdata import get_telescope
+from sqlalchemy import and_, func, or_
 
 from dashboard.models import (
     Antenna,
@@ -44,6 +38,7 @@ from dashboard.models import (
     SnapToAnt,
     XengChannels,
 )
+from heranow import settings
 
 logger = get_task_logger(__name__)
 
@@ -178,10 +173,8 @@ def get_snap_status_from_redis():
     db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
-
         snaps = []
         for key, stat in snap_status.items():
-
             try:
                 for _key in stat:
                     if stat[_key] == "None":
@@ -209,7 +202,7 @@ def get_snap_status_from_redis():
                 elif isinstance(last_p, str):
                     last_p = dateparse.parse_datetime(last_p + "Z")
                 else:
-                    continue 
+                    continue
 
                 snap = SnapStatus(
                     time=timestamp,
@@ -679,7 +672,6 @@ def update_hookup():
     db = mc.connect_to_mc_db(None)
 
     with db.sessionmaker() as mc_session:
-
         H = cm_hookup.Hookup(mc_session)
         hlist = cm_sysdef.hera_zone_prefixes
         output_file = settings.BASE_DIR / "templates" / "sys_conn_tmp.html"
@@ -843,7 +835,6 @@ def antenna_stats_to_csv():
                 except AutoSpectra.DoesNotExist:
                     auto = None
                 if auto is not None:
-
                     if auto.eq_coeffs is not None:
                         spectra = (
                             np.array(auto.spectra) / np.median(auto.eq_coeffs) ** 2
@@ -899,7 +890,9 @@ def antenna_stats_to_csv():
 @shared_task
 def delete_old_data():
     """Remove data from bigger models older than a month."""
+    # delete anything older than 2 years
+    old_time = datetime.now(tz=timezone.utc) - timedelta(days=2 * 365)
     for model in [AutoSpectra, AntennaStatus, SnapStatus, SnapSpectra]:
         # get everything older than the timeframe,
         # don't delete if it is the latest one though
-        pass
+        model.objects.filter(time__lte=old_time).delete()

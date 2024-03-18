@@ -1,4 +1,5 @@
 """Celery app construction and task scheduling."""
+
 import os
 
 from celery import Celery
@@ -87,6 +88,12 @@ app.conf.beat_schedule = {
     "update_ant_csv": {
         "task": "dashboard.tasks.antenna_stats_to_csv",
         "schedule": crontab(minute="*/5"),
+        "args": (),
+    },
+    # delete data older than 2 years every morning.
+    "delete_old_data": {
+        "task": "dashboard.tasks.delete_old_data",
+        "schedule": crontab(minute=0, hour=0),
         "args": (),
     },
 }
