@@ -908,4 +908,6 @@ def delete_old_data():
 
         # get everything older than the timeframe,
         # don't delete if it is the latest one though
-        model.objects.filter(time__lte=old_time).difference(diff_filter).delete()
+        model.objects.filter(time__lte=old_time).exclude(
+            pk__in=diff_filter.values_list("id", flat=True)
+        ).delete()
