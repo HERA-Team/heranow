@@ -90,7 +90,7 @@ app.conf.beat_schedule = {
         "schedule": crontab(minute="*/5"),
         "args": (),
     },
-    # delete data older than 2 years every morning.
+    # delete data older than 2 months.
     "delete_old_data": {
         "task": "dashboard.tasks.delete_old_data",
         "schedule": crontab(minute=0, hour=0),
