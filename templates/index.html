@@ -63,10 +63,30 @@
         <img align="middle" id="radiosky" src="{{ MEDIA_URL }}radiosky.png"></img>
       </div>
       <div class="col-4" style="height: 100%;">
-        <iframe width=100% height="100%"
-          src="https://embed.windy.com/embed2.html?lat=-30.411&lon=21&zoom=5&level=surface&overlay=wind&menu=&message=&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=-31.421&detailLon=21&metricWind=default&metricTemp=%C2%B0C&radarRange=-1"
-          frameborder="0">
-        </iframe>
+        <ul id="tabs" class="nav nav-tabs" role="tablist" style="background-color: white;">
+          <li role="presentation" class="nav-item"><a href="#wind" aria-controls="wind" role="tab" data-toggle="tab"
+              class="nav-link active">Wind</a>
+          </li>
+          <li role="presentation" class="nav-item"><a href="#lightning" aria-controls="lightning" role="tab"
+              data-toggle="tab" class="nav-link">Lightning</a>
+          </li>
+        </ul>
+        <div id="tabsContent" class="row tab-content" style="height: 100%; width: 100%;">
+          <div id="wind" class="tab-pane fade active show" style="height: 100%; width: 100%;">
+            <iframe width=100% height="100%"
+              src="https://embed.windy.com/embed2.html?lat=-30.411&lon=21&zoom=5&level=surface&overlay=wind&menu=&message=&marker=true&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=-31.421&detailLon=21&metricWind=default&metricTemp=%C2%B0C&radarRange=-1"
+              frameborder="0">
+            </iframe>
+          </div>
+          <div id="lightning" class="tab-pane fade" style="height: 100%; width: 100%;">
+            <video width="100%" height="100%" controls>
+              <source
+                src="https://afriwx.co.za/storms-lightning/lightning_storm_animations_southern_africa_daily_historical_AW/Lightning-TODAY.mp4"
+                type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
       </div>
 
     </div>
