@@ -890,12 +890,24 @@ def antenna_stats_to_csv():
 @shared_task
 def delete_old_data():
     """Remove data from bigger models older than a month."""
+
+    # special handle auto spectra because of the time difference.
+    # auto spectra are huge. only keep a week's worth of them.
+    auto_time = datetime.now(tz=timezone.utc) - timedelta(weeks=1)
+    diff_filter = AutoSpectra.objects.order_by("antenna", "-time").distinct("antenna")
+
+    # get everything older than the timeframe,
+    # don't delete if it is the latest one though
+    AutoSpectra.objects.filter(time__lte=auto_time).exclude(
+        pk__in=diff_filter.values_list("id", flat=True)
+    ).delete()
+
     # delete anything older than 2 years
     old_time = datetime.now(tz=timezone.utc) - timedelta(weeks=8)
-    for model in [AutoSpectra, AntennaStatus, SnapStatus, SnapSpectra]:
+    for model in [AntennaStatus, SnapStatus, SnapSpectra]:
         #  get the last distinct status for each model
         # and do not delete that
-        if model in [AutoSpectra, AntennaStatus]:
+        if model in [AntennaStatus]:
             diff_filter = model.objects.order_by("antenna", "-time").distinct("antenna")
         elif model in [SnapStatus]:
             diff_filter = model.objects.order_by("hostname", "-time").distinct(
