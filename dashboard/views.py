@@ -1,9 +1,10 @@
 """Definition of each page's view."""
-import socket
-import logging
 
-from tabination.views import TabView
+import logging
+import socket
+
 from django.shortcuts import redirect
+from tabination.views import TabView
 
 from dashboard.models import AntToSnap, SnapToAnt, XengChannels
 
@@ -129,6 +130,7 @@ class LibarianTransfer(ChildTab):
         context["image"] = "/media/librarian_completeness.png"
         return context
 
+
 class ListHookup(ChildTab):
     """Link cable hookups."""
 
@@ -183,6 +185,7 @@ class DetailedPages(BaseTab):
         "snapspectra",
     ]
 
+
 class Grafana(ExternalChildTab):
     """Link to external Grafana."""
 
@@ -203,6 +206,7 @@ class Notebooks(BaseTab):
 
     tab_label = "Daily Notebooks"
     tab_id = "notebooks"
+
 
 class DailyLog(ExternalChildTab):
     """Link to new Daily Log Commissioning Report."""
@@ -311,6 +315,14 @@ class IssueLog(DashChildTab):
     top = True
     template_name = "plotly_direct_table.html"
     app_name = "dash_commissioning_issue"
+
+
+class Lightning(ExternalTab):
+    """Link to the Lightning report from SA."""
+
+    tab_label = "Lightning Movies"
+    tab_id = "lightning"
+    url = "https://afriwx.co.za/storms-lightning/lightning_storm_animations_southern_africa_daily_historical/"
 
 
 class Help(ExternalTab):

@@ -1,16 +1,17 @@
 """Definition of URLs for the project."""
-from django.urls import path, include
+
+from django.urls import include, path
 
 from . import views
 from .dash_apps import (
-    autospectra,
     adchists,
+    autospectra,
+    commissioning_issues,
+    hex_notes,
     hex_plot,
+    hookup_notes_table,
     node_plot,
     snapspectra,
-    hookup_notes_table,
-    hex_notes,
-    commissioning_issues,
 )
 
 app_name = "dashboard"
@@ -23,7 +24,11 @@ urlpatterns = [
     path("node_stats", views.NodePlot.as_view(), name="nodeplot"),
     path("compute", views.CompterLoads.as_view(), name="compute"),
     path("librarian", views.LibrarianLogs.as_view(), name="librarian"),
-    path("librarian_completeness", views.LibarianTransfer.as_view(), name="librarian_completeness"),
+    path(
+        "librarian_completeness",
+        views.LibarianTransfer.as_view(),
+        name="librarian_completeness",
+    ),
     path("qm", views.DailyQM.as_view(), name="qm"),
     path("hookup", views.ListHookup.as_view(), name="hookup"),
     path("snaphookup", views.SnapHookups.as_view(), name="snaphookup"),
@@ -34,5 +39,6 @@ urlpatterns = [
     path("DailyLog", views.DailyLog.as_view(), name="dailylogs"),
     path("NewIssue", views.NewIssue.as_view(), name="newissues"),
     path("issue_log", views.IssueLog.as_view(), name="issue_log"),
+    path("lightning", views.Lightning.as_view(), name="lightning"),
     path("Help", views.Help.as_view(), name="help"),
 ]
