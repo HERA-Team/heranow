@@ -224,11 +224,12 @@ class NewIssue(ExternalChildTab):
     url = "https://github.com/HERA-Team/HERA_Commissioning/issues/new"
 
 
-class MakeReport(BaseTab):
+class MakeReport(ExternalTab):
     """List External issues."""
 
     tab_label = "Make A Report"
-    my_children = ["DailyLog", "NewIssue"]
+    tab_id = "make_report"
+    url = "https://docs.google.com/forms/d/e/1FAIpQLScWHCiy5j6x5Lkwqoe5YOPhCyFpulVrUDfCHG90Jyvygal7zA/viewform"
 
 
 class ListHookup(ChildTab):
