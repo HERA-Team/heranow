@@ -40,7 +40,9 @@ services:
         retries: 3
       restart: always
     django_db:
-      image: "postgres"
+      build:
+        context: .
+        dockerfile: ./dockerfiles/psql
       command:
         - "postgres"
         - "-c"
