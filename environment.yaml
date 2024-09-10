@@ -10,8 +10,8 @@ dependencies:
   - gunicorn
   - healpy
   - matplotlib
-  - numpy
-  - pandas
+  - numpy=1.23.1
+  - pandas=1.4.3
   - plotly
   - pre-commit
   - psycopg2
@@ -45,6 +45,7 @@ dependencies:
     - lttb
     - django-plotly-dash==1.4.2
     - django-tabination
+    - django-cleanup
     - dpd-components
     - dpd-static-support
     - git+https://github.com/HERA-Team/hera_mc.git

@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "dpd_static_support",
     "bootstrap4",
     "django_tables2",
+    "django_cleanup.apps.CleanupConfig",
 ]
 
 MIDDLEWARE = [
