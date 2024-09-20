@@ -229,7 +229,7 @@ class MakeReport(ExternalTab):
 
     tab_label = "Make A Report"
     tab_id = "make_report"
-    url = "https://docs.google.com/forms/d/e/1FAIpQLScWHCiy5j6x5Lkwqoe5YOPhCyFpulVrUDfCHG90Jyvygal7zA/viewform"
+    url = "https://forms.gle/pwwQoDQRRqPFUXmt6"
 
 
 class ListHookup(ChildTab):
