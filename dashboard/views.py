@@ -317,14 +317,22 @@ class IssueLog(DashChildTab):
     template_name = "plotly_direct_table.html"
     app_name = "dash_commissioning_issue"
 
+class LightningWx(ExternalChildTab):
+    tab_label = "SA Wx Lightning"
+    tab_id = "lightningwx"
+    url = "https://afriwx.co.za/storms-lightning/lightning_storm_animations_southern_africa_daily_historical/"
+class LightningMovies(ExternalChildTab):
+    tab_label = "HERA Nightly Movies"
+    tab_id = "lightning_movies"
+    url = "https://heranow.reionization.org/nightly_movies/"
 
 class Lightning(ExternalTab):
     """Link to the Lightning report from SA."""
 
-    tab_label = "Lightning Movies"
+    tab_label = "Lightning"
     tab_id = "lightning"
-    url = "https://afriwx.co.za/storms-lightning/lightning_storm_animations_southern_africa_daily_historical/"
-
+    mychildren = ["lightningwx",
+                  "lightning_movies"]
 
 class Help(ExternalTab):
     """Help me."""
